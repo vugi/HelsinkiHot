@@ -1,7 +1,14 @@
 var port = 3000;
-var app = require('express').createServer();
+var express = require('express');
+var app = express.createServer();
 
-app.get('/', function(req, res){
+// Middleware configurations
+app.configure(function(){
+  app.use(express.staticProvider(__dirname + '/public'));
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+
+app.get('/api', function(req, res){
   res.send('hello world you!');
 });
 
