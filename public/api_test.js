@@ -18,7 +18,7 @@ $(document).ready(function(){
 
 function showData(jsonData){
 	var list = $('<ol>').appendTo('body');
-	$(jsonData.items).each(function(i,item){
+	$(jsonData).each(function(i,item){
 		console.log(item);
 		
 		// List item
@@ -49,7 +49,7 @@ function showData(jsonData){
 function initializeMap() {
     var latlng = new google.maps.LatLng(60.170833,24.9375);
     var myOptions = {
-      zoom: 17,
+      zoom: 12,
       center: latlng,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };

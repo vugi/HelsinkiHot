@@ -1,13 +1,10 @@
-/**
- * Helsinki Hot main node.js application
- */
 var port = 3000;
 var express = require('express');
 var app = express.createServer();
 
 var https = require('https');
 var host = "api.foursquare.com";
-var path = "/v2/venues/search?ll=60.170833,24.9375&limit=50&client_id=LTEVQYSCQZZQKSPR1XAI4B0SAUD44AN4JKNURCL1ZFJ1IBDZ&client_secret=TL2ALQWU4VV5J5R5BCH3Z53EDFOU5KLSOIFZSJGLOSK4NGH1";
+var path = "/v2/venues/trending?ll=60.170833,24.9375&limit=50&radius=1000000&client_id=LTEVQYSCQZZQKSPR1XAI4B0SAUD44AN4JKNURCL1ZFJ1IBDZ&client_secret=TL2ALQWU4VV5J5R5BCH3Z53EDFOU5KLSOIFZSJGLOSK4NGH1";
 
 // Middleware configurations
 app.configure(function(){
@@ -22,7 +19,8 @@ app.get('/api', function(req, res){
 
 app.get('/api/venues', function(req, res){
 	getVenues(function(json){
-		res.send(json.response.groups[0]);
+		console.log(json.response.venues);
+		res.send(json.response.venues);
 	});
 });
 
@@ -36,17 +34,20 @@ function getVenues(callback){
 		console.log("headers: ", res.headers);
 		res.body = '';
 		res.on('data', function(chunk) {
-            res.body += chunk;
+	  		res.body += chunk;
 		});
 		res.on('end', function(){
 			//callback(res.body);
 			try {
+				//console.log(res.body);
 				callback(JSON.parse(res.body));
 			} catch (err) {
+				console.log("Error in parsing venues");
 				console.error(err);
 			}
 		});
 	}).on('error', function(e) {
+		console.log("Error in loading venues");
 		console.error(e);
 	});
 }
