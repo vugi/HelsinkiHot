@@ -1,0 +1,19 @@
+{
+  "name": "HelsinkiHot",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vugi/HelsinkiHot.git"
+  },
+  "author": "Antti Vuorela",
+  "directories": {
+    "lib": "."
+  },
+  "engines": {
+    "node": "0.4.0"
+  },
+  "dependencies": {
+    "express": "1.0.7",
+    "connect": "0.5.10"
+  }
+}
