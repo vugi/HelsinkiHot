@@ -1,3 +1,6 @@
+/**
+ * Helsinki Hot main node.js application
+ */
 var port = 3000;
 var express = require('express');
 var app = express.createServer();
@@ -33,7 +36,7 @@ function getVenues(callback){
 		console.log("headers: ", res.headers);
 		res.body = '';
 		res.on('data', function(chunk) {
-	  		res.body += chunk;
+            res.body += chunk;
 		});
 		res.on('end', function(){
 			//callback(res.body);
