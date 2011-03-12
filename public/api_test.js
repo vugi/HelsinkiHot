@@ -26,7 +26,11 @@ $(document).ready(function(){
 });
 
 function showFlickrData(jsonData){
-	$(jsonData.photos.photo).each(function(i,item){			
+	//$("<h3>Flickr images from today</h3>").appendTo('#sidebar');
+	$(jsonData.photos.photo).each(function(i,item){	
+		// Sidebar item
+		//$('<img src="'+item.url_sq+'" />').appendTo('#sidebar');
+		
 		// Google maps Info Window
 		var infowindow = new google.maps.InfoWindow({
 		    content: '<img src="'+item.url_s+'" />'
@@ -35,7 +39,7 @@ function showFlickrData(jsonData){
 			position: new google.maps.LatLng(item.latitude,item.longitude), 
 			map: map, 
 			title: item.title,
-			icon: item.url_sq,
+			icon: 'http://maps.gstatic.com/intl/fi_fi/mapfiles/ms/micons/camera.png',
 			animation: google.maps.Animation.DROP
 		});
 		google.maps.event.addListener(marker, 'mouseover', function() {
@@ -48,7 +52,8 @@ function showFlickrData(jsonData){
 }
 
 function showForsquareData(jsonData){
-	var list = $('<ol>').appendTo('body');
+	$("<h3>Foursquare Trending</h3>").appendTo('#sidebar');
+	var list = $('<ol>').appendTo('#sidebar');
 	$(jsonData).each(function(i,item){		
 		// List item
 		$('<li>').html(item.name+' '+item.hereNow.count+'/'+item.stats.checkinsCount).appendTo(list);
@@ -63,6 +68,7 @@ function showForsquareData(jsonData){
 		      position: new google.maps.LatLng(item.location.lat,item.location.lng), 
 		      map: map, 
 		      title: item.name,
+			icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld='+item.hereNow.count+'|C6E7DE|000000',
 			animation: google.maps.Animation.DROP
 		});
 		
