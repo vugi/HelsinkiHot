@@ -3,7 +3,7 @@
  */
 
 var map;
-var flickrUrl = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=fdcac6bab07bf694be5d47005ba304ee&lat=60.170833&lon=24.9375&sort=date-taken-desc&radius=10&extras=date_taken,geo,url_s,url_sq&min_taken_date=2011-03-12&max_taken_date=2011-03-13&format=json&jsoncallback=?";
+var flickrUrl = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=a5b851fbba1fc03339411db4695d84e8&lat=60.170833&lon=24.9375&sort=date-taken-desc&radius=10&extras=date_taken,geo,url_s,url_sq&min_taken_date=2011-03-12&max_taken_date=2011-03-13&format=json&jsoncallback=?";
 
 $(document).ready(function(){
 	initializeMap();
