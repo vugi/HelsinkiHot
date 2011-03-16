@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
@@ -10,8 +10,11 @@
 		<script type="text/javascript" src="api_test.js"></script>
 	</head>
 	<body>
-		<h2>HelsinkiHot</h2>
-		<div id="sidebar" style="float:right; width:20%"></div>
-		<div id="map_canvas" style="width:80%; height:600px"></div>
+		<h2 style="position: absolute; top: 0px; left: 0px; right: 0px; height: 50px;">HelsinkiHot</h2>
+		<div id="map_canvas" style="position: absolute; top: 50px; left: 0px; width: 800px; height: 600px"></div>
+		<div id="canvas_container" style="position: absolute; top: 50px; left: 0px; width: 800px; height: 600px">
+			<canvas id="canvas" width="800" height="600"></canvas>
+		</div>
+		<div id="sidebar" style="position: absolute; top: 50px; left: 800px; right: 0px; bottom: 0px;"></div>
 	</body>
 </html>

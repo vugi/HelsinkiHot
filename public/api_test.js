@@ -64,13 +64,16 @@ function showForsquareData(jsonData){
 		});
 		
 		// Google maps marker
+		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
 		var marker = new google.maps.Marker({
-		      position: new google.maps.LatLng(item.location.lat,item.location.lng), 
+		      position: latlng, 
 		      map: map, 
 		      title: item.name,
 			icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld='+item.hereNow.count+'|C6E7DE|000000',
 			animation: google.maps.Animation.DROP
 		});
+		
+		drawPoint(latlng);
 		
 		google.maps.event.addListener(marker, 'mouseover', function() {
 		  infowindow.open(map,marker);
@@ -91,3 +94,44 @@ function initializeMap() {
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
   }
+  
+				function drawPoint(latlng) {
+					
+					// http://stackoverflow.com/questions/2674392/how-to-access-google-maps-api-v3-markers-div-and-its-pixel-position
+					var scale = Math.pow(2, map.getZoom());
+					var nw = new google.maps.LatLng(
+    					map.getBounds().getNorthEast().lat(),
+    					map.getBounds().getSouthWest().lng()
+					);
+					var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
+					var worldCoordinate = map.getProjection().fromLatLngToPoint(latlng);
+					var pixelOffset = new google.maps.Point(
+    					Math.floor((worldCoordinate.x - worldCoordinateNW.x) * scale),
+    					Math.floor((worldCoordinate.y - worldCoordinateNW.y) * scale)
+					);
+				
+					// var point = map.getProjection().fromLatLngToPoint(latlng);
+					var x = pixelOffset.x;
+					var y = pixelOffset.y;
+				
+					var canvas = document.getElementById("canvas");
+      				if (canvas.getContext) {
+						var ctx = canvas.getContext("2d");
+  				
+						// Create gradients
+						var radius = 40;
+						var pointAlpha = 0.5;
+						var pointColor = '255, 0, 0'
+					
+						// Create gradients
+
+						  // Create gradients
+						  var radgrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+						  radgrad.addColorStop(0, 'rgba(' + pointColor + ', 0.5)');
+						  radgrad.addColorStop(1, 'rgba(' + pointColor + ', 0)');
+					  
+						  // draw shapes
+						  ctx.fillStyle = radgrad;
+						  ctx.fillRect(x-radius,y-radius,x+radius,y+radius);
+					}
+				}
