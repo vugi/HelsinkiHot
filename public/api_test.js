@@ -35,13 +35,17 @@ function showFlickrData(jsonData){
 		var infowindow = new google.maps.InfoWindow({
 		    content: '<img src="'+item.url_s+'" />'
 		});
+		var latlng = new google.maps.LatLng(item.latitude,item.longitude);
 		var marker = new google.maps.Marker({
-			position: new google.maps.LatLng(item.latitude,item.longitude), 
+			position: latlng,
 			map: map, 
 			title: item.title,
 			icon: 'http://maps.gstatic.com/intl/fi_fi/mapfiles/ms/micons/camera.png',
 			animation: google.maps.Animation.DROP
 		});
+		
+		drawPoint(latlng);
+		
 		google.maps.event.addListener(marker, 'mouseover', function() {
 		  infowindow.open(map,marker);
 		});
@@ -119,7 +123,7 @@ function initializeMap() {
 						var ctx = canvas.getContext("2d");
   				
 						// Create gradients
-						var radius = 40;
+						var radius = 80;
 						var pointAlpha = 0.5;
 						var pointColor = '255, 0, 0'
 					
