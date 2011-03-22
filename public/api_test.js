@@ -7,6 +7,7 @@ var flickrUrl = "http://api.flickr.com/services/rest/?method=flickr.photos.searc
 
 $(document).ready(function(){
 	initializeMap();
+	initializeHeatmap();
 	
 	/* Foursquare */
 	$.ajax({
@@ -44,7 +45,7 @@ function showFlickrData(jsonData){
 			animation: google.maps.Animation.DROP
 		});
 		
-		drawPoint(latlng);
+		// drawPoint(latlng);
 		
 		google.maps.event.addListener(marker, 'mouseover', function() {
 		  infowindow.open(map,marker);
@@ -77,7 +78,7 @@ function showForsquareData(jsonData){
 			animation: google.maps.Animation.DROP
 		});
 		
-		drawPoint(latlng);
+		// drawPoint(latlng);
 		
 		google.maps.event.addListener(marker, 'mouseover', function() {
 		  infowindow.open(map,marker);
@@ -99,6 +100,11 @@ function initializeMap() {
         myOptions);
   }
   
+function initializeHeatmap() {
+	var heatmap = new Heatmap(document.getElementById('canvas'));
+}
+  
+  /*
 				function drawPoint(latlng) {
 					
 					// http://stackoverflow.com/questions/2674392/how-to-access-google-maps-api-v3-markers-div-and-its-pixel-position
@@ -139,3 +145,4 @@ function initializeMap() {
 						  ctx.fillRect(x-radius,y-radius,x+radius,y+radius);
 					}
 				}
+*/
