@@ -38,8 +38,7 @@ function showForsquareData(jsonData){
 		      position: latlng, 
 		      map: map, 
 		      title: item.name,
-			icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld='+item.hereNow.count+'|C6E7DE|000000',
-			animation: google.maps.Animation.DROP
+			icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld='+item.hereNow.count+'|C6E7DE|000000'
 		});
 		
 		drawPoint(latlng,item.hereNow.count);
