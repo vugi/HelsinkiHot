@@ -16,6 +16,18 @@ app.get('/api', function(req, res){
 	res.send('hello world from api!');	
 });
 
+app.get('/api/db_test', function(req, res){
+  var instance = datamodel.testDB()
+  
+  instance.save(function() {
+    console.log("\nSave successful\n");
+    console.log("Instance details:");
+    console.log(instance);
+
+    res.send(instance);
+  });
+});
+
 
 app.get('/api/venues', function(req, res){
 	getVenues(function(json){
@@ -23,6 +35,39 @@ app.get('/api/venues', function(req, res){
 		res.send(json.response.venues);
 	});
 });
+
+var datamodel = {
+  testDB: function(req,res) {
+    var mongoose = require('mongoose');
+
+    mongoose.connect('mongodb://localhost/helsinkihot');
+
+    Schema = mongoose.Schema;
+    ObjectId = Schema.ObjectId;
+
+    // define a model (schema)
+    var Document = new Schema({
+      title     : String,
+      body      : String,
+      date      : Date
+    });
+    // register the model
+    mongoose.model('Document', Document);
+    
+    // create a new "type" from model
+    var Doc = mongoose.model('Document');
+    
+    // instantiate the type (/model)
+    var instance = new Doc();
+
+
+    instance.title = "Test title";
+    instance.body = "Test body";
+    instance.date = new Date();
+
+    return instance;
+  }
+}
 
 /**
  * Search some venues around Helsinki and return them as JSON object
