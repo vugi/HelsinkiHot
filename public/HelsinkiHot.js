@@ -49,7 +49,9 @@ function showForsquareData(jsonData){
 		google.maps.event.addListener(marker, 'mouseout', function() {
 		  infowindow.close();
 		});
-	})	
+	});
+	
+	heatmap.update();	
 }
 
 function initializeMap() {
@@ -88,7 +90,7 @@ function drawPoint(latlng,count) {
   console.log(x,y);
   for (i=0;i<count;i++){
     for (u=0;u<2;u++){
-      heatmap.addHeat(x,y,heatmap);
+      heatmap.addHotspot(x, y);
     }
   }
   
