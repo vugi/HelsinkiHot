@@ -143,6 +143,10 @@ Heatmap.prototype.mouseClickHandler = function(ev, that){
     if (typeof(x) == 'undefined') 
         return;
     
+    that.addHeat(x,y,that);
+};
+
+Heatmap.prototype.addHeat = function(x, y, that){
     // storing the variables because they will be often used
     var r1 = that._radius1;
     var r2 = that._radius2;
