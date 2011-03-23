@@ -13,6 +13,9 @@ var Heatmap = function(canvasElement) {
 	this._radius1 = 20;
 	this._radius2 = 40; 
 	
+	// Initialize hotspost
+	this._hotspots = [];
+	
 	// Initialize mouse handler
 	var that = this;
 	var handler = this.mouseClickHandler
@@ -24,7 +27,19 @@ var Heatmap = function(canvasElement) {
  * comes to the frontend server
  */
 Heatmap.prototype.update = function() {
+	// TODO Clear all!
 	
+	var hotspots = this._hotspots;
+	var hotspotLength = hotspots.length;
+	
+	for (var i = 0; i < hotspotLength; i++) {
+		var hotspot = hotspots[i];
+		this.addHeat(hotspot.x, hotspot.y, this);
+	}
+};
+
+Heatmap.prototype.addHotspot = function(x, y) {
+	this._hotspots.push({x: x, y: y});
 };
 
 Heatmap.prototype.colorize = function(x, y, x2) {
@@ -116,10 +131,6 @@ Heatmap.prototype.decolorize = function() {
     image.data = imageData;
     ctx.putImageData(image, x, y);
 };
-
-Heatmap.prototype.fade = function(alphaChange) {
-	
-}
 
 Heatmap.prototype.mouseClickHandler = function(ev, that){
 	console.log('Heatmap mouse click');
