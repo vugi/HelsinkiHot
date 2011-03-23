@@ -79,11 +79,12 @@ function showForsquareData(jsonData){
 }
 
 function initializeMap() {
-    var latlng = new google.maps.LatLng(60.170833,24.9375);
+    var latlng = new google.maps.LatLng(60.180833,24.9375);
     var myOptions = {
       zoom: 12,
       center: latlng,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true,
     };
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
