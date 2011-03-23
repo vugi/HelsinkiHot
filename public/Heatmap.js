@@ -1,77 +1,102 @@
 /**
  * Heatmap
- * 
+ *
  * @constructor
  */
-var Heatmap = function(canvasElement) {
-	this._canvas = canvasElement;
-	this._ctx = canvasElement.getContext("2d"); 
-	this._width = canvasElement.width;
-	this._height = canvasElement.height;
-	
-	// Radius?
-	this._radius1 = 20;
-	this._radius2 = 40; 
-	
-	// Initialize hotspost
-	this._hotspots = [];
-	
-	// Initialize mouse handler
-	// var that = this;
-	// var handler = this.mouseClickHandler
-	// this._canvas["onclick"] = function(ev){ handler(ev, that); };  
+var Heatmap = function(canvasElement){
+    this._canvas = canvasElement;
+    this._ctx = canvasElement.getContext("2d");
+    this._width = canvasElement.width;
+    this._height = canvasElement.height;
+    
+    // Radius?
+    this._radius1 = 20;
+    this._radius2 = 40;
+    
+    // Initialize hotspost
+    this._hotspots = [];
+    
+    // Initialize mouse handler
+    // var that = this;
+    // var handler = this.mouseClickHandler
+    // this._canvas["onclick"] = function(ev){ handler(ev, that); };  
 };
 
 /**
- * Updates the whole heatmap. This should be done when ever new data 
+ * Updates the whole heatmap. This should be done when ever new data
  * comes to the frontend server
  */
-Heatmap.prototype.update = function() {
-	// Clear canvas
-	var width = this._width;
-	var height = this._height;
-	this._ctx.clearRect(0, 0, width, height);
-	
-	var hotspots = this._hotspots;
-	var hotspotLength = hotspots.length;
-	
-	// Add heat
-	for (var i = 0; i < hotspotLength; i++) {
-		var hotspot = hotspots[i];
-		this.addHeat(hotspot.x, hotspot.y);
-	}
-	
-	// Colorize
-	this.colorize(0, 0, width, height);
+Heatmap.prototype.update = function(){
+    // Clear canvas
+    var width = this._width;
+    var height = this._height;
+    this._ctx.clearRect(0, 0, width, height);
+    
+    var hotspots = this._hotspots;
+    var hotspotLength = hotspots.length;
+    
+    // Add heat
+    for (var i = 0; i < hotspotLength; i++) {
+        var hotspot = hotspots[i];
+        this.addHeat(hotspot.x, hotspot.y);
+    }
+    
+    // Colorize
+    this.colorize();
 };
 
-Heatmap.prototype.addHotspot = function(x, y) {
-	this._hotspots.push({x: x, y: y});
+Heatmap.prototype.addHotspot = function(x, y){
+    this._hotspots.push({
+        x: x,
+        y: y
+    });
 };
 
-Heatmap.prototype.colorize = function(x, y, x2) {
-	var width = this._width;
-	var height = this._height;
-	var ctx = this._ctx;
-	 
-    // initial check if x and y is outside the app
-    // -> resetting values
-    if (x + x2 > width) 
-        x = width - x2;
-    if (x < 0) 
-        x = 0;
-    if (y < 0) 
-        y = 0;
-    if (y + x2 > height) 
-        y = height - x2;
+/**
+ * Add some heat to the map to the given point
+ *
+ * @private
+ *
+ * @param {number} x
+ * @param {number} y
+ */
+Heatmap.prototype.addHeat = function(x, y){
+    // storing the variables because they will be often used
+    var r1 = this._radius1;
+    var r2 = this._radius2;
+    var ctx = this._ctx;
+    
+    // create a radial gradient with the defined parameters. we want to draw an alphamap
+    var rgr = ctx.createRadialGradient(x, y, r1, x, y, r2);
+    // the center of the radial gradient has .1 alpha value
+    rgr.addColorStop(0, 'rgba(0,0,0,0.1)');
+    rgr.addColorStop(1, 'rgba(0,0,0,0)');
+    
+    // drawing the gradient
+    ctx.fillStyle = rgr;
+    ctx.fillRect(x - r2, y - r2, 2 * r2, 2 * r2);
+};
+
+/**
+ * Colorize the map
+ *
+ * @param {Object} x
+ * @param {Object} y
+ * @param {Object} x2
+ */
+Heatmap.prototype.colorize = function(){
+    var width = this._width;
+    var height = this._height;
+    var ctx = this._ctx;
+
     // get the image data for the mouse movement area
-    var image = ctx.getImageData(x, y, x2, x2), // some performance tweaks
-    imageData = image.data, length = imageData.length;
+    var image = ctx.getImageData(0, 0, width, height), // some performance tweaks
+ imageData = image.data, length = imageData.length;
     // loop thru the area
     for (var i = 3; i < length; i += 4) {
     
-        var r = 0, g = 0, b = 0, tmp = 0,    // [0] -> r, [1] -> g, [2] -> b, [3] -> alpha
-        alpha = imageData[i];
+        var r = 0, g = 0, b = 0, tmp = 0, // [0] -> r, [1] -> g, [2] -> b, [3] -> alpha
+ alpha = imageData[i];
         
         // coloring depending on the current alpha value
         if (alpha <= 255 && alpha >= 235) {
@@ -108,75 +133,5 @@ Heatmap.prototype.colorize = function(x, y, x2) {
     // the rgb data manipulation didn't affect the ImageData object(defined on the top)
     // after the manipulation process we have to set the manipulated data to the ImageData object
     image.data = imageData;
-    ctx.putImageData(image, x, y);
-};
-
-Heatmap.prototype.decolorize = function() {
-	var width = this._width;
-	var height = this._height;
-	var ctx = this._ctx;
-	var x = 0;
-	var y = 0;
-
-    var image = ctx.getImageData(x, y, width, height), // some performance tweaks
-    imageData = image.data, length = imageData.length;
-    // loop thru the area
-    for (var i = 3; i < length; i += 4) {
-    
-        var r = 0, g = 0, b = 0, tmp = 0,    // [0] -> r, [1] -> g, [2] -> b, [3] -> alpha
-        alpha = imageData[i] - 10;
-		
-		if(alpha > 0) {
-			imageData[i] = alpha;
-		} else {
-			imageData[i] = 0;
-		}
-        
-    }
-    // the rgb data manipulation didn't affect the ImageData object(defined on the top)
-    // after the manipulation process we have to set the manipulated data to the ImageData object
-    image.data = imageData;
-    ctx.putImageData(image, x, y);
-};
-
-Heatmap.prototype.mouseClickHandler = function(ev, that){
-	console.log('Heatmap mouse click');
-	
-	var colorize = !(ev.altKey);
-	if(!colorize){
-		return that.decolorize();
-	}
-	
-	// at first we have to get the x and y values of the user's mouse position
-    var x, y;
-    if (ev.layerX) { // Firefox
-        x = ev.layerX;
-        y = ev.layerY;
-    }
-    else 
-        if (ev.offsetX) { // Opera
-            x = ev.offsetX;
-            y = ev.offsetY;
-        }
-    if (typeof(x) == 'undefined') 
-        return;
-    
-    that.addHeat(x,y,that);
-};
-
-Heatmap.prototype.addHeat = function(x, y){
-    // storing the variables because they will be often used
-    var r1 = this._radius1;
-    var r2 = this._radius2;
-	var ctx = this._ctx;
-    
-    // create a radial gradient with the defined parameters. we want to draw an alphamap
-    var rgr = ctx.createRadialGradient(x, y, r1, x, y, r2);
-    // the center of the radial gradient has .1 alpha value
-	rgr.addColorStop(0, 'rgba(0,0,0,0.1)');
-	rgr.addColorStop(1, 'rgba(0,0,0,0)');
-    
-	// drawing the gradient
-    ctx.fillStyle = rgr;
-    ctx.fillRect(x - r2, y - r2, 2 * r2, 2 * r2);
+    ctx.putImageData(image, 0, 0);
 };
