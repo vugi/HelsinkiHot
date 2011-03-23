@@ -3,11 +3,21 @@ body {
 }
 
 header{
+  z-index: 100;
+  overflow: hidden;
   position: absolute; 
   top: 0px; 
   left: 0px; 
   right: 0px; 
   height: 50px;
+  background-image: -webkit-gradient(
+      linear,
+      left bottom,
+      left top,
+      color-stop(0.23, rgb(200,200,200)),
+      color-stop(0.62, rgb(224,224,224))
+  );
+  border-bottom: 1px solid gray;
 }
 
 header > * {
@@ -23,6 +33,10 @@ header h1{
 
 header .sliderContainer{
   padding: 4px 20px 15px 20px;
+
+}
+
+header .sliderContainer > div {
   width: 200px; 
 }
 
