@@ -27,7 +27,8 @@ var Heatmap = function(canvasElement) {
  * comes to the frontend server
  */
 Heatmap.prototype.update = function() {
-	// TODO Clear all!
+	// Clear canvas
+	this._ctx.clearRect(0, 0, this._width, this._height);
 	
 	var hotspots = this._hotspots;
 	var hotspotLength = hotspots.length;
