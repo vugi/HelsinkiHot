@@ -18,6 +18,15 @@ $(document).ready(function(){
 			showForsquareData(jsonData);
 		}
 	});
+  
+  $("#radiusSlider").slider({
+    min: 5, 
+    max: 50, 
+    range: "min", 
+    slide: function( event, ui ) {
+        heatmap.setRadius(ui.value);
+        heatmap.update();
+    }});
 });
 
 function showForsquareData(jsonData){

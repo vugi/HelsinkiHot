@@ -23,6 +23,16 @@ var Heatmap = function(canvasElement){
 };
 
 /**
+ * Change the hotspot radius
+ * 
+ * @param {number} r new radius
+ */
+Heatmap.prototype.setRadius = function(r) {
+  this._radius2 = r;
+  this._radius1 = r / 2;
+}
+
+/**
  * Updates the whole heatmap. This should be done when ever new data
  * comes to the frontend server
  */
