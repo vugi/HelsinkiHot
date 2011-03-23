@@ -3,7 +3,6 @@
  */
 
 var map;
-var flickrUrl = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=a5b851fbba1fc03339411db4695d84e8&lat=60.170833&lon=24.9375&sort=date-taken-desc&radius=10&extras=date_taken,geo,url_s,url_sq&min_taken_date=2011-03-12&max_taken_date=2011-03-13&format=json&jsoncallback=?";
 
 $(document).ready(function(){
 	initializeMap();
@@ -18,43 +17,7 @@ $(document).ready(function(){
 			showForsquareData(jsonData);
 		}
 	});
-	
-	/* Flickr */
-	$.getJSON(flickrUrl,function(data){
-		console.log(data);
-		showFlickrData(data);
-	});
 });
-
-function showFlickrData(jsonData){
-	//$("<h3>Flickr images from today</h3>").appendTo('#sidebar');
-	$(jsonData.photos.photo).each(function(i,item){	
-		// Sidebar item
-		//$('<img src="'+item.url_sq+'" />').appendTo('#sidebar');
-		
-		// Google maps Info Window
-		var infowindow = new google.maps.InfoWindow({
-		    content: '<img src="'+item.url_s+'" />'
-		});
-		var latlng = new google.maps.LatLng(item.latitude,item.longitude);
-		var marker = new google.maps.Marker({
-			position: latlng,
-			map: map, 
-			title: item.title,
-			icon: 'http://maps.gstatic.com/intl/fi_fi/mapfiles/ms/micons/camera.png',
-			animation: google.maps.Animation.DROP
-		});
-		
-		// drawPoint(latlng);
-		
-		google.maps.event.addListener(marker, 'mouseover', function() {
-		  infowindow.open(map,marker);
-		});
-		google.maps.event.addListener(marker, 'mouseout', function() {
-		  infowindow.close();
-		});
-	});
-}
 
 function showForsquareData(jsonData){
 	$("<h3>Foursquare Trending</h3>").appendTo('#sidebar');
