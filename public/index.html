@@ -5,9 +5,11 @@
 		<title>HelsinkiHot</title>
 		<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8">
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 		<script type="text/javascript" src="HelsinkiHot.js"></script>
 		<script type="text/javascript" src="Heatmap.js"></script>
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/base/jquery-ui.css" type="text/css" media="all" /> 
 	</head>
 	<body>
 	    <header>HelsinkiHot</header>
@@ -15,6 +17,9 @@
 		<div id="canvas_container">
 			<canvas id="canvas" width="800" height="600"></canvas>
 		</div>
+    <div id="radiusSliderContainer" style="position: absolute; top: 50px; left: 800px; right: 0px; height: 50px; padding: 20px">
+      <div id="radiusSlider"></div>
+    </div>
 		<div id="sidebar"></div>
 	</body>
 </html>

@@ -9,9 +9,8 @@ var Heatmap = function(canvasElement){
     this._width = canvasElement.width;
     this._height = canvasElement.height;
     
-    // Radius?
-    this._radius1 = 20;
-    this._radius2 = 40;
+    // Set default radius
+    this.setRadius(defaultRadius);
     
     // Initialize hotspost
     this._hotspots = [];
@@ -21,6 +20,16 @@ var Heatmap = function(canvasElement){
     // var handler = this.mouseClickHandler
     // this._canvas["onclick"] = function(ev){ handler(ev, that); };  
 };
+
+/**
+ * Change the hotspot radius
+ * 
+ * @param {number} r new radius
+ */
+Heatmap.prototype.setRadius = function(r) {
+  this._radius2 = r;
+  this._radius1 = r / 2;
+}
 
 /**
  * Updates the whole heatmap. This should be done when ever new data

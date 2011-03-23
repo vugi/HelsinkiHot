@@ -4,6 +4,7 @@
 
 var map;
 var heatmap;
+var defaultRadius = 40;
 
 $(document).ready(function(){
 	initializeMap();
@@ -18,6 +19,16 @@ $(document).ready(function(){
 			showForsquareData(jsonData);
 		}
 	});
+  
+  $("#radiusSlider").slider({
+    min: 5, 
+    max: 100,
+    value: defaultRadius,
+    range: "min", 
+    slide: function( event, ui ) {
+        heatmap.setRadius(ui.value);
+        heatmap.update();
+    }});
 });
 
 function showForsquareData(jsonData){
