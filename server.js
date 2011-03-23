@@ -8,7 +8,7 @@ var path = "/v2/venues/trending?ll=60.170833,24.9375&limit=50&radius=1000000&cli
 
 // Middleware configurations
 app.configure(function(){
-  app.use(express.staticProvider(__dirname + '/public'));
+  app.use(express.static(__dirname + '/public'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 }); 
 
