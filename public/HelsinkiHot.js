@@ -4,8 +4,6 @@
 
 var map;
 var heatmap;
-var defaultRadius = 40;
-var multiply = 2;
 
 $(document).ready(function(){
 	initializeMap();
@@ -24,21 +22,37 @@ $(document).ready(function(){
   $("#radiusSlider").slider({
     min: 5, 
     max: 100,
-    value: defaultRadius, 
+    value: Heatmap.DEFAULT_RADIUS, 
     range: "min", 
     slide: function( event, ui ) {
       heatmap.setRadius(ui.value);
       heatmap.update();
   }});
   
-  $("#multiplySlider").slider({
-    min: 0, 
-    max: 10,
-    value: multiply,
+  $("#alphaMultiplySlider").slider({
+    min: 0.1, 
+    max: 5,
+    step: 0.1,
+    value: Heatmap.DEFAULT_ALPHA_MULTIPLIER,
     range: "min", 
     slide: function( event, ui ) {
       
       multiply = ui.value;
+      heatmap.setHeatMultiplier(ui.value);
+      console.log(multiply);
+      heatmap.update();
+  }});
+  
+  $("#hotspotMultiplySlider").slider({
+    min: 0.1, 
+    max: 5,
+    step: 0.1,
+    value: Heatmap.DEFAULT_HOTSPOT_MULTIPLIER,
+    range: "min", 
+    slide: function( event, ui ) {
+      
+      multiply = ui.value;
+      heatmap.setHotspotMultiplier(ui.value);
       console.log(multiply);
       heatmap.update();
   }});
@@ -116,6 +130,4 @@ function drawPoint(latlng,count) {
   for (i=0;i<count;i++){
     heatmap.addHotspot(x, y);
   }
-  
-  
 }

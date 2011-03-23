@@ -16,8 +16,10 @@ var Heatmap = function(canvasElement){
     
     console.log("Canvas width:" + this._width);
     
-    // Set default radius
-    this.setRadius(defaultRadius);
+    // Set defaults
+    this.setRadius(Heatmap.DEFAULT_RADIUS);
+    this.setHeatMultiplier(Heatmap.DEFAULT_ALPHA_MULTIPLIER);
+    this.setHotspotMultiplier(Heatmap.DEFAULT_HOTSPOT_MULTIPLIER);
     
     // Initialize hotspost
     this._hotspots = [];
@@ -36,7 +38,15 @@ var Heatmap = function(canvasElement){
 Heatmap.prototype.setRadius = function(r) {
   this._radius2 = r;
   this._radius1 = r / 2;
-}
+};
+
+Heatmap.prototype.setHeatMultiplier = function(multiplier) {
+  this._heatMultiplier = multiplier;
+};
+
+Heatmap.prototype.setHotspotMultiplier = function(multiplier) {
+  this._hotspotMultiplier = multiplier;
+};
 
 /**
  * Updates the whole heatmap. This should be done when ever new data
@@ -51,10 +61,11 @@ Heatmap.prototype.update = function(){
     var hotspots = this._hotspots;
     var hotspotLength = hotspots.length;
     
-    // Add heat
+    // Add hotspots to map
     for (var i = 0; i < hotspotLength; i++) {
         var hotspot = hotspots[i];
-        for (u=0;u<multiply;u++){
+        var hotspotMultiplier = this._hotspotMultiplier || 1;
+        for (var j = 0; j < hotspotMultiplier; j++) {
           this.addHeat(hotspot.x, hotspot.y);
         }
     }
@@ -84,10 +95,15 @@ Heatmap.prototype.addHeat = function(x, y){
     var r2 = this._radius2;
     var ctx = this._ctx;
     
+    var multiplier = this._heatMultiplier || 1;
+    var hotspotHeat = 0.1;
+    var totalHeat = hotspotHeat * multiplier;
+    
+    
     // create a radial gradient with the defined parameters. we want to draw an alphamap
     var rgr = ctx.createRadialGradient(x, y, r1, x, y, r2);
     // the center of the radial gradient has .1 alpha value
-    rgr.addColorStop(0, 'rgba(0,0,0,0.1)');
+    rgr.addColorStop(0, 'rgba(0,0,0,' + totalHeat +')');
     rgr.addColorStop(1, 'rgba(0,0,0,0)');
     
     // drawing the gradient
@@ -97,10 +113,6 @@ Heatmap.prototype.addHeat = function(x, y){
 
 /**
  * Colorize the map
- *
- * @param {Object} x
- * @param {Object} y
- * @param {Object} x2
  */
 Heatmap.prototype.colorize = function(){
     var width = this._width;
@@ -153,3 +165,21 @@ Heatmap.prototype.colorize = function(){
     image.data = imageData;
     ctx.putImageData(image, 0, 0);
 };
+
+/**
+ * @const
+ * @type {number}
+ */
+Heatmap.DEFAULT_RADIUS = 40;
+
+/**
+ * @const
+ * @type {number}
+ */
+Heatmap.DEFAULT_ALPHA_MULTIPLIER = 1;
+
+/**
+ * @const
+ * @type {number}
+ */
+Heatmap.DEFAULT_HOTSPOT_MULTIPLIER = 1;
