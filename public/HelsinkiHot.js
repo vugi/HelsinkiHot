@@ -5,6 +5,7 @@
 var map;
 var heatmap;
 var defaultRadius = 40;
+var multiply = 2;
 
 $(document).ready(function(){
 	initializeMap();
@@ -23,12 +24,24 @@ $(document).ready(function(){
   $("#radiusSlider").slider({
     min: 5, 
     max: 100,
-    value: defaultRadius,
+    value: defaultRadius, 
     range: "min", 
     slide: function( event, ui ) {
-        heatmap.setRadius(ui.value);
-        heatmap.update();
-    }});
+      heatmap.setRadius(ui.value);
+      heatmap.update();
+  }});
+  
+  $("#multiplySlider").slider({
+    min: 0, 
+    max: 10,
+    value: multiply,
+    range: "min", 
+    slide: function( event, ui ) {
+      
+      multiply = ui.value;
+      console.log(multiply);
+      heatmap.update();
+  }});
 });
 
 function showForsquareData(jsonData){
@@ -66,11 +79,12 @@ function showForsquareData(jsonData){
 }
 
 function initializeMap() {
-    var latlng = new google.maps.LatLng(60.170833,24.9375);
+    var latlng = new google.maps.LatLng(60.180833,24.9375);
     var myOptions = {
       zoom: 12,
       center: latlng,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true,
     };
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
@@ -100,9 +114,7 @@ function drawPoint(latlng,count) {
   
   console.log(x,y);
   for (i=0;i<count;i++){
-    for (u=0;u<2;u++){
-      heatmap.addHotspot(x, y);
-    }
+    heatmap.addHotspot(x, y);
   }
   
   

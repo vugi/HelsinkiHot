@@ -6,8 +6,15 @@
 var Heatmap = function(canvasElement){
     this._canvas = canvasElement;
     this._ctx = canvasElement.getContext("2d");
+    
+    // Inherit dimensions from parent element
+    this._ctx.canvas.width  = this._canvas.parentElement.offsetWidth;
+    this._ctx.canvas.height = this._canvas.parentElement.offsetHeight;
+    
     this._width = canvasElement.width;
     this._height = canvasElement.height;
+    
+    console.log("Canvas width:" + this._width);
     
     // Set default radius
     this.setRadius(defaultRadius);
@@ -47,7 +54,9 @@ Heatmap.prototype.update = function(){
     // Add heat
     for (var i = 0; i < hotspotLength; i++) {
         var hotspot = hotspots[i];
-        this.addHeat(hotspot.x, hotspot.y);
+        for (u=0;u<multiply;u++){
+          this.addHeat(hotspot.x, hotspot.y);
+        }
     }
     
     // Colorize
