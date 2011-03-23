@@ -9,9 +9,8 @@ var Heatmap = function(canvasElement){
     this._width = canvasElement.width;
     this._height = canvasElement.height;
     
-    // Radius?
-    this._radius1 = 20;
-    this._radius2 = 40;
+    // Set default radius
+    this.setRadius(defaultRadius);
     
     // Initialize hotspost
     this._hotspots = [];
