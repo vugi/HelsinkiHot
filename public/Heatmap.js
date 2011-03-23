@@ -17,9 +17,9 @@ var Heatmap = function(canvasElement) {
 	this._hotspots = [];
 	
 	// Initialize mouse handler
-	var that = this;
-	var handler = this.mouseClickHandler
-	this._canvas["onclick"] = function(ev){ handler(ev, that); };  
+	// var that = this;
+	// var handler = this.mouseClickHandler
+	// this._canvas["onclick"] = function(ev){ handler(ev, that); };  
 };
 
 /**
@@ -28,15 +28,21 @@ var Heatmap = function(canvasElement) {
  */
 Heatmap.prototype.update = function() {
 	// Clear canvas
-	this._ctx.clearRect(0, 0, this._width, this._height);
+	var width = this._width;
+	var height = this._height;
+	this._ctx.clearRect(0, 0, width, height);
 	
 	var hotspots = this._hotspots;
 	var hotspotLength = hotspots.length;
 	
+	// Add heat
 	for (var i = 0; i < hotspotLength; i++) {
 		var hotspot = hotspots[i];
-		this.addHeat(hotspot.x, hotspot.y, this);
+		this.addHeat(hotspot.x, hotspot.y);
 	}
+	
+	// Colorize
+	this.colorize(0, 0, width, height);
 };
 
 Heatmap.prototype.addHotspot = function(x, y) {
@@ -158,13 +164,12 @@ Heatmap.prototype.mouseClickHandler = function(ev, that){
     that.addHeat(x,y,that);
 };
 
-Heatmap.prototype.addHeat = function(x, y, that){
+Heatmap.prototype.addHeat = function(x, y){
     // storing the variables because they will be often used
-    var r1 = that._radius1;
-    var r2 = that._radius2;
-	var ctx = that._ctx;
+    var r1 = this._radius1;
+    var r2 = this._radius2;
+	var ctx = this._ctx;
     
-    //console.log("x: "+x+"; y:" +y);
     // create a radial gradient with the defined parameters. we want to draw an alphamap
     var rgr = ctx.createRadialGradient(x, y, r1, x, y, r2);
     // the center of the radial gradient has .1 alpha value
@@ -174,7 +179,4 @@ Heatmap.prototype.addHeat = function(x, y, that){
 	// drawing the gradient
     ctx.fillStyle = rgr;
     ctx.fillRect(x - r2, y - r2, 2 * r2, 2 * r2);
-
-    // at least colorize the area	
-    that.colorize(x - r2, y - r2, 2 * r2);
 };
