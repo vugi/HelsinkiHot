@@ -61,28 +61,29 @@ $(document).ready(function(){
 function showForsquareData(jsonData){
 	$(jsonData).each(function(i,item){				
 		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
-		
-		// Google maps Info Window
-		var infowindow = new google.maps.InfoWindow({
-		    content: item.name+'<br/>now: '+item.hereNow.count+'<br/>total: '+item.stats.checkinsCount
-		});
+		drawPoint(latlng,item.hereNow.count);
 		
 		// Google maps marker
+		/*
 		var marker = new google.maps.Marker({
-		      position: latlng, 
-		      map: map, 
-		      title: item.name,
+		  position: latlng, 
+		  map: map, 
+		  title: item.name,
 			icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld='+item.hereNow.count+'|C6E7DE|000000'
 		});
-		
-		drawPoint(latlng,item.hereNow.count);
-				
+		*/
+		// Google maps Info Window + show on mouseover
+		/*
+		var infowindow = new google.maps.InfoWindow({
+		    content: item.name+'<br/>now: '+item.hereNow.count+'<br/>total: '+item.stats.checkinsCount
+		});	
 		google.maps.event.addListener(marker, 'mouseover', function() {
 		  infowindow.open(map,marker);
 		});
 		google.maps.event.addListener(marker, 'mouseout', function() {
 		  infowindow.close();
 		});
+		*/
 	});
 	
 	heatmap.update();	
