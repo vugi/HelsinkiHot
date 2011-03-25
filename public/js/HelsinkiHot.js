@@ -94,14 +94,50 @@ function showForsquareData(jsonData){
 
 function initializeMap() {
     var latlng = new google.maps.LatLng(60.180833,24.9375);
+    
+    /* Custom map type
+    See: http://code.google.com/apis/maps/documentation/javascript/maptypes.html#StyledMaps
+    Style made with: http://gmaps-samples-v3.googlecode.com/svn/trunk/styledmaps/wizard/index.html
+    */
+    var customMapStyles =[
+      {
+        featureType: "all",
+        elementType: "labels",
+        stylers: [
+          { visibility: "off" }
+        ]
+      },{
+        featureType: "all",
+        elementType: "all",
+        stylers: [
+          { lightness: 10 }
+        ]
+      },{
+        featureType: "administrative.locality",
+        elementType: "labels",
+        stylers: [
+          { visibility: "on" }
+        ]
+      }
+    ];
+    var customMapOptions = {
+         name: "HelsinkiHot custom"
+      }
+    var customMapType = new google.maps.StyledMapType(customMapStyles, customMapOptions);
+    
     var myOptions = {
       zoom: 12,
       center: latlng,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
       disableDefaultUI: true,
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.SATELLITE, 'custom']
+      }
     };
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
+    map.mapTypes.set('custom', customMapType);
+    map.setMapTypeId('custom');
   }
   
 function initializeHeatmap() {
