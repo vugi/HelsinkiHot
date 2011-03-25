@@ -59,11 +59,8 @@ $(document).ready(function(){
 });
 
 function showForsquareData(jsonData){
-	$("<h3>Foursquare Trending</h3>").appendTo('#sidebar');
-	var list = $('<ol>').appendTo('#sidebar');
-	$(jsonData).each(function(i,item){		
-		// List item
-		$('<li>').html(item.name+' '+item.hereNow.count+'/'+item.stats.checkinsCount).appendTo(list);
+	$(jsonData).each(function(i,item){				
+		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
 		
 		// Google maps Info Window
 		var infowindow = new google.maps.InfoWindow({
@@ -71,7 +68,6 @@ function showForsquareData(jsonData){
 		});
 		
 		// Google maps marker
-		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
 		var marker = new google.maps.Marker({
 		      position: latlng, 
 		      map: map, 
