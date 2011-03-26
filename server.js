@@ -175,9 +175,6 @@ app.get('/api/venues/add', function(req, res) {
       res.send('FAIL');
     }
   });
-  //datamodel.addEvent({name:"Moms", address: "Kauniaistentie 7"});
-  //datamodel.addEvent({name:"Kotipizza", address: "Kauniaistentie 7"});
-  //datamodel.addEvent({name:"Kotipizza", address: "Kauniaistentie 7"});
 });
 
 app.get('/api/venues/del/:name', function(req, res) {
