@@ -11,7 +11,34 @@ var mongoose = require('mongoose');
 app.configure(function(){
   app.use(express.static(__dirname + '/public'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-}); 
+});
+
+utils = {
+  // http://bonta-kun.net/wp/2007/07/05/javascript-typeof-with-array-support/
+  typeOf: function(obj) {
+    if ( typeof(obj) == 'object' ) {
+      if (obj.length)
+        return 'array';
+      else
+        return 'object';
+    } else {
+      return typeof(obj);
+    }
+  },
+  inspect: function(obj) {
+    if (typeof obj === "object") {
+      var str = "{";
+      for (var i in obj) {
+        str += i + ": " + obj[i] + ", ";
+      }
+      str += "}";
+      return str;
+    }
+    else {
+      return obj.toString();
+    }
+  }
+}
 
 var datamodel = {
   connect: function(dbname) {
@@ -44,7 +71,7 @@ var datamodel = {
 
     return instance;
   },
-  init: function(addData) {
+  init: function(opts) {
     
     datamodel.connect();
     
@@ -63,6 +90,8 @@ var datamodel = {
       address     : String,
       latitude    : Number,
       longitude   : Number,
+      service     : String,
+      serviceId   : String,
       events      : [Event]
     });
     
@@ -74,7 +103,7 @@ var datamodel = {
     datamodel.models.Event = mongoose.model('Event');
     datamodel.models.Venue = mongoose.model('Venue');
     
-    if (addData) {
+    if (opts && opts.addTestData) {
       datamodel.insertSampleData();
     }
     
@@ -100,14 +129,28 @@ var datamodel = {
   
   /**
   * Add events to database
-  * @param events array that contains the events, or a single event info in a hash
+  * @param data array that contains the events, or a single event info in a hash
+  * Example data:
+  * [{name:"Kauniainen", address: "Kauniaistentie 10",
+  *   latitude: 60.20982564510065, longitude: 24.72975254058838,
+  *   service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
+  *   events: [
+  *     {time: new Date(), type: 'checkin', points:10},
+  *     {time: new Date(60*60*24*365*40), type: 'checkin', points:30},
+  *     {time: new Date("2011-01-05 14:45"), type: 'checkin', points:10},
+  *   ]
+  * }]
+  * A new venue (with no checkin events) can be created by supplying the venue
+  * data with no or an empty events array
+  * @param callback a function with boolean param determining the success of 
+  * the operation
   */
   addEvents: function(data, callback) {
-    if (typeof data == "array") {
+    if (data.length) { // array
       for (var i in data) {
-        datamodel.addEvent(events[i]);
+        datamodel.addEvent(data[i]);
       }
-    } else {
+    } else { // hash/object
       datamodel.addEvent(data);
     }
     
@@ -115,36 +158,44 @@ var datamodel = {
     callback(true);
   },
   addEvent: function(data, callback) {
-    console.log('!!!!');
-    datamodel.getVenues({name: data.name, address: data.address}, function(venues) {
+    datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {
       var venue;
-      console.log(venues);
       if (venues.length == 1) {
         console.log("Venue " + venues[0].name + " found");
         venue = venues[0];
       } else if (venues.length > 1) {
-        console.warn("Found multiple venues with name: " + data.name + ", address: " 
-        + data.address + ", choosing the first one.");
+        console.warn("Found multiple venues with service: " + data.service + ", id: " 
+        + data.serviceId + ", choosing the first one.");
         venue = venues[0];
       } else {
-        console.log("Creating a new venue with data " + data);
+        console.log("Creating a new venue with data " + utils.inspect(data));
         venue = new datamodel.models.Venue();
-        venue.name = data.name;
-        venue.address = data.address; 
-        //TODO: try with data embedded into constructor call
+        venue.service = data.service;
+        venue.serviceId = data.serviceId;
       }
-
+      
+      // updating the potentially changed fields
+      if (data.name) {
+        venue.name = data.name;
+      }
+      if (data.address) {
+        venue.address = data.address;
+      }
+      if (data.latitude && data.longitude) {
+        venue.latitude = data.latitude;
+        venue.longitude = data.longitude;
+      }
+      
       for (var i in data.events) {
         var ev = data.events[i];
-        console.log('Adding event ' + ev + ' to the event');
+        console.log('Adding event ' + utils.inspect(ev) + ' to the event');
         venue.events.push(ev);
       }
       
-      console.log(typeof callback);
       if (typeof callback === "function") {
         callback(true);
       }
-      venue.save(function() {console.log('Saved the venue');});
+      venue.save(function() {console.log('Updated the venue ' + venue.name);});
     });
   },
   getVenues: function(data, callback) {
@@ -155,20 +206,23 @@ var datamodel = {
 }
 
 // init the data model
-datamodel.init(false);
+datamodel.init({addTestData: false});
 
 app.get('/api', function(req, res){
 	res.send('hello world from api!');	
 });
 
 app.get('/api/venues/add', function(req, res) {
-  datamodel.addEvents([{name:"Kauniainen", address: "Kauniaistentie 10", 
+  var eventData = [{name:"TUAS", address: "Otaniementie 17", 
+    latitude: 60.186841, longitude: 24.818006,
+    service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
     events: [
       {time: new Date(), type: 'checkin', points:10},
-      {time: new Date(60*60*24*365*40), type: 'checkin', points:30},
+      {time: new Date(60*60*24*365*40*1000), type: 'checkin', points:30},
       {time: new Date("2011-01-05 14:45"), type: 'checkin', points:10},
     ]
-  }], function(success) {
+  }];
+  datamodel.addEvents(eventData, function(success) {
     if (success) {
       res.send('OK');
     } else {
@@ -177,7 +231,7 @@ app.get('/api/venues/add', function(req, res) {
   });
 });
 
-app.get('/api/venues/del/:name', function(req, res) {
+app.get('/api/venues/del/:id', function(req, res) {
   
 });
 
@@ -199,6 +253,16 @@ app.get('/api/venues', function(req, res){
 		console.log(json.response.venues);
 		res.send(json.response.venues);
 	});
+});
+
+app.get('/api/venues2', function(req,res) {
+  var venues = [];
+  datamodel.getVenues({}, function(venuedata) {
+    for (var i in venuedata) {
+      venues.push(venuedata[i]);
+    }
+    res.send(venues);
+  });
 });
 
 app.get('/api/venues2/:name', function(req, res) {
