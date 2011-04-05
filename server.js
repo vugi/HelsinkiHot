@@ -95,6 +95,10 @@ var datamodel = {
       events      : [Event]
     });
     
+    Venue.method('new_events', function () {
+      return this.events;
+    });
+    
     mongoose.model('Event', Event);
     mongoose.model('Venue', Venue);
     
@@ -133,7 +137,7 @@ var datamodel = {
   * Example data:
   * [{name:"Kauniainen", address: "Kauniaistentie 10",
   *   latitude: 60.20982564510065, longitude: 24.72975254058838,
-  *   service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
+  *   service: "foursquare", serviceId: "4be57f67477d9c74fba9e62d",
   *   events: [
   *     {time: new Date(), type: 'checkin', points:10},
   *     {time: new Date(60*60*24*365*40), type: 'checkin', points:30},
@@ -192,10 +196,12 @@ var datamodel = {
         venue.events.push(ev);
       }
       
-      if (typeof callback === "function") {
-        callback(true);
-      }
-      venue.save(function() {console.log('Updated the venue ' + venue.name);});
+      venue.save(function(err) {
+        console.log('Updated the venue ' + venue.name);
+        if (typeof callback === "function") {
+          callback(!err);
+        }
+        });
     });
   },
   getVenues: function(data, callback) {
@@ -228,6 +234,45 @@ app.get('/api/venues/add', function(req, res) {
     } else {
       res.send('FAIL');
     }
+  });
+});
+
+app.get('/api/venues/since/:timestamp', function(req, res) {
+  var venues = [];
+  datamodel.getVenues({}, function(venuedata) {
+    // TODO: map/reduce
+    var since = new Date(parseInt(req.params.timestamp));
+    for (var i in venuedata) {
+      var v = venuedata[i];
+      var c = {}; // custom format venue
+      c.name = v.name;
+      c.address = v.address;
+      c.latitude = v.latitude;
+      c.longitude = v.latitude;
+      c.service = v.service;
+      c.serviceId = v.serviceId;
+      
+      c.events = [];
+      var e = v.events.pop();
+      while (e) {
+        var ce = {};
+        ce.time = e.time;
+        ce.type = e.type;
+        ce.points = e.points;
+        console.log(ce.time.getTime() + ' <-> ' + since.getTime());
+        if (ce.time > since) {
+          c.events.push(ce);
+        }
+        
+        e = v.events.pop();
+      }
+        
+      //c.events.push()
+      if (c.events.length > 0) {
+        venues.push(c);
+      }
+    }
+    res.send(venues);
   });
 });
 
