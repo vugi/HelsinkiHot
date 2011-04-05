@@ -258,6 +258,7 @@ var output = {
       if (c.events.length > 0) {
         venues.push(c);
       }
+      
     }
     return venues;
   }
@@ -332,11 +333,8 @@ app.get('/api/venues', function(req, res){
 });
 
 app.get('/api/venues2', function(req,res) {
-  var venues = [];
   datamodel.getVenues({}, function(venuedata) {
-    for (var i in venuedata) {
-      venues.push(venuedata[i]);
-    }
+    var venues = output.format(venuedata);
     res.send(venues);
   });
 });
