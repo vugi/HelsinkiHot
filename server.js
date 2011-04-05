@@ -113,22 +113,40 @@ var datamodel = {
     
   },
   insertSampleData: function() {
-    var v1 = new datamodel.models.Venue();
-    var v2 = new datamodel.models.Venue();
-
-    v1.name = "T-talo";
-    v1.address = "Konemiehentie 2";
-    v1.events.push({time: new Date(), type: "checkin", points: 10});
-    v1.events.push({time: new Date(), type: "checkin", points: 30});
-    v1.events.push({time: new Date(), type: "picture", points: 20});
-
-    console.log(v1);
-
-    v2.name = "TUAS";
-    v2.address = "Otaniementie X";
+        
+    var eventData = [{name:"TUAS", address: "Otaniementie 17", 
+      latitude: 60.186841, longitude: 24.818006,
+      service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
+      events: [
+        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:10},
+        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:30},
+        {time: new Date("2011-01-05 14:45"), type: 'picture', points:20},
+      ]
+    }];
+    datamodel.addEvents(eventData, function(success) {
+      if (success) {
+        console.log('Added sample data: OK');
+      } else {
+        console.log('Added sample data: FAIL');
+      }
+    });
     
-    v1.save(function() {console.log('Saved v1')});
-    v2.save(function() {console.log('Saved v2')});
+    eventData = [{name:"T-talo", address: "Konemiehentie 2", 
+      latitude: 60.186841, longitude: 24.818006, // not real
+      service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62f", // not real
+      events: [
+        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:10},
+        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:30},
+        {time: new Date("2011-01-05 14:45"), type: 'picture', points:20},
+      ]
+    }];
+    datamodel.addEvents(eventData, function(success) {
+      if (success) {
+        console.log('Added sample data: OK');
+      } else {
+        console.log('Added sample data: FAIL');
+      }
+    });
   },
   
   /**
