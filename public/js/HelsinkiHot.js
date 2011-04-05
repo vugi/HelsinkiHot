@@ -26,7 +26,7 @@ $(document).ready(function(){
     range: "min", 
     slide: function( event, ui ) {
       heatmap.setRadius(ui.value);
-      heatmap.update();
+      heatmap.draw();
   }});
   
   $("#alphaMultiplySlider").slider({
@@ -40,7 +40,7 @@ $(document).ready(function(){
       multiply = ui.value;
       heatmap.setHeatMultiplier(ui.value);
       console.log(multiply);
-      heatmap.update();
+      heatmap.draw();
   }});
   
   $("#hotspotMultiplySlider").slider({
@@ -54,14 +54,14 @@ $(document).ready(function(){
       multiply = ui.value;
       heatmap.setHotspotMultiplier(ui.value);
       console.log(multiply);
-      heatmap.update();
+      heatmap.draw();
   }});
 });
 
 function showForsquareData(jsonData){
 	$(jsonData).each(function(i,item){				
 		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
-		drawPoint(latlng,item.hereNow.count);
+		heatmap.addHotspot(latlng,item.hereNow.count);
 		
 		// Google maps marker
 		/*
@@ -86,11 +86,11 @@ function showForsquareData(jsonData){
 		*/
 	});
 	
-	heatmap.update();	
+	heatmap.draw();	
 }
 
 function initializeMap() {
-    var latlng = new google.maps.LatLng(60.180833,24.9375);
+    var latlng = new google.maps.LatLng(60.170833,24.9375);
     
     /* Custom map type
     See: http://code.google.com/apis/maps/documentation/javascript/maptypes.html#StyledMaps
@@ -123,7 +123,9 @@ function initializeMap() {
     var customMapType = new google.maps.StyledMapType(customMapStyles, customMapOptions);
     
     var myOptions = {
-      zoom: 12,
+      zoom: 13,
+      minZoom: 13,
+      maxZoom: 13,
       center: latlng,
       disableDefaultUI: true,
       mapTypeControl: true,
@@ -138,29 +140,5 @@ function initializeMap() {
   }
   
 function initializeHeatmap() {
-	heatmap = new Heatmap(document.getElementById('canvas'));
-}
-
-function drawPoint(latlng,count) {
-  // http://stackoverflow.com/questions/2674392/how-to-access-google-maps-api-v3-markers-div-and-its-pixel-position
-  var scale = Math.pow(2, map.getZoom());
-  var nw = new google.maps.LatLng(
-    map.getBounds().getNorthEast().lat(),
-    map.getBounds().getSouthWest().lng()
-  );
-  var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
-  var worldCoordinate = map.getProjection().fromLatLngToPoint(latlng);
-  var pixelOffset = new google.maps.Point(
-    Math.floor((worldCoordinate.x - worldCoordinateNW.x) * scale),
-    Math.floor((worldCoordinate.y - worldCoordinateNW.y) * scale)
-  );
-
-  // var point = map.getProjection().fromLatLngToPoint(latlng);
-  var x = pixelOffset.x;
-  var y = pixelOffset.y;
-  
-  console.log(x,y);
-  for (i=0;i<count;i++){
-    heatmap.addHotspot(x, y);
-  }
+	heatmap = new Heatmap(map);
 }
