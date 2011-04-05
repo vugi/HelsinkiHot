@@ -211,6 +211,59 @@ var datamodel = {
   }
 }
 
+var output = {
+  venue_fields: ['name', 'address', 'latitude', 'longitude', 'service',
+    'serviceId'],
+  event_fields: ['time', 'type', 'points'],
+  /**
+  * Formats & filters a mongoose result array for outputting for frontend
+  * @param input mongoose result array
+  * @param since Date. only venues with events newer than this are included
+  */
+  format: function(input, since) {
+    
+    
+    var venues = [];
+    
+    for (var i in input) {
+      var out = [];
+      var v = input[i];
+      var c = {}; // custom format venue
+      
+      // add needed the fields
+      for (var j in output.venue_fields) {
+        var f = output.venue_fields[j];
+        c[f] = v[f];
+      }
+      
+      // add events
+      c.events = [];
+      
+      for (var j = 0; j< v.events.length; j++) {
+        var e = v.events[j];
+        var ce = {};
+        
+        // add the needed fields
+        for (var k in output.event_fields) {
+          var f = output.event_fields[k];
+          ce[f] = e[f];
+        }
+
+        if (!since || ce.time > since) {
+          c.events.push(ce);
+        }
+      }
+        
+      //c.events.push()
+      if (c.events.length > 0) {
+        venues.push(c);
+      }
+      
+    }
+    return venues;
+  }
+}
+
 // init the data model
 datamodel.init({addTestData: false});
 
@@ -238,41 +291,20 @@ app.get('/api/venues/add', function(req, res) {
 });
 
 app.get('/api/venues/since/:timestamp', function(req, res) {
-  var venues = [];
   datamodel.getVenues({}, function(venuedata) {
-    // TODO: map/reduce
-    var since = new Date(parseInt(req.params.timestamp));
-    for (var i in venuedata) {
-      var v = venuedata[i];
-      var c = {}; // custom format venue
-      c.name = v.name;
-      c.address = v.address;
-      c.latitude = v.latitude;
-      c.longitude = v.latitude;
-      c.service = v.service;
-      c.serviceId = v.serviceId;
-      
-      c.events = [];
-      var e = v.events.pop();
-      while (e) {
-        var ce = {};
-        ce.time = e.time;
-        ce.type = e.type;
-        ce.points = e.points;
-        console.log(ce.time.getTime() + ' <-> ' + since.getTime());
-        if (ce.time > since) {
-          c.events.push(ce);
-        }
-        
-        e = v.events.pop();
-      }
-        
-      //c.events.push()
-      if (c.events.length > 0) {
-        venues.push(c);
-      }
+    var since;
+    
+    var timestamp = parseInt(req.params.timestamp);
+    
+    if (timestamp == 0 || timestamp) {
+      since = new Date(timestamp);
+      var venues = output.format(venuedata, since);
+      res.send({venues: venues, timestamp: new Date().getTime()});
+    } else {
+      console.warn('tried to get venues since invalid timestamp (' + 
+        timestamp + ')');
+      res.send({status: 400, error: 'invalid timestamp'});
     }
-    res.send(venues);
   });
 });
 
@@ -301,11 +333,8 @@ app.get('/api/venues', function(req, res){
 });
 
 app.get('/api/venues2', function(req,res) {
-  var venues = [];
   datamodel.getVenues({}, function(venuedata) {
-    for (var i in venuedata) {
-      venues.push(venuedata[i]);
-    }
+    var venues = output.format(venuedata);
     res.send(venues);
   });
 });
