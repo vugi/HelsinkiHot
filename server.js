@@ -211,6 +211,56 @@ var datamodel = {
   }
 }
 
+var output = {
+  venue_fields: ['name', 'address', 'latitude', 'longitude', 'service',
+    'serviceId'],
+  event_fields: ['time', 'type', 'points'],
+  /**
+  * Formats & filters a mongoose result array for outputting for frontend
+  */
+  format: function(input, since) {
+    
+    
+    var venues = [];
+    
+    for (var i in input) {
+      var out = [];
+      var v = input[i];
+      var c = {}; // custom format venue
+      
+      // add needed the fields
+      for (var j in output.venue_fields) {
+        var f = output.venue_fields[j];
+        c[f] = v[f];
+      }
+      
+      // add events
+      c.events = [];
+      
+      for (var j = 0; j< v.events.length; j++) {
+        var e = v.events[j];
+        var ce = {};
+        
+        // add the needed fields
+        for (var k in output.event_fields) {
+          var f = output.event_fields[k];
+          ce[f] = e[f];
+        }
+
+        if (!since || ce.time > since) {
+          c.events.push(ce);
+        }
+      }
+        
+      //c.events.push()
+      if (c.events.length > 0) {
+        venues.push(c);
+      }
+    }
+    return venues;
+  }
+}
+
 // init the data model
 datamodel.init({addTestData: false});
 
@@ -238,47 +288,11 @@ app.get('/api/venues/add', function(req, res) {
 });
 
 app.get('/api/venues/since/:timestamp', function(req, res) {
-  var venues = [];
   datamodel.getVenues({}, function(venuedata) {
     // TODO: map/reduce
     var since = new Date(parseInt(req.params.timestamp));
-    var vFields = ['name', 'address', 'latitude', 'longitude', 'service',
-      'serviceId'];
-    var eFields = ['time', 'type', 'points'];
+    var venues = output.format(venuedata, since);
     
-    for (var i in venuedata) {
-      var v = venuedata[i];
-      var c = {}; // custom format venue
-      
-      // add needed the fields
-      for (var j in vFields) {
-        var f = vFields[j];
-        c[f] = v[f];
-      }
-      
-      // add events
-      c.events = [];
-      
-      for (var j = 0; j< v.events.length; j++) {
-        var e = v.events[j];
-        var ce = {};
-        
-        // add the needed fields
-        for (var k in eFields) {
-          var f = eFields[k];
-          ce[f] = e[f];
-        }
-
-        if (ce.time > since) {
-          c.events.push(ce);
-        }
-      }
-        
-      //c.events.push()
-      if (c.events.length > 0) {
-        venues.push(c);
-      }
-    }
     res.send(venues);
   });
 });
