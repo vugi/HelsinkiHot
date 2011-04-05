@@ -269,7 +269,6 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
           ce[f] = e[f];
         }
 
-        console.log(ce.time.getTime() + ' <-> ' + since.getTime());
         if (ce.time > since) {
           c.events.push(ce);
         }
