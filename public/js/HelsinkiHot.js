@@ -142,6 +142,17 @@ function initializeHeatmap() {
 }
 
 function drawPoint(latlng,count) {
+  var point = getPointFromLatLng(latlng);
+  var x = point.x;
+  var y = point.y;
+  
+  console.log(x,y);
+  for (i=0;i<count;i++){
+    heatmap.addHotspot(x, y);
+  }
+}
+
+function getPointFromLatLng(latlng){
   // http://stackoverflow.com/questions/2674392/how-to-access-google-maps-api-v3-markers-div-and-its-pixel-position
   var scale = Math.pow(2, map.getZoom());
   var nw = new google.maps.LatLng(
@@ -150,17 +161,9 @@ function drawPoint(latlng,count) {
   );
   var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
   var worldCoordinate = map.getProjection().fromLatLngToPoint(latlng);
-  var pixelOffset = new google.maps.Point(
+  var point = new google.maps.Point(
     Math.floor((worldCoordinate.x - worldCoordinateNW.x) * scale),
     Math.floor((worldCoordinate.y - worldCoordinateNW.y) * scale)
   );
-
-  // var point = map.getProjection().fromLatLngToPoint(latlng);
-  var x = pixelOffset.x;
-  var y = pixelOffset.y;
-  
-  console.log(x,y);
-  for (i=0;i<count;i++){
-    heatmap.addHotspot(x, y);
-  }
+  return point;
 }
