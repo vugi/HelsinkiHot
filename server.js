@@ -242,29 +242,37 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
   datamodel.getVenues({}, function(venuedata) {
     // TODO: map/reduce
     var since = new Date(parseInt(req.params.timestamp));
+    var vFields = ['name', 'address', 'latitude', 'longitude', 'service',
+      'serviceId'];
+    var eFields = ['time', 'type', 'points'];
+    
     for (var i in venuedata) {
       var v = venuedata[i];
       var c = {}; // custom format venue
-      c.name = v.name;
-      c.address = v.address;
-      c.latitude = v.latitude;
-      c.longitude = v.latitude;
-      c.service = v.service;
-      c.serviceId = v.serviceId;
       
+      // add needed the fields
+      for (var j in vFields) {
+        var f = vFields[j];
+        c[f] = v[f];
+      }
+      
+      // add events
       c.events = [];
-      var e = v.events.pop();
-      while (e) {
+      
+      for (var j = 0; j< v.events.length; j++) {
+        var e = v.events[j];
         var ce = {};
-        ce.time = e.time;
-        ce.type = e.type;
-        ce.points = e.points;
+        
+        // add the needed fields
+        for (var k in eFields) {
+          var f = eFields[k];
+          ce[f] = e[f];
+        }
+
         console.log(ce.time.getTime() + ' <-> ' + since.getTime());
         if (ce.time > since) {
           c.events.push(ce);
         }
-        
-        e = v.events.pop();
       }
         
       //c.events.push()
