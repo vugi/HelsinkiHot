@@ -61,12 +61,15 @@ Heatmap.prototype.update = function(){
     var hotspots = this._hotspots;
     var hotspotLength = hotspots.length;
     
-    // Add hotspots to map
+    // Draw hotspots to map
     for (var i = 0; i < hotspotLength; i++) {
         var hotspot = hotspots[i];
+        var point = MapHelper.fromLatLngToPixel(hotspot.latlng,map);
         var hotspotMultiplier = this._hotspotMultiplier || 1;
-        for (var j = 0; j < hotspotMultiplier; j++) {
-          this.addHeat(hotspot.x, hotspot.y);
+        var amount = hotspot.count * hotspotMultiplier;
+        
+        for (var j = 0; j < amount; j++) {
+          this.addHeat(point.x, point.y);
         }
     }
     
@@ -74,10 +77,10 @@ Heatmap.prototype.update = function(){
     this.colorize();
 };
 
-Heatmap.prototype.addHotspot = function(x, y){
+Heatmap.prototype.addHotspot = function(latlng,count){
     this._hotspots.push({
-        x: x,
-        y: y
+        latlng: latlng,
+        count: count
     });
 };
 

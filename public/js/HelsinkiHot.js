@@ -61,7 +61,7 @@ $(document).ready(function(){
 function showForsquareData(jsonData){
 	$(jsonData).each(function(i,item){				
 		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
-		drawPoint(latlng,item.hereNow.count);
+		heatmap.addHotspot(latlng,item.hereNow.count);
 		
 		// Google maps marker
 		/*
@@ -142,12 +142,8 @@ function initializeHeatmap() {
 }
 
 function drawPoint(latlng,count) {
-  var point = MapHelper.fromLatLngToPixel(latlng,map);
+  
   var x = point.x;
   var y = point.y;
   
-  console.log(x,y);
-  for (i=0;i<count;i++){
-    heatmap.addHotspot(x, y);
-  }
 }

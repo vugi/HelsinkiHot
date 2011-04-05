@@ -15,6 +15,5 @@ MapHelper.fromLatLngToPixel = function(latlng, map){
   var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
   var worldCoordinate = map.getProjection().fromLatLngToPoint(latlng);
   var pixelOffset = new google.maps.Point(Math.floor((worldCoordinate.x - worldCoordinateNW.x) * scale), Math.floor((worldCoordinate.y - worldCoordinateNW.y) * scale));
-	console.log(pixelOffset);
 	return pixelOffset;
 }
