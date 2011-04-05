@@ -26,12 +26,17 @@ utils = {
     }
   },
   inspect: function(obj) {
-    var str = "{";
-    for (var i in obj) {
-      str += i + ": " + obj[i] + ", ";
+    if (typeof obj === "object") {
+      var str = "{";
+      for (var i in obj) {
+        str += i + ": " + obj[i] + ", ";
+      }
+      str += "}";
+      return str;
     }
-    str += "}";
-    return str;
+    else {
+      return obj.toString();
+    }
   }
 }
 
@@ -85,6 +90,8 @@ var datamodel = {
       address     : String,
       latitude    : Number,
       longitude   : Number,
+      service     : String,
+      serviceId   : String,
       events      : [Event]
     });
     
@@ -124,7 +131,9 @@ var datamodel = {
   * Add events to database
   * @param data array that contains the events, or a single event info in a hash
   * Example data:
-  * [{name:"Kauniainen", address: "Kauniaistentie 10", 
+  * [{name:"Kauniainen", address: "Kauniaistentie 10",
+  *   latitude: 60.20982564510065, longitude: 24.72975254058838,
+  *   service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
   *   events: [
   *     {time: new Date(), type: 'checkin', points:10},
   *     {time: new Date(60*60*24*365*40), type: 'checkin', points:30},
@@ -149,33 +158,34 @@ var datamodel = {
     callback(true);
   },
   addEvent: function(data, callback) {
-    datamodel.getVenues({name: data.name, address: data.address}, function(venues) {
+    datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {
       var venue;
       if (venues.length == 1) {
         console.log("Venue " + venues[0].name + " found");
         venue = venues[0];
-        // updating the potentially changed latlng
-        if (data.latitude && data.longitude) {
-          venue.latitude = data.latitude;
-          venue.longitude = data.longitude;
-        }
       } else if (venues.length > 1) {
-        console.warn("Found multiple venues with name: " + data.name + ", address: " 
-        + data.address + ", choosing the first one.");
+        console.warn("Found multiple venues with service: " + data.service + ", id: " 
+        + data.serviceId + ", choosing the first one.");
         venue = venues[0];
-        // updating the potentially changed latlng
-        venue.latitude = data.latitude;
-        venue.longitude = data.longitude;
       } else {
-        console.log("Creating a new venue with data " + data);
+        console.log("Creating a new venue with data " + utils.inspect(data));
         venue = new datamodel.models.Venue();
+        venue.service = data.service;
+        venue.serviceId = data.serviceId;
+      }
+      
+      // updating the potentially changed fields
+      if (data.name) {
         venue.name = data.name;
-        venue.address = data.address; 
+      }
+      if (data.address) {
+        venue.address = data.address;
+      }
+      if (data.latitude && data.longitude) {
         venue.latitude = data.latitude;
         venue.longitude = data.longitude;
-        //TODO: try with data embedded into constructor call
       }
-
+      
       for (var i in data.events) {
         var ev = data.events[i];
         console.log('Adding event ' + utils.inspect(ev) + ' to the event');
@@ -185,7 +195,7 @@ var datamodel = {
       if (typeof callback === "function") {
         callback(true);
       }
-      venue.save(function() {console.log('Saved the venue' + venue);});
+      venue.save(function() {console.log('Updated the venue ' + venue.name);});
     });
   },
   getVenues: function(data, callback) {
@@ -203,7 +213,9 @@ app.get('/api', function(req, res){
 });
 
 app.get('/api/venues/add', function(req, res) {
-  var eventData = [{name:"Kauniainen", address: "Kauniaistentie 10", 
+  var eventData = [{name:"TUAS", address: "Otaniementie 17", 
+    latitude: 60.186841, longitude: 24.818006,
+    service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
     events: [
       {time: new Date(), type: 'checkin', points:10},
       {time: new Date(60*60*24*365*40*1000), type: 'checkin', points:30},
