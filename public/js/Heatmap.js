@@ -5,8 +5,7 @@
  */ 
 var Heatmap = function(map){
     // Google Maps properties
-    this.map_ = map;
-    this.div_ = null;
+    this._map = map;
     this.setMap(map);
     
     // Set Heatmap drawing defaults
@@ -29,21 +28,28 @@ Heatmap.prototype = new google.maps.OverlayView();
  */
 Heatmap.prototype.onAdd = function() {
   this._canvas = document.createElement('canvas');
+  this._ctx = this._canvas.getContext("2d");
 
+  // Add canvas as a layer to overlay level
   var panes = this.getPanes();
   panes.overlayLayer.appendChild(this._canvas);
-  //document.getElementById('map_container').appendChild(this._canvas);
   
-  this._ctx = this._canvas.getContext("2d");
-  
-  // TODO: Inherit dimensions from parent element
-  this._canvas.width  = 1000 //this._canvas.parentElement.offsetWidth;
-  this._canvas.height = 1000 //this._canvas.parentElement.offsetHeight;
-  
+  // Inherit dimensions from map container element
+  this._canvas.width  = document.getElementById('map_container').offsetWidth;
+  this._canvas.height = document.getElementById('map_container').offsetHeight;
   this._width = this._canvas.width;
   this._height = this._canvas.height;
+  console.log("Canvas size:" + this._width + " x " + this._height);
   
-  console.log("Canvas width:" + this._width);
+  // Set position
+  this._canvas.style.position = "absolute";
+  this._canvas.style.left = 0;
+  this._canvas.style.top = 0;
+  
+  // Set listener to redraw canvas every time user ends dragging of map
+  google.maps.event.addListener(this._map, 'dragend', function(event) {
+    heatmap.draw();
+  });
 }
 
 /**
@@ -52,6 +58,15 @@ Heatmap.prototype.onAdd = function() {
  */
 Heatmap.prototype.draw = function(){
   console.log("Heatmap.draw");
+  
+  // Move the canvas to topleft corner of the map
+  var overlayProjection = this.getProjection();
+  var mapBounds = this._map.getBounds();
+  var sw = overlayProjection.fromLatLngToDivPixel(mapBounds.getSouthWest());
+  var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());
+  this._canvas.style.left = sw.x + 'px';
+  this._canvas.style.top = ne.y + 'px';
+  console.log("left:" + sw.x + " top:" + ne.y);
   
     // Clear canvas
     var width = this._width;
@@ -64,11 +79,10 @@ Heatmap.prototype.draw = function(){
     // Draw hotspots to map
     for (var i = 0; i < hotspotLength; i++) {
         var hotspot = hotspots[i];
-        var point = MapHelper.fromLatLngToPixel(hotspot.latlng, this.map_);
+        var point = MapHelper.fromLatLngToPixel(hotspot.latlng, this._map);
         var hotspotMultiplier = this._hotspotMultiplier || 1;
         var amount = hotspot.count * hotspotMultiplier;
-        
-        console.log("Drawing to: " + point.x +", " + point.y);
+
         for (var j = 0; j < amount; j++) {
           this.addHeat(point.x, point.y);
         }
@@ -102,7 +116,6 @@ Heatmap.prototype.addHeat = function(x, y){
     var multiplier = this._heatMultiplier || 1;
     var hotspotHeat = 0.1;
     var totalHeat = hotspotHeat * multiplier;
-    
     
     // create a radial gradient with the defined parameters. we want to draw an alphamap
     var rgr = ctx.createRadialGradient(x, y, r1, x, y, r2);
