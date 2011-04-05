@@ -64,8 +64,33 @@ header .sliderContainer p{
   height: 100%;
 }
 
-#sidebar{
-  display: none;
-  position: absolute; top: 50px; left: 800px; right: 0px; bottom: 0px;
+#sidebar, #sidebar-bg{
+  position: absolute; top: 70px; left: 20px; width: 300px; bottom: 20px;
+}
+
+#sidebar-bg {
+  z-index: 98;
+  background-color: #111111;  
+  
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  opacity: 0.5;
+  
+}
+
+#sidebar {
+  z-index: 99;
+  color: #FFFFFF;
+  margin: 10px;
+  font-size: 0.8em;
+}
+
+#sidebar h1 {
+  margin-top: 0px;
+  font-size: 1.2em;
 }
 
