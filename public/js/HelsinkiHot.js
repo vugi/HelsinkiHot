@@ -26,7 +26,7 @@ $(document).ready(function(){
     range: "min", 
     slide: function( event, ui ) {
       heatmap.setRadius(ui.value);
-      heatmap.update();
+      heatmap.draw();
   }});
   
   $("#alphaMultiplySlider").slider({
@@ -40,7 +40,7 @@ $(document).ready(function(){
       multiply = ui.value;
       heatmap.setHeatMultiplier(ui.value);
       console.log(multiply);
-      heatmap.update();
+      heatmap.draw();
   }});
   
   $("#hotspotMultiplySlider").slider({
@@ -54,7 +54,7 @@ $(document).ready(function(){
       multiply = ui.value;
       heatmap.setHotspotMultiplier(ui.value);
       console.log(multiply);
-      heatmap.update();
+      heatmap.draw();
   }});
 });
 
@@ -86,11 +86,11 @@ function showForsquareData(jsonData){
 		*/
 	});
 	
-	heatmap.update();	
+	heatmap.draw();	
 }
 
 function initializeMap() {
-    var latlng = new google.maps.LatLng(60.180833,24.9375);
+    var latlng = new google.maps.LatLng(60.170833,24.9375);
     
     /* Custom map type
     See: http://code.google.com/apis/maps/documentation/javascript/maptypes.html#StyledMaps
@@ -123,7 +123,9 @@ function initializeMap() {
     var customMapType = new google.maps.StyledMapType(customMapStyles, customMapOptions);
     
     var myOptions = {
-      zoom: 12,
+      zoom: 13,
+      minZoom: 13,
+      maxZoom: 13,
       center: latlng,
       disableDefaultUI: true,
       mapTypeControl: true,
@@ -138,12 +140,5 @@ function initializeMap() {
   }
   
 function initializeHeatmap() {
-	heatmap = new Heatmap(document.getElementById('canvas'));
-}
-
-function drawPoint(latlng,count) {
-  
-  var x = point.x;
-  var y = point.y;
-  
+	heatmap = new Heatmap(map);
 }

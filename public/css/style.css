@@ -64,13 +64,6 @@ header .sliderContainer p{
   height: 100%;
 }
 
-#canvas{
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 2;
-}
-
 #sidebar{
   display: none;
   position: absolute; top: 50px; left: 800px; right: 0px; bottom: 0px;

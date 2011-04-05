@@ -2,57 +2,57 @@
  * Heatmap
  *
  * @constructor
- */
-var Heatmap = function(canvasElement){
-    this._canvas = canvasElement;
-    this._ctx = canvasElement.getContext("2d");
+ */ 
+var Heatmap = function(map){
+    // Google Maps properties
+    this.map_ = map;
+    this.div_ = null;
+    this.setMap(map);
     
-    // Inherit dimensions from parent element
-    this._ctx.canvas.width  = this._canvas.parentElement.offsetWidth;
-    this._ctx.canvas.height = this._canvas.parentElement.offsetHeight;
-    
-    this._width = canvasElement.width;
-    this._height = canvasElement.height;
-    
-    console.log("Canvas width:" + this._width);
-    
-    // Set defaults
+    // Set Heatmap drawing defaults
     this.setRadius(Heatmap.DEFAULT_RADIUS);
     this.setHeatMultiplier(Heatmap.DEFAULT_ALPHA_MULTIPLIER);
     this.setHotspotMultiplier(Heatmap.DEFAULT_HOTSPOT_MULTIPLIER);
     
-    // Initialize hotspost
+    // Initialize hotspost array
     this._hotspots = [];
-    
-    // Initialize mouse handler
-    // var that = this;
-    // var handler = this.mouseClickHandler
-    // this._canvas["onclick"] = function(ev){ handler(ev, that); };  
 };
 
 /**
- * Change the hotspot radius
- * 
- * @param {number} r new radius
+ * Set the object rototype to Google maps Overlay View
  */
-Heatmap.prototype.setRadius = function(r) {
-  this._radius2 = r;
-  this._radius1 = r / 2;
-};
+Heatmap.prototype = new google.maps.OverlayView();
 
-Heatmap.prototype.setHeatMultiplier = function(multiplier) {
-  this._heatMultiplier = multiplier;
-};
+/**
+ * Creates the canvas element etc
+ * Called automatically by Google Maps when layer is added to a map
+ */
+Heatmap.prototype.onAdd = function() {
+  this._canvas = document.createElement('canvas');
 
-Heatmap.prototype.setHotspotMultiplier = function(multiplier) {
-  this._hotspotMultiplier = multiplier;
-};
+  var panes = this.getPanes();
+  panes.overlayLayer.appendChild(this._canvas);
+  //document.getElementById('map_container').appendChild(this._canvas);
+  
+  this._ctx = this._canvas.getContext("2d");
+  
+  // TODO: Inherit dimensions from parent element
+  this._canvas.width  = 1000 //this._canvas.parentElement.offsetWidth;
+  this._canvas.height = 1000 //this._canvas.parentElement.offsetHeight;
+  
+  this._width = this._canvas.width;
+  this._height = this._canvas.height;
+  
+  console.log("Canvas width:" + this._width);
+}
 
 /**
  * Updates the whole heatmap. This should be done when ever new data
  * comes to the frontend server
  */
-Heatmap.prototype.update = function(){
+Heatmap.prototype.draw = function(){
+  console.log("Heatmap.draw");
+  
     // Clear canvas
     var width = this._width;
     var height = this._height;
@@ -64,10 +64,11 @@ Heatmap.prototype.update = function(){
     // Draw hotspots to map
     for (var i = 0; i < hotspotLength; i++) {
         var hotspot = hotspots[i];
-        var point = MapHelper.fromLatLngToPixel(hotspot.latlng,map);
+        var point = MapHelper.fromLatLngToPixel(hotspot.latlng, this.map_);
         var hotspotMultiplier = this._hotspotMultiplier || 1;
         var amount = hotspot.count * hotspotMultiplier;
         
+        console.log("Drawing to: " + point.x +", " + point.y);
         for (var j = 0; j < amount; j++) {
           this.addHeat(point.x, point.y);
         }
@@ -186,3 +187,21 @@ Heatmap.DEFAULT_ALPHA_MULTIPLIER = 1;
  * @type {number}
  */
 Heatmap.DEFAULT_HOTSPOT_MULTIPLIER = 1;
+
+/**
+ * Change the hotspot radius
+ * 
+ * @param {number} r new radius
+ */
+Heatmap.prototype.setRadius = function(r) {
+  this._radius2 = r;
+  this._radius1 = r / 2;
+};
+
+Heatmap.prototype.setHeatMultiplier = function(multiplier) {
+  this._heatMultiplier = multiplier;
+};
+
+Heatmap.prototype.setHotspotMultiplier = function(multiplier) {
+  this._hotspotMultiplier = multiplier;
+};
