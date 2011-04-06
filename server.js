@@ -122,16 +122,8 @@ var datamodel = {
         {time: new Date("2011-05-10 12:30"), type: 'checkin', points:30},
         {time: new Date("2011-01-05 14:45"), type: 'picture', points:20},
       ]
-    }];
-    datamodel.addEvents(eventData, function(success) {
-      if (success) {
-        console.log('Added sample data: OK');
-      } else {
-        console.log('Added sample data: FAIL');
-      }
-    });
-    
-    eventData = [{name:"T-talo", address: "Konemiehentie 2", 
+    },
+    {name:"T-talo", address: "Konemiehentie 2", 
       latitude: 60.186841, longitude: 24.818006, // not real
       service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62f", // not real
       events: [
@@ -139,7 +131,8 @@ var datamodel = {
         {time: new Date("2011-05-10 12:30"), type: 'checkin', points:30},
         {time: new Date("2011-01-05 14:45"), type: 'picture', points:20},
       ]
-    }];
+    }
+    ];
     datamodel.addEvents(eventData, function(success) {
       if (success) {
         console.log('Added sample data: OK');
