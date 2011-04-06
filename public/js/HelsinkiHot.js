@@ -56,6 +56,16 @@ $(document).ready(function(){
       console.log(multiply);
       heatmap.draw();
   }});
+  
+  $hoverBox = $("<div class='hoverBox'>")
+	  .appendTo("#map_container")
+	  .hide()
+	  .css({
+      position: "fixed",
+      left: 0,
+      top: 0,
+      "z-index": 1000
+    });
 });
 
 function showForsquareData(jsonData){
@@ -63,27 +73,26 @@ function showForsquareData(jsonData){
 		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
 		heatmap.addHotspot(latlng,item.hereNow.count);
 		
-		// Google maps marker
-		/*
-		var marker = new google.maps.Marker({
-		  position: latlng, 
+		var circle = new google.maps.Circle({
+		  center: latlng, 
 		  map: map, 
-		  title: item.name,
-			icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld='+item.hereNow.count+'|C6E7DE|000000'
+		  radius: 300,
+		  fillOpacity: 0,
+      strokeWeight: 0
 		});
-		*/
-		// Google maps Info Window + show on mouseover
-		/*
-		var infowindow = new google.maps.InfoWindow({
-		    content: item.name+'<br/>now: '+item.hereNow.count+'<br/>total: '+item.stats.checkinsCount
-		});	
-		google.maps.event.addListener(marker, 'mouseover', function() {
-		  infowindow.open(map,marker);
+  
+		google.maps.event.addListener(circle, 'mousemove', function() {
+		  $hoverBox
+		    .html(item.name + " <span class='count'>" + item.hereNow.count + "</span>")
+		    .fadeIn('fast')
+		    .css({
+		      left: event.clientX+10,
+		      top: event.clientY
+	      });
 		});
-		google.maps.event.addListener(marker, 'mouseout', function() {
-		  infowindow.close();
+		google.maps.event.addListener(circle, 'mouseout', function() {
+		  $hoverBox.fadeOut();
 		});
-		*/
 	});
 	
 	heatmap.draw();	
