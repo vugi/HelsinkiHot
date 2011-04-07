@@ -1,6 +1,4 @@
-$(document).ready(function() {
-  // Initialize controls
-  var nextSearches = [];
+    var nextSearches = [];
   var firstSearch = true;
   var calculateNextSearches = true;
   var startPoint;
@@ -11,11 +9,10 @@ $(document).ready(function() {
   var currentAngle = 0;
   var angleSteps = 10;
   var newRow = true;
+  var count = 0;
+
+function getVenues() {
   
-  var newRowSizeX, newRowSizeY;
-  
-  $('#fs-search-button').click(function() {
-    
     var lat, lng;
     if (firstSearch) {
       lat = $('#fs-lat').val();
@@ -35,7 +32,10 @@ $(document).ready(function() {
     var queryLatlng = new google.maps.LatLng(lat, lng);
     
     $.getJSON(url, function(data) {
-        
+      
+      count++;
+      
+      
         
       // Google maps marker
       /*
@@ -95,7 +95,7 @@ $(document).ready(function() {
         
       rectPoly.setMap(map);
       
-      var results = "<p>Max lat: " + maxLat + " <br />Min lat: " + minLat + " <br />Max lng: " + maxLng + " <br />Min lng: " + minLng + "<br />Max distance: " + maxDistance + "<br /></p>";
+      var results = "<p>Max lat: " + maxLat + " <br />Min lat: " + minLat + " <br />Max lng: " + maxLng + " <br />Min lng: " + minLng + "<br />Max distance: " + maxDistance + "<br />Count: " + count + "</p>";
       $('#fs-search-result').html(results);
       
       var dxW = Math.abs(queryLatlng.lng() - minLng);
@@ -128,6 +128,8 @@ $(document).ready(function() {
           nextSearches[0] = new google.maps.LatLng(startPoint.lat(), startPoint.lng());
         }
         
+        getVenues();
+        
         /*
         if (!nextRow) {
         
@@ -149,7 +151,16 @@ $(document).ready(function() {
         */
       }
     });
-    
+}
+
+$(document).ready(function() {
+  // Initialize controls
+
+  
+  var newRowSizeX, newRowSizeY;
+  
+  $('#fs-search-button').click(function() {
+    getVenues();
     return false;
   });
   
