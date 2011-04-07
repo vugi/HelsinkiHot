@@ -68,6 +68,29 @@ header .sliderContainer p{
   position: absolute; top: 70px; left: 20px; width: 300px; bottom: 20px;
 }
 
+.hoverBox {
+  color: white;
+  padding: 10px 5px 10px 10px;
+  font-size: 0.9em;
+  background-color: rgba(0,0,0,0.5);
+  
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+}
+
+.hoverBox > span {
+  background-color: white;
+  color: black;
+  padding: 5px 10px;
+  font-size: 0.9em;
+  margin-left: 2px;
+  
+  -webkit-border-radius: 1.5em;
+  -moz-border-radius: 1.5em;
+  border-radius: 1.5em;
+}
+
 #sidebar-bg {
   z-index: 98;
   background-color: #111111;  
