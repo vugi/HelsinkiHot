@@ -278,6 +278,57 @@ var output = {
 // init the data model
 datamodel.init({addTestData: false});
 
+// Foursquare poller
+var foursquarePoller = require("./foursquare/FoursquarePoller.js");
+var poller = foursquarePoller(function(data) {
+
+ /*
+  * Example data:
+  * [{name:"Kauniainen", address: "Kauniaistentie 10",
+  *   latitude: 60.20982564510065, longitude: 24.72975254058838,
+  *   service: "foursquare", serviceId: "4be57f67477d9c74fba9e62d",
+  *   events: [
+  *     {time: new Date(), type: 'checkin', points:10},
+  *     {time: new Date(60*60*24*365*40), type: 'checkin', points:30},
+  *     {time: new Date("2011-01-05 14:45"), type: 'checkin', points:10},
+  *   ]
+  * }]
+  */  
+  
+  var items = data.response.groups[0].items;
+  var itemsLength = items.length;
+  var events = [];
+  for (var i = 0; i < itemsLength; i++) {
+    var item = items[i];
+    var location = item.location;
+    events.push({
+      name: item.name,
+      latitude: location.lat,
+      longitude: location.lng,
+      service: "foursquare",
+      serviceId: "123",
+      events: [{
+        time: new Date(),
+        type: 'checkin',
+        points: item.hereNow.count 
+      }]
+    });
+  }
+  
+  if (events.length > 0) {
+    datamodel.addEvents(events, function(success){
+      if (success) {
+        console.log(events.length + " events added to datamodel");
+      }
+      else {
+        console.log("Error while adding data to datamodel");
+      }
+    });
+  } else {
+    console.log("No events added");
+  }
+}).start();
+
 app.get('/api', function(req, res){
 	res.send('hello world from api!');	
 });
