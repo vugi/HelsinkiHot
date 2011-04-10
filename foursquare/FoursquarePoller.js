@@ -5,8 +5,9 @@ var https = require('https');
  * 
  */
 function foursquarePoller(_callback) {
-  var _pollingLimitPerHour = 500;
+  var _pollingLimitPerHour = 5000;
   var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
+  var _logPolling = false;
   
   var _pollingCenterLat = 60.166280;
   var _pollingCenterLng = 24.936905;
@@ -41,6 +42,9 @@ function foursquarePoller(_callback) {
     var items = result.response.groups[0].items;
     var itemsLength = items.length;
     
+    // Parsed events
+    var events = [];
+    
     for (var i = 0; i < itemsLength; i++) {
       var item = items[i];
       var location = item.location;
@@ -48,6 +52,25 @@ function foursquarePoller(_callback) {
       maxLng = Math.max(maxLng, location.lng);
       minLat = Math.min(minLat, location.lat);
       minLng = Math.min(minLng, location.lng);
+      
+      var event = {
+        name: item.name,
+        latitude: location.lat,
+        longitude: location.lng,
+        service: "foursquare",
+        serviceId: item.id
+      };
+      
+      var hereNow = parseInt(item.hereNow.count);
+      if(hereNow > 0)
+      
+        event.events = [{
+          time: new Date(),
+          type: 'checkin',
+          points: hereNow
+        }];
+      
+      events.push(event);
     }
     
     var dxW = Math.abs(originalLng - minLng);
@@ -67,7 +90,7 @@ function foursquarePoller(_callback) {
       _nextLatLng = {lat: _pollingCenterLat, lng: _pollingCenterLng};
     }
     
-    _callback(result);
+    _callback(events);
   }
   
   /**
@@ -82,7 +105,9 @@ function foursquarePoller(_callback) {
     if(lastLat === lat && lastLng === lng) {
       if (_reqFailedCount < 5) {
         // Do not do polling if the previous request is not completed
-        console.log((new Date()).toString() + ": Postponing request because the previous request is not completed");
+        if (_logPolling) {
+          console.log((new Date()).toString() + ": Postponing request because the previous request is not completed");
+        }
         _reqFailedCount++;
         return;
       } else {
@@ -97,8 +122,6 @@ function foursquarePoller(_callback) {
     _lastLatLng = {lat: lat, lng: lng};
   
     var path = _path.replace("#{lat}", lat).replace("#{lng}", lng);
-  
-    console.log((new Date()).toString() + ": host: " + _host + ", path: " + path);
   
     https.get({ host: _host, path: path }, function(res) {
       console.log("statusCode: ", res.statusCode);

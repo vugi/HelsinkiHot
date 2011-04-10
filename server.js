@@ -6,6 +6,7 @@ var https = require('https');
 var host = "api.foursquare.com";
 var path = "/v2/venues/trending?ll=60.170833,24.9375&limit=50&radius=1000000&client_id=LTEVQYSCQZZQKSPR1XAI4B0SAUD44AN4JKNURCL1ZFJ1IBDZ&client_secret=TL2ALQWU4VV5J5R5BCH3Z53EDFOU5KLSOIFZSJGLOSK4NGH1";
 var mongoose = require('mongoose');
+var Query = require('mongoose/query')
 
 // Middleware configurations
 app.configure(function(){
@@ -219,6 +220,14 @@ var datamodel = {
     datamodel.models.Venue.find(data, function(err, venuedata) {
       callback(venuedata);
     });
+  },
+  getAllVenues: function(data, callback) {
+    var q = new Query();
+    q.where('events.points').gt(0);
+    
+    datamodel.models.Venue.find(q, function(err, venuedata) {
+      callback(venuedata);
+    });
   }
 }
 
@@ -280,41 +289,7 @@ datamodel.init({addTestData: false});
 
 // Foursquare poller
 var foursquarePoller = require("./foursquare/FoursquarePoller.js");
-var poller = foursquarePoller(function(data) {
-
- /*
-  * Example data:
-  * [{name:"Kauniainen", address: "Kauniaistentie 10",
-  *   latitude: 60.20982564510065, longitude: 24.72975254058838,
-  *   service: "foursquare", serviceId: "4be57f67477d9c74fba9e62d",
-  *   events: [
-  *     {time: new Date(), type: 'checkin', points:10},
-  *     {time: new Date(60*60*24*365*40), type: 'checkin', points:30},
-  *     {time: new Date("2011-01-05 14:45"), type: 'checkin', points:10},
-  *   ]
-  * }]
-  */  
-  
-  var items = data.response.groups[0].items;
-  var itemsLength = items.length;
-  var events = [];
-  for (var i = 0; i < itemsLength; i++) {
-    var item = items[i];
-    var location = item.location;
-    events.push({
-      name: item.name,
-      latitude: location.lat,
-      longitude: location.lng,
-      service: "foursquare",
-      serviceId: "123",
-      events: [{
-        time: new Date(),
-        type: 'checkin',
-        points: item.hereNow.count 
-      }]
-    });
-  }
-  
+var poller = foursquarePoller(function(events) {
   if (events.length > 0) {
     datamodel.addEvents(events, function(success){
       if (success) {
@@ -395,7 +370,9 @@ app.get('/api/venues', function(req, res){
 });
 
 app.get('/api/venues2', function(req,res) {
-  datamodel.getVenues({}, function(venuedata) {
+  console.log("Got request to /api/venues2")
+  datamodel.getAllVenues({}, function(venuedata) {
+    console.log("Got the venues");
     var venues = output.format(venuedata);
     res.send(venues);
   });
