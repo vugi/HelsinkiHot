@@ -6,7 +6,7 @@ var https = require('https');
 var host = "api.foursquare.com";
 var path = "/v2/venues/trending?ll=60.170833,24.9375&limit=50&radius=1000000&client_id=LTEVQYSCQZZQKSPR1XAI4B0SAUD44AN4JKNURCL1ZFJ1IBDZ&client_secret=TL2ALQWU4VV5J5R5BCH3Z53EDFOU5KLSOIFZSJGLOSK4NGH1";
 var mongoose = require('mongoose');
-var Query = require('mongoose/query')
+var Query = require('mongoose/query');
 
 // Middleware configurations
 app.configure(function(){
