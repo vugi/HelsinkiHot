@@ -47,6 +47,7 @@ function foursquarePoller(_callback) {
     
     for (var i = 0; i < itemsLength; i++) {
       var item = items[i];
+      
       var location = item.location;
       maxLat = Math.max(maxLat, location.lat);
       maxLng = Math.max(maxLng, location.lng);
@@ -58,17 +59,9 @@ function foursquarePoller(_callback) {
         latitude: location.lat,
         longitude: location.lng,
         service: "foursquare",
-        serviceId: item.id
+        serviceId: item.id,
+        checkinsCount: item.stats.checkinsCount
       };
-      
-      var hereNow = parseInt(item.hereNow.count);
-      if(hereNow > 0)
-      
-        event.events = [{
-          time: new Date(),
-          type: 'checkin',
-          points: hereNow
-        }];
       
       events.push(event);
     }
@@ -122,6 +115,8 @@ function foursquarePoller(_callback) {
     _lastLatLng = {lat: lat, lng: lng};
   
     var path = _path.replace("#{lat}", lat).replace("#{lng}", lng);
+  
+    console.log(path);
   
     https.get({ host: _host, path: path }, function(res) {
       console.log("statusCode: ", res.statusCode);

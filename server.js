@@ -93,6 +93,7 @@ var datamodel = {
       longitude   : Number,
       service     : String,
       serviceId   : String,
+      checkinsCount : Number,
       events      : [Event]
     });
     
@@ -202,11 +203,38 @@ var datamodel = {
         venue.longitude = data.longitude;
       }
       
+      var oldCheckinsCount = venue.checkinsCount || 0;
+      var newCheckinsCount = data.checkinsCount;
+      
+      console.log(venue.name + ' - old: ' + oldCheckinsCount + ' new: ' + newCheckinsCount);
+      
+      if (newCheckinsCount > oldCheckinsCount) {
+        // New checkins! Add events
+        
+        var checkinDifference = newCheckinsCount - oldCheckinsCount;
+        
+        // Add event
+        var newEvent = {
+          time: new Date(),
+          type: 'checkin',
+          points: checkinDifference
+        };
+        
+        venue.events.push(newEvent);
+        
+        // console.log("Added event with points" + newEvent.points);
+        
+        // Update total checkin count
+        venue.checkinsCount = newCheckinsCount;
+      }
+      
+      /*
       for (var i in data.events) {
         var ev = data.events[i];
         console.log('Adding event ' + utils.inspect(ev) + ' to the event');
         venue.events.push(ev);
       }
+      */
       
       venue.save(function(err) {
         console.log('Updated the venue ' + venue.name);
