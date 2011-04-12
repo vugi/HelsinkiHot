@@ -11,10 +11,20 @@ function foursquarePoller(_callback) {
   
   var _pollingCenterLat = 60.166280;
   var _pollingCenterLng = 24.936905;
+  
+  // Smaller area for development
+  /*
+  var _lngMinLimit = 24.919224;
+  var _lngMaxLimit = 24.921627;
+  var _latMinLimit = 60.167966;
+  var _latMaxLimit = 60.168244;
+  */
+ 
   var _lngMaxLimit = 25.089684;
   var _lngMinLimit = 24.729538;
   var _latMaxLimit = 60.255486;
   var _latMinLimit = 60.129880;
+  
   var _currentAngle = 0;
   var _angleSteps = 13;
   var _nextLatLng = {lat: _pollingCenterLat, lng: _pollingCenterLng};
