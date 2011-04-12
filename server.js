@@ -205,9 +205,12 @@ var datamodel = {
       var oldCheckinsCount = venue.checkinsCount || 0;
       var newCheckinsCount = data.checkinsCount;
       
-      console.log(venue.name + ' - old: ' + oldCheckinsCount + ' new: ' + newCheckinsCount);
+      // console.log(venue.name + ' - old: ' + oldCheckinsCount + ' new: ' + newCheckinsCount);
       
-      if (newCheckinsCount > oldCheckinsCount) {
+      if (oldCheckinsCount == 0) {
+        venue.checkinsCount = newCheckinsCount;
+      }
+      else if (newCheckinsCount > oldCheckinsCount) {
         // New checkins! Add events
         
         var checkinDifference = newCheckinsCount - oldCheckinsCount;
@@ -236,11 +239,11 @@ var datamodel = {
       */
       
       venue.save(function(err) {
-        console.log('Updated the venue ' + venue.name);
+        // console.log('Updated the venue ' + venue.name);
         if (typeof callback === "function") {
           callback(!err);
         }
-        });
+      });
     });
   },
   getVenues: function(data, callback) {

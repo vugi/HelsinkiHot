@@ -12,10 +12,10 @@ $(document).ready(function(){
 	/* Foursquare */
 	$.ajax({
 		type: "GET",
-		url: "api/venues",
+		url: "api/venues2",
    		success: function(jsonData){
-			console.log(jsonData);
-			showForsquareData(jsonData);
+			showPolledForsquareData(jsonData);
+      // showForsquareData(jsonData);
 		}
 	});
   
@@ -67,6 +67,49 @@ $(document).ready(function(){
       "z-index": 1000
     });
 });
+
+function showPolledForsquareData(jsonData){
+  var limit = 100;
+  
+  $(jsonData).each(function(i,item){
+    if (limit <= i) {
+      return;
+    }
+    
+    var latlng = new google.maps.LatLng(item.latitude, item.longitude);
+    var lastIndex = item.events.length > 0 ? item.events.length - 1 : 0;
+    var latestEvent = item.events[lastIndex];    
+
+    heatmap.addHotspot(latlng, latestEvent.points);
+    
+    /*
+    heatmap.addHotspot(latlng,item.hereNow.count);
+    
+    var circle = new google.maps.Circle({
+      center: latlng, 
+      map: map, 
+      radius: 300,
+      fillOpacity: 0,
+      strokeWeight: 0
+    });
+  
+    google.maps.event.addListener(circle, 'mousemove', function() {
+      $hoverBox
+        .html(item.name + " <span class='count'>" + item.hereNow.count + "</span>")
+        .fadeIn('fast')
+        .css({
+          left: event.clientX+10,
+          top: event.clientY
+        });
+    });
+    google.maps.event.addListener(circle, 'mouseout', function() {
+      $hoverBox.fadeOut();
+    });
+    */
+  });
+  
+  heatmap.draw(); 
+}
 
 function showForsquareData(jsonData){
 	$(jsonData).each(function(i,item){				
