@@ -177,7 +177,7 @@ var datamodel = {
     datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {
       var venue;
       if (venues.length == 1) {
-        console.log("Venue " + venues[0].name + " found");
+        //console.log("Venue " + venues[0].name + " found");
         venue = venues[0];
       } else if (venues.length > 1) {
         console.warn("Found multiple venues with service: " + data.service + ", id: " 
@@ -236,7 +236,7 @@ var datamodel = {
       */
       
       venue.save(function(err) {
-        console.log('Updated the venue ' + venue.name);
+        //console.log('Updated the venue ' + venue.name);
         if (typeof callback === "function") {
           callback(!err);
         }
@@ -266,36 +266,36 @@ var output = {
     
     for (var i in input) {
       var out = [];
-      var v = input[i];
-      var c = {}; // custom format venue
+      var input_venue = input[i];
+      var output_venue = {}; // custom format venue
       
       // add needed the fields
       for (var j in output.venue_fields) {
-        var f = output.venue_fields[j];
-        c[f] = v[f];
+        var field = output.venue_fields[j];
+        output_venue[field] = input_venue[field];
       }
       
       // add events
-      c.events = [];
+      output_venue.events = [];
       
-      for (var j = 0; j< v.events.length; j++) {
-        var e = v.events[j];
-        var ce = {};
+      for (var j = 0; j< input_venue.events.length; j++) {
+        var input_event = input_venue.events[j];
+        var output_event = {};
         
         // add the needed fields
         for (var k in output.event_fields) {
-          var f = output.event_fields[k];
-          ce[f] = e[f];
+          var field = output.event_fields[k];
+          output_event[field] = input_event[field];
         }
 
-        if (!since || ce.time > since) {
-          c.events.push(ce);
+        if (!since || output_event.time > since) {
+          output_venue.events.push(output_event);
         }
       }
         
       //c.events.push()
-      if (c.events.length > 0) {
-        venues.push(c);
+      if (output_venue.events.length > 0) {
+        venues.push(output_venue);
       }
       
     }
@@ -353,7 +353,12 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     var timestamp = parseInt(req.params.timestamp);
     
     if (timestamp == 0 || timestamp) {
-      since = new Date(timestamp);
+      if (timestamp >= 0) { 
+        since = new Date(timestamp);
+      } else { // negative means relative from now
+        console.log()
+        since = new Date(new Date().getTime()+timestamp)
+      }
       var venues = output.format(venuedata, since);
       res.send({venues: venues, timestamp: new Date().getTime()});
     } else {
