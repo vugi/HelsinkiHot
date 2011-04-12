@@ -82,9 +82,6 @@ function showPolledForsquareData(jsonData){
 
     heatmap.addHotspot(latlng, latestEvent.points);
     
-    /*
-    heatmap.addHotspot(latlng,item.hereNow.count);
-    
     var circle = new google.maps.Circle({
       center: latlng, 
       map: map, 
@@ -95,7 +92,7 @@ function showPolledForsquareData(jsonData){
   
     google.maps.event.addListener(circle, 'mousemove', function() {
       $hoverBox
-        .html(item.name + " <span class='count'>" + item.hereNow.count + "</span>")
+        .html(item.name + " <span class='count'>" + latestEvent.points + "</span>")
         .fadeIn('fast')
         .css({
           left: event.clientX+10,
@@ -105,7 +102,6 @@ function showPolledForsquareData(jsonData){
     google.maps.event.addListener(circle, 'mouseout', function() {
       $hoverBox.fadeOut();
     });
-    */
   });
   
   heatmap.draw(); 
