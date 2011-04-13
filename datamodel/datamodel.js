@@ -137,14 +137,15 @@ var datamodel = {
     datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {
       var venue;
       if (venues.length == 1) {
-        //console.log("Venue " + venues[0].name + " found");
+        console.log("Venue " + venues[0].name + " found, checkins: " + venues[0].checkinsCount);
         venue = venues[0];
       } else if (venues.length > 1) {
-        console.warn("Found multiple venues with service: " + data.service + ", id: " 
-        + data.serviceId + ", choosing the first one.");
+        // console.warn("Found multiple venues with service: " + data.service + ", id: " 
+        // + data.serviceId + ", choosing the first one.");
         venue = venues[0];
       } else {
-        console.log("Creating a new venue with data " + utils.inspect(data));
+        // console.log("Creating a new venue with data " + utils.inspect(data));
+        console.log("Creating a new venue " + data.name + ", checkins: " + data.checkinsCount);
         venue = new datamodel.models.Venue();
         venue.service = data.service;
         venue.serviceId = data.serviceId;
@@ -181,6 +182,8 @@ var datamodel = {
           type: 'checkin',
           points: checkinDifference
         };
+        
+        console.log('* * * * * * Found new checkin to ' + venue.name + ' worth ' + checkinDifference + ' points * * * * * * * *');
         
         venue.events.push(newEvent);
         

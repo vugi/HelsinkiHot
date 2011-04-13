@@ -49,7 +49,18 @@ function foursquarePoller(_callback) {
     var minLat = 999999;
     var minLng = 999999;
     
-    var items = result.response.groups[0].items;
+    var groups = result.response.groups;
+    
+    var groupsLength = groups.length;
+    
+    for(var i = 0; i < groupsLength; i++){
+      var group = groups[i];
+      if (group.type === 'nearby') {
+        items = group.items;
+        break;
+      }
+    }
+    
     var itemsLength = items.length;
     
     // Parsed events
@@ -126,10 +137,7 @@ function foursquarePoller(_callback) {
   
     var path = _path.replace("#{lat}", lat).replace("#{lng}", lng);
   
-    console.log(path);
-  
     https.get({ host: _host, path: path }, function(res) {
-      console.log("statusCode: ", res.statusCode);
       res.body = '';
       res.on('data', function(chunk) {
           res.body += chunk;
