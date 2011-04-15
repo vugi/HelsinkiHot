@@ -6,8 +6,16 @@ var _ = require('../lib/underscore');
  * 
  */
 function foursquarePoller(_callback) {
-  var _pollingLimitPerHour = 5000;
-  var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
+  
+  /*
+   * Because we are waiting always the previous request to be 
+   * completed and parsed, we are not able to break the polling limit.
+   * 
+   * That's why I set up there interval 500ms
+   */
+  // var _pollingLimitPerHour = 5000;
+  // var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
+  var _pollingInterval = 500;
   var _logPolling = false;
   
   var _pollingCenterLat = 60.166280;
@@ -102,7 +110,7 @@ function foursquarePoller(_callback) {
         _nextLatLng.lng < _lngMinLimit) {
     
       // Limits exceeded. Increase the angle and set next polling position to the center.  
-      _currentAngle += _angleSteps;
+      _currentAngle += _angleChange;
       _nextLatLng = {lat: _pollingCenterLat, lng: _pollingCenterLng};
     
     }
@@ -125,14 +133,13 @@ function foursquarePoller(_callback) {
     // Reason for not updating the position is usually that the poller 
     // was not able to calculate the new position because the response failed
     if(lastLat === lat && lastLng === lng) {
-      if (_reqFailedCount < 5) {
-        console.log((new Date()).toString() + ": Postponing request because the previous request is not completed");
+      if (_reqFailedCount < 10) {
         _reqFailedCount++;
         return;
         
       } else {
         // If polling has failed five times in a row, reset the polling position and try again
-        console.log("Polling failed 5 times in a row... Trying again");
+        console.log("Polling failed 10 times in a row... Trying again");
         lat = _pollingCenterLat;
         lng = _pollingCenterLng;
       }
