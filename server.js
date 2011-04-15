@@ -16,17 +16,6 @@ app.configure(function(){
 });
 
 utils = {
-  // http://bonta-kun.net/wp/2007/07/05/javascript-typeof-with-array-support/
-  typeOf: function(obj) {
-    if ( typeof(obj) == 'object' ) {
-      if (obj.length)
-        return 'array';
-      else
-        return 'object';
-    } else {
-      return typeof(obj);
-    }
-  },
   inspect: function(obj) {
     if (typeof obj === "object") {
       var str = "{";
