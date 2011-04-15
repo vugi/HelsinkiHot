@@ -85,9 +85,10 @@ function showPolledForsquareData(jsonData){
     var circle = new google.maps.Circle({
       center: latlng, 
       map: map, 
-      radius: 300,
+      radius: 200,
       fillOpacity: 0,
-      strokeWeight: 0
+      strokeWeight: 0,
+			strokeOpacity: 0
     });
   
     google.maps.event.addListener(circle, 'mousemove', function() {
@@ -117,7 +118,7 @@ function showForsquareData(jsonData){
 		  map: map, 
 		  radius: 300,
 		  fillOpacity: 0,
-      strokeWeight: 0
+			strokeWeight: 0
 		});
   
 		google.maps.event.addListener(circle, 'mousemove', function() {
