@@ -66,6 +66,22 @@ $(document).ready(function(){
       top: 0,
       "z-index": 1000
     });
+    
+  // Socket.io test
+  var socket = new io.Socket("localhost"); 
+  socket.on('connect', function(){ 
+    alert("Connected to scoket");
+    socket.send('hi!'); 
+  }); 
+  socket.on('message', function(data){ 
+    alert("Socket message: " + data);
+  });
+  socket.on('disconnect', function(){
+    alert("Socket disconnected");
+  }); 
+  
+  socket.connect();
+  
 });
 
 function showPolledForsquareData(jsonData){

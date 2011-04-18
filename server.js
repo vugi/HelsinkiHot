@@ -9,13 +9,28 @@ var mongoose = require('mongoose');
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 var loggerModule = require('./utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var logger = loggerModule(loggerModule.level.DEBUG);
 
 // Middleware configurations
 app.configure(function(){
   app.use(express.static(__dirname + '/public'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
+
+// socket.io 
+var io = require('socket.io'); 
+var socket = io.listen(app); 
+socket.on('connection', function(client){ 
+  logger.debug("New socket connection");
+
+  client.on('message', function(message){
+    logger.debug("Socket message: " + message);
+  });
+   
+  client.on('disconnect', function(){
+    logger.debug("Socket disconnected");
+  });
+}); 
 
 utils = {
   inspect: function(obj) {

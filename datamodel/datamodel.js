@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.DEBUG);
+var logger = loggerModule(loggerModule.level.LOG);
 
 var datamodel = {
   connect: function(dbname) {
