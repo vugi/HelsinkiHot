@@ -20,11 +20,32 @@ app.configure(function(){
 // socket.io 
 var io = require('socket.io'); 
 var socket = io.listen(app); 
+
+var socketUtilModule = require('./socket/socket_util.js');
+var socketUtil = socketUtilModule();
+var socketClients = {};
+var pollingAreaClients = {};
+
 socket.on('connection', function(client){ 
   logger.debug("New socket connection");
 
   client.on('message', function(message){
-    logger.debug("Socket message: " + message);
+    var data = JSON.parse(message);
+    var actionName = data.request;
+    
+    if(actionName === 'requestPollingAreas') {
+      
+    }
+    else if(actionName === 'requestPollingAreas') {
+      
+    }
+    else if(actionName === 'requestPollingAreas') {
+      
+    }
+    else {
+      logger.error('Illegal socket request: ' + actionName);
+    }
+    
   });
    
   client.on('disconnect', function(){

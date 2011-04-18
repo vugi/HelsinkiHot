@@ -71,7 +71,7 @@ $(document).ready(function(){
   var socket = new io.Socket("localhost"); 
   socket.on('connect', function(){ 
     alert("Connected to scoket");
-    socket.send('hi!'); 
+    socket.send('{"request": "requestPollingAreas"}'); 
   }); 
   socket.on('message', function(data){ 
     alert("Socket message: " + data);
