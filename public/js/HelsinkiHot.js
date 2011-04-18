@@ -5,19 +5,21 @@
 var map;
 var heatmap;
 
+
 $(document).ready(function(){
-	initializeMap();
-	initializeHeatmap();
-	
-	/* Foursquare */
-	$.ajax({
-		type: "GET",
-		url: "api/venues2",
-   		success: function(jsonData){
-			showPolledForsquareData(jsonData);
-      // showForsquareData(jsonData);
-		}
-	});
+  initializeMap();
+  initializeHeatmap();
+  
+  getVenueData(1);
+  
+  $("#daysSlider").slider({
+    min: 1, 
+    max: 10,
+    value: 1, 
+    range: "min", 
+    change: function( event, ui ) {
+      getVenueData(ui.value);
+  }});
   
   $("#radiusSlider").slider({
     min: 5, 
@@ -70,24 +72,46 @@ $(document).ready(function(){
   // Socket.io test
   var socket = new io.Socket("localhost"); 
   socket.on('connect', function(){ 
-    alert("Connected to scoket");
+    console.log("Connected to scoket");
     socket.send('hi!'); 
   }); 
   socket.on('message', function(data){ 
-    alert("Socket message: " + data);
+    console.log("Socket message: " + data);
   });
   socket.on('disconnect', function(){
-    alert("Socket disconnected");
+    console.log("Socket disconnected");
   }); 
   
   socket.connect();
   
 });
 
-function showPolledForsquareData(jsonData){
+function getVenueData(days){
+  showLoader(true);
+  if (!days){
+    days = 1;
+  }
+  var time = new Date();
+  time.setDate(time.getDate()-days);
+  $.ajax({
+    type: "GET",
+    url: "api/venues/since/"+time.getTime(),
+    success: function(jsonData){
+      showPolledForsquareData(jsonData.venues);
+      // showForsquareData(jsonData);
+      showLoader(false);
+    }
+  });
+}
+
+function showPolledForsquareData(venues){
   var limit = 100;
   
-  $(jsonData).each(function(i,item){
+  if (venues.length == 0){
+    alert("No events found! Try increasing time span.")
+  }
+  
+  $(venues).each(function(i,item){
     if (limit <= i) {
       return;
     }
@@ -98,15 +122,15 @@ function showPolledForsquareData(jsonData){
 
     heatmap.addHotspot(latlng, latestEvent.points);
     
-    var circle = new google.maps.Circle({
+    var circle = new google.maps.Marker({
       center: latlng, 
       map: map, 
-      radius: 200,
+      //radius: 100,
       fillOpacity: 0,
       strokeWeight: 0,
-			strokeOpacity: 0
+      strokeOpacity: 0
     });
-  
+    
     google.maps.event.addListener(circle, 'mousemove', function() {
       $hoverBox
         .html(item.name + " <span class='count'>" + latestEvent.points + "</span>")
@@ -119,6 +143,7 @@ function showPolledForsquareData(jsonData){
     google.maps.event.addListener(circle, 'mouseout', function() {
       $hoverBox.fadeOut();
     });
+    
   });
   
   heatmap.draw(); 
@@ -206,4 +231,17 @@ function initializeMap() {
   
 function initializeHeatmap() {
 	heatmap = new Heatmap(map);
+}
+
+function showLoader(boolean){
+  if(boolean){
+    console.log("Show loader");
+    $("<div id='loader'>Loading venues</div>").hide().appendTo("body").fadeIn('slow');
+  } else {
+    console.log("Hide loader");
+    $("#loader").fadeOut('slow',function(){
+      $(this).remove();
+    });
+  }
+  
 }
