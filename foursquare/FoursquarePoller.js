@@ -1,5 +1,7 @@
 var https = require('https');
 var _ = require('../lib/underscore');
+var loggerModule = require('../utils/logger');
+var logger = loggerModule(loggerModule.level.LOG);
 
 /**
  * Returns new Foursquare poller. This method is kind of a "factory" method
@@ -42,7 +44,7 @@ function foursquarePoller(_callback) {
   
   var _interval;
   
-  console.log("FoursquarePoller initialized");
+  logger.log("FoursquarePoller initialized");
   
   /* ...................... PRIVATE METHODS ....................... */
   
@@ -62,12 +64,20 @@ function foursquarePoller(_callback) {
     var minLat = 999999;
     var minLng = 999999;
     
-    var groups = result.response.groups;
-    var nearby = _.detect(groups, function(group) { return group.type === 'nearby'});
-    var items = nearby.items;
+    try {
+      var groups = result.response.groups;
+      var nearby = _.detect(groups, function(group){
+        return group.type === 'nearby'
+      });
+      var items = nearby.items;
+    } 
+    catch (err) {
+      logger.error("Error while parsing result. No 'items' found from response");
+      logger.log(result.response);
+    }
     
     if(items == null) {
-      console.warn("No 'nearby' group found from the response");
+      logger.warn("No 'nearby' group found from the response");
     }
     
     // Parsed events
@@ -139,7 +149,7 @@ function foursquarePoller(_callback) {
         
       } else {
         // If polling has failed five times in a row, reset the polling position and try again
-        console.log("Polling failed 10 times in a row... Trying again");
+        logger.warn("Polling failed 10 times in a row... Trying again");
         lat = _pollingCenterLat;
         lng = _pollingCenterLng;
       }
@@ -159,14 +169,14 @@ function foursquarePoller(_callback) {
         try {
           _parseResult(JSON.parse(res.body), lat, lng);
         } catch (err) {
-          console.log("Error in parsing venues");
-          console.log("headers: ", res.headers);
-          console.error(err);
+          logger.error("Error in parsing venues");
+          logger.debug("headers: ", res.headers);
+          logger.error(err);
         }
       });
     }).on('error', function(e) {
-      console.log("Error in loading venues");
-      console.error(e);
+      logger.error("Error in loading venues");
+      logger.error(e);
     });
   }
   

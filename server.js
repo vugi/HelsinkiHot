@@ -8,6 +8,8 @@ var path = "/v2/venues/trending?ll=60.170833,24.9375&limit=50&radius=1000000&cli
 var mongoose = require('mongoose');
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
+var loggerModule = require('./utils/logger');
+var logger = loggerModule(loggerModule.level.LOG);
 
 // Middleware configurations
 app.configure(function(){
@@ -95,7 +97,7 @@ var poller = foursquarePoller(function(events) {
       // Nothing here... logging maybe
     });
   } else {
-    console.log("No events added");
+    logger.log("No events added");
   }
 }).start();
 
@@ -132,13 +134,12 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
       if (timestamp >= 0) { 
         since = new Date(timestamp);
       } else { // negative means relative from now
-        console.log()
         since = new Date(new Date().getTime()+timestamp)
       }
       var venues = output.format(venuedata, since);
       res.send({venues: venues, timestamp: new Date().getTime()});
     } else {
-      console.warn('tried to get venues since invalid timestamp (' + 
+      logger.warn('tried to get venues since invalid timestamp (' + 
         timestamp + ')');
       res.send({status: 400, error: 'invalid timestamp'});
     }
@@ -153,9 +154,9 @@ app.get('/api/db_test', function(req, res){
   var instance = datamodel.testDB()
   
   instance.save(function() {
-    console.log("\nSave successful\n");
-    console.log("Instance details:");
-    console.log(instance);
+    logger.log("\nSave successful\n");
+    logger.log("Instance details:");
+    logger.log(instance);
 
     res.send(instance);
   });
@@ -164,7 +165,7 @@ app.get('/api/db_test', function(req, res){
 
 app.get('/api/venues', function(req, res){
 	getVenues(function(json){
-		console.log(json.response.venues);
+		logger.log(json.response.venues);
 		res.send(json.response.venues);
 	});
 });
@@ -186,8 +187,8 @@ app.get('/api/venues2/:name', function(req, res) {
   });
   /*datamodel.models.Venue.find({}, function(err, venuedata) {
     for (var i in venuedata) {
-      console.log("\n\nVenue:\n")
-      console.log(venuedata[i].doc);
+      logger.log("\n\nVenue:\n")
+      logger.log(venuedata[i].doc);
       venues.push(venuedata[i].doc);
     }
     res.send(venues);
@@ -200,8 +201,8 @@ app.get('/api/venues2/:name', function(req, res) {
  */
 function getVenues(callback){
 	https.get({ host: host, path: path }, function(res) {
-		console.log("statusCode: ", res.statusCode);
-		console.log("headers: ", res.headers);
+		logger.log("statusCode: ", res.statusCode);
+		logger.log("headers: ", res.headers);
 		res.body = '';
 		res.on('data', function(chunk) {
 	  		res.body += chunk;
@@ -209,19 +210,19 @@ function getVenues(callback){
 		res.on('end', function(){
 			//callback(res.body);
 			try {
-				//console.log(res.body);
+				//logger.log(res.body);
 				callback(JSON.parse(res.body));
 			} catch (err) {
-				console.log("Error in parsing venues");
-				console.error(err);
+				logger.log("Error in parsing venues");
+				logger.error(err);
 			}
 		});
 	}).on('error', function(e) {
-		console.log("Error in loading venues");
-		console.error(e);
+		logger.log("Error in loading venues");
+		logger.error(e);
 	});
 }
 
 app.listen(port);
 
-console.log('Server running at port ' + port);
+logger.log('Server running at port ' + port);
