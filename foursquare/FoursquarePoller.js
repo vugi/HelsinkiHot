@@ -9,16 +9,8 @@ var socketAPI = require('../socket/socket_api')();
  * 
  */
 function foursquarePoller(_client_id, _client_secret, _callback) {
-  
-  /*
-   * Because we are waiting always the previous request to be 
-   * completed and parsed, we are not able to break the polling limit.
-   * 
-   * That's why I set up there interval 500ms
-   */
-  // var _pollingLimitPerHour = 5000;
-  // var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
-  var _pollingInterval = 500;
+  var _pollingLimitPerHour = 5000;
+  var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
   var _logPolling = false;
   
   var _pollingCenterLat = 60.166280;
@@ -93,7 +85,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       items = nearby.items;
     } 
     // Log errors
-    else if (response.meta) {
+    else if (result.meta) {
       var meta = response.meta;
       var errorType = meta.errorType;
       if(errorType){
