@@ -2,7 +2,7 @@ var socket = {
   //var socket;
   initializeSocket: function() {
     // Socket.io test
-    socket.socket = new io.Socket("localhost"); 
+    socket.socket = new io.Socket(document.domain); 
     socket.socket.on('connect', function(){
       console.log("Socket connected!");
       //showPollingArea();
@@ -55,8 +55,9 @@ var socket = {
   showNewEvent: function(ev) {
     console.log(ev);
     $('#fs-event-log ul').append("<li>" + 
-      ev.event.points + " @ " + ev.venue.name + 
+      ev.venue.events[0].points + " @ " + ev.venue.name + 
       "</li>");
+      addVenue(ev.venue,true);
   },
 
   showPollingArea: function() {

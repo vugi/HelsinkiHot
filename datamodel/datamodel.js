@@ -206,8 +206,11 @@ var datamodel = {
         // notify event listeners
         _.each(datamodel.eventListeners, function(listener) {
           listener({venue: 
-            {name: venue.name, latitude: venue.latitude, longitude: venue.longitude}
-            , event: newEvent});
+            {
+              name: venue.name, latitude: venue.latitude, longitude: venue.longitude,
+              events: [newEvent]
+            }
+          });
         });
         
         // Update total checkin count

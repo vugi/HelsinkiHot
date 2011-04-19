@@ -12,12 +12,13 @@ $(document).ready(function(){
   
   getVenueData(1);
   
-  $("#daysSlider").slider({
+  $("#hoursSlider").slider({
     min: 1, 
-    max: 10,
+    max: 24,
     value: 1, 
     range: "min", 
     change: function( event, ui ) {
+      heatmap._hotspots = [];
       getVenueData(ui.value);
   }});
   
@@ -71,13 +72,13 @@ $(document).ready(function(){
   
 });
 
-function getVenueData(days){
+function getVenueData(hours){
   showLoader(true);
-  if (!days){
-    days = 1;
+  if (!hours){
+    hours = 1;
   }
   var time = new Date();
-  time.setDate(time.getDate()-days);
+  time.setHours(time.getHours()-hours);
   $.ajax({
     type: "GET",
     url: "api/venues/since/"+time.getTime(),
@@ -89,32 +90,37 @@ function getVenueData(days){
 }
 
 function showPolledForsquareData(venues){
-  var limit = 100;
-  
   if (venues.length == 0){
     alert("No events found! Try increasing time span.")
   }
-  
   $(venues).each(function(i,item){
-    if (limit <= i) {
-      return;
-    }
-    
-    var latlng = new google.maps.LatLng(item.latitude, item.longitude);
-    var lastIndex = item.events.length > 0 ? item.events.length - 1 : 0;
-    var latestEvent = item.events[lastIndex];    
+    addVenue(item);
+  });
+  heatmap.draw(); 
+}
 
-    heatmap.addHotspot(latlng, latestEvent.points);
+function addVenue(item,pan){
+  var latlng = new google.maps.LatLng(item.latitude, item.longitude);
+  var lastIndex = item.events.length > 0 ? item.events.length - 1 : 0;
+  var latestEvent = item.events[lastIndex];    
+
+  heatmap.addHotspot(latlng, latestEvent.points);
+  
+  if(pan){
+    console.log("Panning");
+    map.panTo(latlng);
+    heatmap.draw();
     
     var circle = new google.maps.Marker({
-      center: latlng, 
+      position: latlng, 
       map: map, 
       //radius: 100,
-      fillOpacity: 0,
-      strokeWeight: 0,
-      strokeOpacity: 0
+      //fillOpacity: 0,
+      //strokeWeight: 0,
+      //strokeOpacity: 0
+      animation: google.maps.Animation.DROP
     });
-    
+
     google.maps.event.addListener(circle, 'mousemove', function() {
       $hoverBox
         .html(item.name + " <span class='count'>" + latestEvent.points + "</span>")
@@ -126,11 +132,8 @@ function showPolledForsquareData(venues){
     });
     google.maps.event.addListener(circle, 'mouseout', function() {
       $hoverBox.fadeOut();
-    });
-    
-  });
-  
-  heatmap.draw(); 
+    });    
+  }
 }
 
 function initializeMap() {
@@ -180,7 +183,7 @@ function initializeMap() {
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
     map.mapTypes.set('custom', customMapType);
-    map.setMapTypeId('custom');
+    map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
   }
   
 function initializeHeatmap() {
