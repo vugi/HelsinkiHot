@@ -179,8 +179,6 @@ var socket_api = function(app) {
       );
     },
     broadcastNewEvent: function(eventInfo) {
-      logger.log('New Event broadcast');
-      logger.log(_newEventsExcept);
       _socket.broadcast(
         _createResponse('newEvent', {event: eventInfo}), 
         _newEventsExcept

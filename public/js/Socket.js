@@ -1,27 +1,27 @@
-var comet = {
+var socket = {
   //var socket;
   initializeSocket: function() {
     // Socket.io test
-    comet.socket = new io.Socket("localhost"); 
-    comet.socket.on('connect', function(){
+    socket.socket = new io.Socket("localhost"); 
+    socket.socket.on('connect', function(){
       console.log("Socket connected!");
       //showPollingArea();
     }); 
-    comet.socket.on('message', function(data){ 
+    socket.socket.on('message', function(data){ 
       data = $.parseJSON(data);
       console.log("Socket message: " + data);
       if (data.response === "pollingArea") {
-        comet.onPollingArea(data);
+        socket.onPollingArea(data);
       } else if (data.response === "newEvent") {
-        comet.showNewEvent(data.content);
+        socket.showNewEvent(data.content);
       }
     
     });
-    comet.socket.on('disconnect', function(){
+    socket.socket.on('disconnect', function(){
       console.log("Socket disconnected");
     }); 
   
-    comet.socket.connect();
+    socket.socket.connect();
   },
 
   onPollingArea: function(data) {
@@ -30,8 +30,8 @@ var comet = {
     var nw = dataObject.content.nwLatLng;
     var se = dataObject.content.seLatLng;
   
-    if(comet.rectangle == null) {
-      comet.rectangle = new google.maps.Rectangle({
+    if(socket.rectangle == null) {
+      socket.rectangle = new google.maps.Rectangle({
         bounds: new google.maps.LatLngBounds(
           new google.maps.LatLng(nw.lat, nw.lng),
           new google.maps.LatLng(se.lat, se.lng)
@@ -43,9 +43,9 @@ var comet = {
         fillOpacity: 0.35
       });
     
-      comet.rectangle.setMap(map);
+      socket.rectangle.setMap(map);
     } else {
-      comet.rectangle.setBounds(new google.maps.LatLngBounds(
+      socket.rectangle.setBounds(new google.maps.LatLngBounds(
           new google.maps.LatLng(nw.lat, nw.lng),
           new google.maps.LatLng(se.lat, se.lng)
       ));
@@ -58,11 +58,11 @@ var comet = {
   },
 
   showPollingArea: function() {
-    comet.socket.send('{"request": "startPollingAreas"}');
+    socket.socket.send('{"request": "startPollingAreas"}');
   },
   
   endPollingArea: function() {
-    comet.socket.send('{"request": "stopPollingAreas"}');
+    socket.socket.send('{"request": "stopPollingAreas"}');
   },
 
   // Initialize controls
@@ -88,17 +88,17 @@ var comet = {
       //initializeSocket();
       var el = $(this);
       if (!el.hasClass('active')) {
-        comet.showPollingArea();
+        socket.showPollingArea();
       } else {
-        comet.endPollingArea();
+        socket.endPollingArea();
       }
       el.toggleClass('active');
       return false;
     });
   
-    comet.initializeSocket();
+    socket.initializeSocket();
   }
 }
 $(document).ready(function() {
-  comet.init();
+  socket.init();
 });
