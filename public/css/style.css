@@ -133,3 +133,10 @@ header .sliderContainer p{
   border-radius: 10px;
   color: white;
 }
+
+#fs-event-log {
+  overflow: auto;
+  bottom: 0;
+  top: 70px;
+  position: absolute;
+}
