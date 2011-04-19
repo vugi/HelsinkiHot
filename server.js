@@ -1,23 +1,76 @@
 var port = 3000;
 var express = require('express');
 var app = express.createServer();
+var fs = require('fs');
+var path = require('path');
 
 // Initialize socket
 var socketAPI = require('./socket/socket_api')(app);
 
 var https = require('https');
 var host = "api.foursquare.com";
-var path = "/v2/venues/trending?ll=60.170833,24.9375&limit=50&radius=1000000&client_id=LTEVQYSCQZZQKSPR1XAI4B0SAUD44AN4JKNURCL1ZFJ1IBDZ&client_secret=TL2ALQWU4VV5J5R5BCH3Z53EDFOU5KLSOIFZSJGLOSK4NGH1";
 var mongoose = require('mongoose');
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 var loggerModule = require('./utils/logger');
 var logger = loggerModule(loggerModule.level.DEBUG);
+var foursquarePoller = require("./foursquare/FoursquarePoller.js");
+
+var config;
+
+/**
+ * Reads given config file. If file doesn't exist, reads fallbackFile
+ * 
+ * @param {Object} file
+ * @param {Object} fallbackFile
+ */
+function readConfigFile(file, fallbackFile, callback) {
+  var configFile;
+  path.exists(file, function (exists) {
+    configFile = exists === true ? file : fallbackFile;
+  
+    logger.debug('Reading file ' + file);
+    var data = fs.readFileSync(configFile, 'utf8');
+    config = JSON.parse(data);
+    
+    callback(config);
+  });
+}
+
+// Foursquare poller
+var initializeFoursquarePoller = function(){
+  var poller = foursquarePoller(
+      config.foursquare_client_id, 
+      config.foursquare_client_secret, 
+      function(events){
+    if (events.length > 0) {
+      datamodel.addEvents(events, function(success){
+        // Nothing here... logging maybe
+      });
+    }
+    else {
+      logger.log("No events added");
+    }
+  }).start();
+}
 
 // Middleware configurations
-app.configure(function(){
+app.configure('development', function(){
   app.use(express.static(__dirname + '/public'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  readConfigFile('./user_config.json', './user_config_default.json', function(config) {
+    initializeFoursquarePoller(config.foursquare_client_id, config.foursquare_client_secret);
+  });
+});
+
+app.configure('production', function(){
+  var oneYear = 31557600000;
+  app.use(express.static(__dirname + '/public', { maxAge: oneYear }));
+  app.use(express.errorHandler());
+  readConfigFile('./production_config.json', null, function(config) {
+    initializeFoursquarePoller(config.foursquare_client_id, config.foursquare_client_secret);
+  });
+  
 });
 
 utils = {
@@ -91,18 +144,6 @@ var output = {
 
 // init the data model
 datamodel.init({addTestData: false});
-
-// Foursquare poller
-var foursquarePoller = require("./foursquare/FoursquarePoller.js");
-var poller = foursquarePoller(function(events) {
-  if (events.length > 0) {
-    datamodel.addEvents(events, function(success){
-      // Nothing here... logging maybe
-    });
-  } else {
-    logger.log("No events added");
-  }
-}).start();
 
 app.get('/api', function(req, res){
 	res.send('hello world from api!');	
@@ -202,6 +243,7 @@ app.get('/api/venues2/:name', function(req, res) {
  * Search some venues around Helsinki and return them as JSON object
  * HTTPS method from http://nodejs.org/docs/v0.4.0/api/https.html#https.get
  */
+/*
 function getVenues(callback){
 	https.get({ host: host, path: path }, function(res) {
 		logger.log("statusCode: ", res.statusCode);
@@ -225,6 +267,7 @@ function getVenues(callback){
 		logger.error(e);
 	});
 }
+*/
 
 app.listen(port);
 
