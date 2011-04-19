@@ -5,12 +5,12 @@
     "type": "git",
     "url": "http://github.com/vugi/HelsinkiHot.git"
   },
-  "author": "Antti Vuorela",
+  "author": "Antti Vuorela, Mikko Koski & Pyry Kröger",
   "directories": {
     "lib": "."
   },
   "engines": {
-    "node": "0.4.2"
+    "node": "0.4.5"
   },
   "dependencies": {
     "express": "2.0.0",
