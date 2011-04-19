@@ -55,7 +55,7 @@ var comet = {
   showNewEvent: function(ev) {
     console.log(ev);
     $('#fs-event-log ul').append("<li>" + ev.event.event.points + " @ "+ev.event.venue.name+"</li>");
-    addVenue(ev.event.venue);
+    addVenue(ev.event.venue,true);
   },
 
   showPollingArea: function() {

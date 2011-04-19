@@ -99,34 +99,41 @@ function showPolledForsquareData(venues){
   heatmap.draw(); 
 }
 
-function addVenue(item){
+function addVenue(item,pan){
   var latlng = new google.maps.LatLng(item.latitude, item.longitude);
   var lastIndex = item.events.length > 0 ? item.events.length - 1 : 0;
   var latestEvent = item.events[lastIndex];    
 
   heatmap.addHotspot(latlng, latestEvent.points);
   
-  var circle = new google.maps.Marker({
-    center: latlng, 
-    map: map, 
-    //radius: 100,
-    fillOpacity: 0,
-    strokeWeight: 0,
-    strokeOpacity: 0
-  });
-  
-  google.maps.event.addListener(circle, 'mousemove', function() {
-    $hoverBox
-      .html(item.name + " <span class='count'>" + latestEvent.points + "</span>")
-      .fadeIn('fast')
-      .css({
-        left: event.clientX+10,
-        top: event.clientY
-      });
-  });
-  google.maps.event.addListener(circle, 'mouseout', function() {
-    $hoverBox.fadeOut();
-  });
+  if(pan){
+    console.log("Panning");
+    map.panTo(latlng);
+    heatmap.draw();
+    
+    var circle = new google.maps.Marker({
+      position: latlng, 
+      map: map, 
+      //radius: 100,
+      //fillOpacity: 0,
+      //strokeWeight: 0,
+      //strokeOpacity: 0
+      animation: google.maps.Animation.DROP
+    });
+
+    google.maps.event.addListener(circle, 'mousemove', function() {
+      $hoverBox
+        .html(item.name + " <span class='count'>" + latestEvent.points + "</span>")
+        .fadeIn('fast')
+        .css({
+          left: event.clientX+10,
+          top: event.clientY
+        });
+    });
+    google.maps.event.addListener(circle, 'mouseout', function() {
+      $hoverBox.fadeOut();
+    });    
+  }
 }
 
 function initializeMap() {
@@ -176,7 +183,7 @@ function initializeMap() {
     map = new google.maps.Map(document.getElementById("map_canvas"),
         myOptions);
     map.mapTypes.set('custom', customMapType);
-    map.setMapTypeId('custom');
+    map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
   }
   
 function initializeHeatmap() {
