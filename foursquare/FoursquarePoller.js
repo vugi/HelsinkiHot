@@ -85,7 +85,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       items = nearby.items;
     } 
     // Log errors
-    else if (response.meta) {
+    else if (result.meta) {
       var meta = response.meta;
       var errorType = meta.errorType;
       if(errorType){
