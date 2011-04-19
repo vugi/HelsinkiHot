@@ -10,8 +10,7 @@ var socketAPI = require('../socket/socket_api')();
  */
 function foursquarePoller(_client_id, _client_secret, _callback) {
   var _pollingLimitPerHour = 5000;
-  // var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
-  var _pollingInterval = 200;
+  var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
   var _logPolling = false;
   
   var _pollingCenterLat = 60.166280;
