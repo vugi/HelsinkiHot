@@ -13,9 +13,6 @@ var mongoose = require('mongoose');
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 var loggerModule = require('./utils/logger');
-<<<<<<< HEAD
-var logger = loggerModule(loggerModule.level.LOG);
-=======
 var logger = loggerModule(loggerModule.level.DEBUG);
 var foursquarePoller = require("./foursquare/FoursquarePoller.js");
 
