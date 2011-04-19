@@ -1,14 +1,14 @@
 var https = require('https');
 var _ = require('../lib/underscore');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
 
 /**
  * Returns new Foursquare poller. This method is kind of a "factory" method
  * 
  */
-function foursquarePoller(_callback) {
+function foursquarePoller(_client_id, _client_secret, _callback) {
   
   /*
    * Because we are waiting always the previous request to be 
@@ -40,8 +40,8 @@ function foursquarePoller(_callback) {
   var _host = "api.foursquare.com";
   var _path = "/v2/venues/search?ll=#{lat},#{lng}" + 
     "&limit=50" +
-    "&client_id=LTEVQYSCQZZQKSPR1XAI4B0SAUD44AN4JKNURCL1ZFJ1IBDZ" + 
-    "&client_secret=TL2ALQWU4VV5J5R5BCH3Z53EDFOU5KLSOIFZSJGLOSK4NGH1";
+    "&client_id=" + _client_id + 
+    "&client_secret=" + _client_secret;
   
   var _interval;
   
