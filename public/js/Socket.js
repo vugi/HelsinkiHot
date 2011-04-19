@@ -54,7 +54,9 @@ var socket = {
   
   showNewEvent: function(ev) {
     console.log(ev);
-    $('#fs-event-log ul').append("<li>" + ev.event.event.points + " @ "+ev.event.venue.name+"</li>");
+    $('#fs-event-log ul').append("<li>" + 
+      ev.event.points + " @ " + ev.venue.name + 
+      "</li>");
   },
 
   showPollingArea: function() {

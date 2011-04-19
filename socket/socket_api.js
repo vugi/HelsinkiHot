@@ -180,7 +180,7 @@ var socket_api = function(app) {
     },
     broadcastNewEvent: function(eventInfo) {
       _socket.broadcast(
-        _createResponse('newEvent', {event: eventInfo}), 
+        _createResponse('newEvent', eventInfo), 
         _newEventsExcept
       );
     }
