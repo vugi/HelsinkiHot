@@ -29,7 +29,7 @@ function readConfigFile(file, fallbackFile, callback) {
   path.exists(file, function (exists) {
     configFile = exists === true ? file : fallbackFile;
   
-    logger.debug('Reading file ' + file);
+    logger.debug('Reading file ' + configFile);
     var data = fs.readFileSync(configFile, 'utf8');
     config = JSON.parse(data);
     
