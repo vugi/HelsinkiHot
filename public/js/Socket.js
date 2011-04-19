@@ -1,4 +1,7 @@
 var socket = {
+  followEvents: false,
+  followPolling: false,
+  
   //var socket;
   initializeSocket: function() {
     // Socket.io test
@@ -29,6 +32,11 @@ var socket = {
   
     var nw = dataObject.content.nwLatLng;
     var se = dataObject.content.seLatLng;
+    
+    if (socket.followPolling){
+      map.panTo(new google.maps.LatLng((nw.lat+se.lat)/2, (nw.lng+se.lng)/2));
+      heatmap.draw();
+    }
   
     if(socket.rectangle == null) {
       socket.rectangle = new google.maps.Rectangle({
@@ -57,7 +65,7 @@ var socket = {
     $('#fs-event-log ul').append("<li>" + 
       ev.venue.events[0].points + " @ " + ev.venue.name + 
       "</li>");
-      addVenue(ev.venue,true);
+      addVenue(ev.venue,socket.followEvents);
   },
 
   showPollingArea: function() {
@@ -66,6 +74,8 @@ var socket = {
   
   endPollingArea: function() {
     socket.socket.send('{"request": "stopPollingAreas"}');
+    socket.rectangle.setMap(null);
+    socket.rectangle = null;
   },
 
   // Initialize controls
@@ -86,17 +96,35 @@ var socket = {
     $('#fs-hide-canvas').click(function() {
       $('#canvas').hide('slow');
     });
+    
+    $('#fs-hide-canvas').click(function() {
+      $('#canvas').hide('slow');
+    });
   
-    $('#fs-show-polling-area').click(function() {
-      //initializeSocket();
-      var el = $(this);
-      if (!el.hasClass('active')) {
+    $('#show-polling-area').click(function() {
+      if ($(this).is(':checked')) {
         socket.showPollingArea();
+        $('#follow-polling-area').removeAttr('disabled');
       } else {
         socket.endPollingArea();
+        $('#follow-polling-area').attr('disabled',true);
       }
-      el.toggleClass('active');
-      return false;
+    });
+    
+    $('#follow-polling-area').click(function() {
+      if ($(this).is(':checked')) {
+        socket.followPolling = true;
+      } else {
+        socket.followPolling = false;
+      }
+    });
+    
+    $('#follow-new-events').click(function() {
+      if ($(this).is(':checked')) {
+        socket.followEvents = true;
+      } else {
+        socket.followEvents = false;
+      }
     });
   
     socket.initializeSocket();
