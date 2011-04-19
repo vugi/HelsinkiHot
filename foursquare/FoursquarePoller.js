@@ -2,6 +2,7 @@ var https = require('https');
 var _ = require('../lib/underscore');
 var loggerModule = require('../utils/logger');
 var logger = loggerModule(loggerModule.level.LOG);
+var socketAPI = require('../socket/socket_api')();
 
 /**
  * Returns new Foursquare poller. This method is kind of a "factory" method
@@ -109,6 +110,9 @@ function foursquarePoller(_callback) {
         
     var sizeX = Math.abs(maxLng - minLng);
     var sizeY = Math.abs(maxLat - minLat);
+    
+    // Send polling area corners to client
+    socketAPI.broadcastPollingArea({lat: maxLat, lng: minLng}, {lat: minLat, lng: maxLng});
     
     // Calculate the next latitude/longitude point
     _nextLatLng = {lat: originalLat + sizeY * Math.sin(_currentAngle), lng: originalLng + sizeX * Math.cos(_currentAngle)};

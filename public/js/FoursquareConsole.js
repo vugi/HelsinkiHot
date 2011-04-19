@@ -153,6 +153,58 @@ function getVenues() {
     });
 }
 
+var socket;
+function initializeSocket() {
+  // Socket.io test
+  socket = new io.Socket("localhost"); 
+  socket.on('connect', function(){
+    console.log("Socket connected!");
+    showPollingArea();
+  }); 
+  socket.on('message', function(data){ 
+    console.log("Socket message: " + data);
+    onPollingArea(data);
+  });
+  socket.on('disconnect', function(){
+    console.log("Socket disconnected");
+  }); 
+  
+  socket.connect();
+}
+
+var rectangle;
+function onPollingArea(data) {
+  var dataObject = $.parseJSON(data);
+  
+  var nw = dataObject.content.nwLatLng;
+  var se = dataObject.content.seLatLng;
+  
+  if(rectangle == null) {
+    rectangle = new google.maps.Rectangle({
+      bounds: new google.maps.LatLngBounds(
+        new google.maps.LatLng(nw.lat, nw.lng),
+        new google.maps.LatLng(se.lat, se.lng)
+      ),
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.5,
+      strokeWeight: 2,
+      fillColor: "#FF0000",
+      fillOpacity: 0.35
+    });
+    
+    rectangle.setMap(map);
+  } else {
+    rectangle.setBounds(new google.maps.LatLngBounds(
+        new google.maps.LatLng(nw.lat, nw.lng),
+        new google.maps.LatLng(se.lat, se.lng)
+    ));
+  }
+}
+
+function showPollingArea() {
+  socket.send('{"request": "startPollingAreas"}');
+}
+
 $(document).ready(function() {
   // Initialize controls
 
@@ -171,5 +223,10 @@ $(document).ready(function() {
   
   $('#fs-hide-canvas').click(function() {
     $('#canvas').hide('slow');
+  });
+  
+  $('#fs-show-polling-area').click(function() {
+    initializeSocket();
+    return false;
   });
 })

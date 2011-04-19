@@ -68,21 +68,6 @@ $(document).ready(function(){
       top: 0,
       "z-index": 1000
     });
-    
-  // Socket.io test
-  var socket = new io.Socket("localhost"); 
-  socket.on('connect', function(){ 
-    console.log("Connected to scoket");
-    socket.send('hi!'); 
-  }); 
-  socket.on('message', function(data){ 
-    console.log("Socket message: " + data);
-  });
-  socket.on('disconnect', function(){
-    console.log("Socket disconnected");
-  }); 
-  
-  socket.connect();
   
 });
 

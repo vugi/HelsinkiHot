@@ -2,6 +2,9 @@ var port = 3000;
 var express = require('express');
 var app = express.createServer();
 
+// Initialize socket
+var socketAPI = require('./socket/socket_api')(app);
+
 var https = require('https');
 var host = "api.foursquare.com";
 var path = "/v2/venues/trending?ll=60.170833,24.9375&limit=50&radius=1000000&client_id=LTEVQYSCQZZQKSPR1XAI4B0SAUD44AN4JKNURCL1ZFJ1IBDZ&client_secret=TL2ALQWU4VV5J5R5BCH3Z53EDFOU5KLSOIFZSJGLOSK4NGH1";
@@ -16,42 +19,6 @@ app.configure(function(){
   app.use(express.static(__dirname + '/public'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
-
-// socket.io 
-var io = require('socket.io'); 
-var socket = io.listen(app); 
-
-var socketUtilModule = require('./socket/socket_util.js');
-var socketUtil = socketUtilModule();
-var socketClients = {};
-var pollingAreaClients = {};
-
-socket.on('connection', function(client){ 
-  logger.debug("New socket connection");
-
-  client.on('message', function(message){
-    var data = JSON.parse(message);
-    var actionName = data.request;
-    
-    if(actionName === 'requestPollingAreas') {
-      
-    }
-    else if(actionName === 'requestPollingAreas') {
-      
-    }
-    else if(actionName === 'requestPollingAreas') {
-      
-    }
-    else {
-      logger.error('Illegal socket request: ' + actionName);
-    }
-    
-  });
-   
-  client.on('disconnect', function(){
-    logger.debug("Socket disconnected");
-  });
-}); 
 
 utils = {
   inspect: function(obj) {
