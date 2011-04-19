@@ -12,7 +12,7 @@ var mongoose = require('mongoose');
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 var loggerModule = require('./utils/logger');
-var logger = loggerModule(loggerModule.level.DEBUG);
+var logger = loggerModule(loggerModule.level.LOG);
 
 // Middleware configurations
 app.configure(function(){

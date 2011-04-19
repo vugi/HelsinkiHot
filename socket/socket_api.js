@@ -33,6 +33,7 @@ var socket_api = function(app) {
    * This is used with socket.io's broadcast method
    */
   var _pollingAreasExcept = [];
+  var _newEventsExcept = [];
   
   function _onConnect(client) {
     // By default clients do not receive polling areas
@@ -84,7 +85,7 @@ var socket_api = function(app) {
     });
     
     client.on('disconnect', function(){
-      _onDisconnect(client)
+      _onDisconnect(client);
     });
   });
   
@@ -103,6 +104,14 @@ var socket_api = function(app) {
     }
   }
   
+  function _requestStartNewEvents(data, client) {
+    _newEventsExcept = _.without(_newEventsExcept, client.sessionId);
+  }
+  
+  function _requestEndNewEvents(data, client) {
+    _newEventsExcept.push(client.sessionId);
+  }
+  
   /* ...................... PUBLIC METHODS ....................... */
   
   return {
@@ -114,6 +123,12 @@ var socket_api = function(app) {
       _socket.broadcast(
         _createResponse('pollingArea', {nwLatLng: nwLatLng, seLatLng: seLatLng}), 
         _pollingAreasExcept
+      );
+    },
+    broadcastNewEvent: function(event) {
+      _socket.broadcast(
+        _createResponse('newEvent', {event: event}), 
+        _newEventsExcept
       );
     }
   }

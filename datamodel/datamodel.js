@@ -1,11 +1,20 @@
 var mongoose = require('mongoose');
 var loggerModule = require('../utils/logger');
+var _ = require('../lib/underscore');
 var logger = loggerModule(loggerModule.level.LOG);
+var socketAPI = require('../socket/socket_api')();
 
 var datamodel = {
+  eventListeners: [],
   connect: function(dbname) {
     dbname = typeof dbname == String ? dbname : "helsinkihot"
     mongoose.connect('mongodb://localhost/' + dbname);
+  },
+  addEventListener: function(callback) {
+    if (typeof callback === "function") {
+      logger.debug('Adding event listener');
+      datamodel.eventListeners.push(callback);
+    }
   },
   testDB: function(req,res) {
 
@@ -69,6 +78,8 @@ var datamodel = {
     
     datamodel.models.Event = mongoose.model('Event');
     datamodel.models.Venue = mongoose.model('Venue');
+    
+    datamodel.addEventListener(socketAPI.broadcastNewEvent);
     
     if (opts && opts.addTestData) {
       datamodel.insertSampleData();
@@ -187,9 +198,15 @@ var datamodel = {
           points: checkinDifference
         };
         
+        
         logger.log('* * * * * * Found new checkin to ' + venue.name + ' worth ' + checkinDifference + ' points * * * * * * * *');
         
         venue.events.push(newEvent);
+        
+        // notify event listeners
+        _.each(datamodel.eventlisteners, function(listener) {
+          listener(newEvent);
+        });
         
         // Update total checkin count
         venue.checkinsCount = newCheckinsCount;
