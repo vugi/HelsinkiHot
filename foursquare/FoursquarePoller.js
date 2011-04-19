@@ -73,13 +73,6 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     var minLat = 999999;
     var minLng = 999999;
     
-    result = {
-      response: {},
-      meta: {
-        errorType: 'rate_limit_exceeded'
-      }
-    }
-    
     var response = result.response;
     var items;
     
@@ -99,6 +92,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
         if(errorType === 'rate_limit_exceeded') {
           logger.error('Rate limit exceeded');
           _pause(3);
+          return;
         } else {
           logger.error('Got error type: ' + errorType);
         }
