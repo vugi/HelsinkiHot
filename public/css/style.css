@@ -134,7 +134,9 @@ header .sliderContainer p{
   color: white;
 }
 
-.fs-event-log {
+#fs-event-log {
   overflow: auto;
   bottom: 0;
+  top: 70px;
+  position: absolute;
 }
