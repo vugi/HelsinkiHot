@@ -1,34 +1,40 @@
 var https = require('https');
+var _ = require('../lib/underscore');
+var loggerModule = require('../utils/logger');
+var logger = loggerModule(loggerModule.level.LOG);
+var socketAPI = require('../socket/socket_api')();
 
 /**
  * Returns new Foursquare poller. This method is kind of a "factory" method
  * 
  */
 function foursquarePoller(_callback) {
-  var _pollingLimitPerHour = 5000;
-  var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
+  
+  /*
+   * Because we are waiting always the previous request to be 
+   * completed and parsed, we are not able to break the polling limit.
+   * 
+   * That's why I set up there interval 500ms
+   */
+  // var _pollingLimitPerHour = 5000;
+  // var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
+  var _pollingInterval = 500;
   var _logPolling = false;
   
   var _pollingCenterLat = 60.166280;
   var _pollingCenterLng = 24.936905;
-  
-  // Smaller area for development
-  /*
-  var _lngMinLimit = 24.919224;
-  var _lngMaxLimit = 24.921627;
-  var _latMinLimit = 60.167966;
-  var _latMaxLimit = 60.168244;
-  */
  
   var _lngMaxLimit = 25.089684;
   var _lngMinLimit = 24.729538;
   var _latMaxLimit = 60.255486;
   var _latMinLimit = 60.129880;
   
-  var _currentAngle = 0;
-  var _angleSteps = 13;
+  var _currentAngle = 0; // rad
+  var _angleChange = 13 * Math.PI / 180; // rad
+  
   var _nextLatLng = {lat: _pollingCenterLat, lng: _pollingCenterLng};
   var _lastLatLng;
+  
   var _reqFailedCount = 0;
   
   var _host = "api.foursquare.com";
@@ -39,25 +45,46 @@ function foursquarePoller(_callback) {
   
   var _interval;
   
-  console.log("FoursquarePoller initialized");
+  logger.log("FoursquarePoller initialized");
   
   /* ...................... PRIVATE METHODS ....................... */
   
+  /**
+   * Parses the result which means two things:
+   * 
+   * - Calculates the next polling position
+   * - Creates event objects from result
+   * 
+   * @param {Object} result JSON
+   * @param {Number} originalLat
+   * @param {Number} originalLng
+   */
   function _parseResult(result, originalLat, originalLng) {
     var maxLat = -999999;
     var maxLng = -999999;
     var minLat = 999999;
     var minLng = 999999;
     
-    var items = result.response.groups[0].items;
-    var itemsLength = items.length;
+    try {
+      var groups = result.response.groups;
+      var nearby = _.detect(groups, function(group){
+        return group.type === 'nearby'
+      });
+      var items = nearby.items;
+    } 
+    catch (err) {
+      logger.error("Error while parsing result. No 'items' found from response");
+      logger.log(result.response);
+    }
+    
+    if(items == null) {
+      logger.warn("No 'nearby' group found from the response");
+    }
     
     // Parsed events
     var events = [];
     
-    for (var i = 0; i < itemsLength; i++) {
-      var item = items[i];
-      
+    _.each(items, function(item) {
       var location = item.location;
       maxLat = Math.max(maxLat, location.lat);
       maxLng = Math.max(maxLng, location.lng);
@@ -74,7 +101,7 @@ function foursquarePoller(_callback) {
       };
       
       events.push(event);
-    }
+    });
     
     var dxW = Math.abs(originalLng - minLng);
     var dxE = Math.abs(originalLng - maxLng);
@@ -83,14 +110,23 @@ function foursquarePoller(_callback) {
         
     var sizeX = Math.abs(maxLng - minLng);
     var sizeY = Math.abs(maxLat - minLat);
-        
-    var rad = _currentAngle * Math.PI / 180;
-        
-    _nextLatLng = {lat: originalLat + sizeY * Math.sin(rad), lng: originalLng + sizeX * Math.cos(rad)};
-        
-    if(_nextLatLng.lat > _latMaxLimit || _nextLatLng.lat < _latMinLimit || _nextLatLng.lng > _lngMaxLimit || _nextLatLng.lng < _lngMinLimit) {
-      _currentAngle += _angleSteps;
+    
+    // Send polling area corners to client
+    socketAPI.broadcastPollingArea({lat: maxLat, lng: minLng}, {lat: minLat, lng: maxLng});
+    
+    // Calculate the next latitude/longitude point
+    _nextLatLng = {lat: originalLat + sizeY * Math.sin(_currentAngle), lng: originalLng + sizeX * Math.cos(_currentAngle)};
+    
+    // Check if goes beyond the limits
+    if(_nextLatLng.lat > _latMaxLimit || 
+        _nextLatLng.lat < _latMinLimit || 
+        _nextLatLng.lng > _lngMaxLimit || 
+        _nextLatLng.lng < _lngMinLimit) {
+    
+      // Limits exceeded. Increase the angle and set next polling position to the center.  
+      _currentAngle += _angleChange;
       _nextLatLng = {lat: _pollingCenterLat, lng: _pollingCenterLng};
+    
     }
     
     _callback(events);
@@ -105,31 +141,30 @@ function foursquarePoller(_callback) {
     var lastLat = _lastLatLng ? _lastLatLng.lat : null; 
     var lastLng = _lastLatLng ? _lastLatLng.lng : null;
     
+    // If following condition is true, the polling position has not been 
+    // updated since last request. We don't want to make request for the same 
+    // position too often, so that's why we skip it.
+    // Reason for not updating the position is usually that the poller 
+    // was not able to calculate the new position because the response failed
     if(lastLat === lat && lastLng === lng) {
-      if (_reqFailedCount < 5) {
-        // Do not do polling if the previous request is not completed
-        if (_logPolling) {
-          console.log((new Date()).toString() + ": Postponing request because the previous request is not completed");
-        }
+      if (_reqFailedCount < 10) {
         _reqFailedCount++;
         return;
+        
       } else {
-        console.log("Polling failed 5 times in a row... Trying again");
+        // If polling has failed five times in a row, reset the polling position and try again
+        logger.warn("Polling failed 10 times in a row... Trying again");
         lat = _pollingCenterLat;
         lng = _pollingCenterLng;
       }
     }
     
     _reqFailedCount = 0;
-    
     _lastLatLng = {lat: lat, lng: lng};
   
     var path = _path.replace("#{lat}", lat).replace("#{lng}", lng);
   
-    console.log(path);
-  
     https.get({ host: _host, path: path }, function(res) {
-      console.log("statusCode: ", res.statusCode);
       res.body = '';
       res.on('data', function(chunk) {
           res.body += chunk;
@@ -138,14 +173,14 @@ function foursquarePoller(_callback) {
         try {
           _parseResult(JSON.parse(res.body), lat, lng);
         } catch (err) {
-          console.log("Error in parsing venues");
-          console.log("headers: ", res.headers);
-          console.error(err);
+          logger.error("Error in parsing venues");
+          logger.debug("headers: ", res.headers);
+          logger.error(err);
         }
       });
     }).on('error', function(e) {
-      console.log("Error in loading venues");
-      console.error(e);
+      logger.error("Error in loading venues");
+      logger.error(e);
     });
   }
   

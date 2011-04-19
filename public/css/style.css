@@ -117,3 +117,19 @@ header .sliderContainer p{
   font-size: 1.2em;
 }
 
+#loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  background: url("../images/ajax-loader.gif") no-repeat 0 10px rgba(17,17,17,0.7);
+  width: 220px;
+  height: 19px;
+  margin-left: -110px;
+  text-align: center;
+  padding: 30px 0 10px 0;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  color: white;
+}

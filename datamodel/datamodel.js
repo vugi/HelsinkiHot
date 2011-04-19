@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var loggerModule = require('../utils/logger');
+var logger = loggerModule(loggerModule.level.LOG);
 
 var datamodel = {
   connect: function(dbname) {
@@ -98,7 +100,7 @@ var datamodel = {
       if (success) {
         console.log('Added sample data: OK');
       } else {
-        console.log('Added sample data: FAIL');
+        logger.log('Added sample data: FAIL');
       }
     });
   },
@@ -137,14 +139,15 @@ var datamodel = {
     datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {
       var venue;
       if (venues.length == 1) {
-        //console.log("Venue " + venues[0].name + " found");
+        logger.debug("Venue " + venues[0].name + " found, checkins: " + venues[0].checkinsCount);
         venue = venues[0];
       } else if (venues.length > 1) {
-        console.warn("Found multiple venues with service: " + data.service + ", id: " 
-        + data.serviceId + ", choosing the first one.");
+        // logger.warn("Found multiple venues with service: " + data.service + ", id: " 
+        // + data.serviceId + ", choosing the first one.");
         venue = venues[0];
       } else {
-        console.log("Creating a new venue with data " + utils.inspect(data));
+        // logger.log("Creating a new venue with data " + utils.inspect(data));
+        logger.log("Creating a new venue " + data.name + ", checkins: " + data.checkinsCount);
         venue = new datamodel.models.Venue();
         venue.service = data.service;
         venue.serviceId = data.serviceId;
@@ -163,9 +166,11 @@ var datamodel = {
       }
       
       var oldCheckinsCount = venue.checkinsCount || 0;
-      var newCheckinsCount = data.checkinsCount;
+      var newCheckinsCount = parseInt(data.checkinsCount);
       
-      // console.log(venue.name + ' - old: ' + oldCheckinsCount + ' new: ' + newCheckinsCount);
+      if (oldCheckinsCount != newCheckinsCount) {
+        logger.log(venue.name + ' - old: ' + oldCheckinsCount + ' new: ' + newCheckinsCount);
+      }
       
       if (oldCheckinsCount == 0) {
         venue.checkinsCount = newCheckinsCount;
@@ -182,24 +187,25 @@ var datamodel = {
           points: checkinDifference
         };
         
-        venue.events.push(newEvent);
+        logger.log('* * * * * * Found new checkin to ' + venue.name + ' worth ' + checkinDifference + ' points * * * * * * * *');
         
-        // console.log("Added event with points" + newEvent.points);
+        venue.events.push(newEvent);
         
         // Update total checkin count
         venue.checkinsCount = newCheckinsCount;
       }
-      
-      /*
-      for (var i in data.events) {
-        var ev = data.events[i];
-        console.log('Adding event ' + utils.inspect(ev) + ' to the event');
-        venue.events.push(ev);
+      else if (newCheckinsCount < oldCheckinsCount) {
+        // For some reason, this may happen also. 
+        // Probably there has been some errors in the previously 
+        // received data. Updating...
+        
+        // Update total checkin count
+        venue.checkinsCount = newCheckinsCount;
+        
+        logger.log("Updating checkin count from " + oldCheckinsCount + " to " + newCheckinsCount);
       }
-      */
       
       venue.save(function(err) {
-        // console.log('Updated the venue ' + venue.name);
         if (typeof callback === "function") {
           callback(!err);
         }
