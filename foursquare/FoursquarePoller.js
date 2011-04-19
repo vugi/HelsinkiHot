@@ -108,6 +108,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     
     if(items == null) {
       logger.warn("No 'nearby' group found from the response");
+      return;
     }
     
     // Parsed events

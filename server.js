@@ -29,7 +29,7 @@ function readConfigFile(file, fallbackFile, callback) {
   path.exists(file, function (exists) {
     configFile = exists === true ? file : fallbackFile;
   
-    logger.debug('Reading file ' + file);
+    logger.debug('Reading file ' + configFile);
     var data = fs.readFileSync(configFile, 'utf8');
     config = JSON.parse(data);
     
@@ -206,22 +206,14 @@ app.get('/api/db_test', function(req, res){
   });
 });
 
-
-app.get('/api/venues', function(req, res){
-	getVenues(function(json){
-		logger.log(json.response.venues);
-		res.send(json.response.venues);
-	});
-});
-
-app.get('/api/venues2', function(req,res) {
+app.get('/api/venues', function(req,res) {
   datamodel.getVenues({}, function(venuedata) {
     var venues = output.format(venuedata);
     res.send(venues);
   });
 });
 
-app.get('/api/venues2/:name', function(req, res) {
+app.get('/api/venues/:name', function(req, res) {
   var venues = [];
   datamodel.getVenues({name: req.params.name}, function(venuedata) {
     for (var i in venuedata) {
@@ -229,45 +221,7 @@ app.get('/api/venues2/:name', function(req, res) {
     }
     res.send(venues);
   });
-  /*datamodel.models.Venue.find({}, function(err, venuedata) {
-    for (var i in venuedata) {
-      logger.log("\n\nVenue:\n")
-      logger.log(venuedata[i].doc);
-      venues.push(venuedata[i].doc);
-    }
-    res.send(venues);
-  });*/
 });
-
-/**
- * Search some venues around Helsinki and return them as JSON object
- * HTTPS method from http://nodejs.org/docs/v0.4.0/api/https.html#https.get
- */
-/*
-function getVenues(callback){
-	https.get({ host: host, path: path }, function(res) {
-		logger.log("statusCode: ", res.statusCode);
-		logger.log("headers: ", res.headers);
-		res.body = '';
-		res.on('data', function(chunk) {
-	  		res.body += chunk;
-		});
-		res.on('end', function(){
-			//callback(res.body);
-			try {
-				//logger.log(res.body);
-				callback(JSON.parse(res.body));
-			} catch (err) {
-				logger.log("Error in parsing venues");
-				logger.error(err);
-			}
-		});
-	}).on('error', function(e) {
-		logger.log("Error in loading venues");
-		logger.error(e);
-	});
-}
-*/
 
 app.listen(port);
 
