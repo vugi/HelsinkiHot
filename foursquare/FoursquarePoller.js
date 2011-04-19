@@ -49,6 +49,22 @@ function foursquarePoller(_callback) {
   
   /* ...................... PRIVATE METHODS ....................... */
   
+  function _logRatelimitRemainig(headers) {
+    var remaining = headers['x-ratelimit-remaining'];
+    
+    switch(remaining) {
+      case '900', '800', '700', '600', '500', '400', '300', '200':
+        logger.log(remaining + ' requests remaining');
+      break;
+      case '100', '90', '80', '70', '60', '50', '40', '30', '20', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0':
+        logger.warn('ONLY ' + remaining + ' request remaining');
+      break;
+      default:
+        logger.debug('Hour limit remaining: ' + remaining);
+      break;
+    }
+  }
+  
   /**
    * Parses the result which means two things:
    * 
@@ -65,16 +81,29 @@ function foursquarePoller(_callback) {
     var minLat = 999999;
     var minLng = 999999;
     
-    try {
-      var groups = result.response.groups;
+    var response = result.response;
+    var meta = result.meta;
+    var items;
+    
+    if(response.groups) {
+      var groups = response.groups;
       var nearby = _.detect(groups, function(group){
         return group.type === 'nearby'
       });
-      var items = nearby.items;
+      items = nearby.items;
     } 
-    catch (err) {
-      logger.error("Error while parsing result. No 'items' found from response");
-      logger.log(result.response);
+    // Log errors
+    else if (response.meta) {
+      var meta = response.meta;
+      var errorType = meta.errorType;
+      if(errorType){
+        if(errorType === 'rate_limit_exceeded') {
+          logger.error('Rate limit exceeded');
+          pause(3);
+        } else {
+          logger.error('Got error type: ' + errorType);
+        }
+      }
     }
     
     if(items == null) {
@@ -171,6 +200,7 @@ function foursquarePoller(_callback) {
       });
       res.on('end', function(){
         try {
+          _logRatelimitRemainig(res.headers);
           _parseResult(JSON.parse(res.body), lat, lng);
         } catch (err) {
           logger.error("Error in parsing venues");
@@ -189,17 +219,38 @@ function foursquarePoller(_callback) {
   return {
     
     /**
-     * Start poller
+     * Stop poller
      */
-    start: function() {
-      _interval = setInterval(_sendRequest, _pollingInterval);
+    stop: function() {
+      if (_interval) {
+        clearInterval(_interval);
+        _interval = null;
+        
+        logger.log("Stopped poller");
+      }
     },
     
     /**
-     * Stop poller
+     * Start poller
      */
-    stop : function() {
-      clearInterval(_interval);
+    start: function() {
+      // Clean up first
+      this.stop();
+      _interval = setInterval(_sendRequest, _pollingInterval);
+      
+      logger.log("Started poller, interval: " + _pollingInterval);
+    },
+    
+    /**
+     * Pause polling for given duration
+     * 
+     * @param {Number} duration Pause duration in minutes
+     */
+    pause: function(duration) {
+      this.stop();
+      setInterval(start, (duration * 60 * 1000));
+      
+      logger.log("Paused poller for " + duration + " minutes");
     }
   }
 }
