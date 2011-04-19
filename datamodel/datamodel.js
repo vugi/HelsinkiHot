@@ -204,8 +204,8 @@ var datamodel = {
         venue.events.push(newEvent);
         
         // notify event listeners
-        _.each(datamodel.eventlisteners, function(listener) {
-          listener(newEvent);
+        _.each(datamodel.eventListeners, function(listener) {
+          listener({venue: venue, event: newEvent});
         });
         
         // Update total checkin count

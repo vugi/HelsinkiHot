@@ -48,11 +48,11 @@ var socket_api = function(app) {
       case "startPollingAreas":
         _requestStartPollingAreas(data, client);
       break;
-      case "startPollingAreas":
+      case "endPollingAreas":
         _requestEndPollingAreas(data, client);
       break;
       default:
-        logger.error('No handler function ' + requestHandlerFunctionName + ' found for request ' + actionName);
+        logger.error('No handler function ' + actionName + ' found for request ' + data);
       break;
     }
   };
@@ -125,9 +125,11 @@ var socket_api = function(app) {
         _pollingAreasExcept
       );
     },
-    broadcastNewEvent: function(event) {
+    broadcastNewEvent: function(eventInfo) {
+      logger.log('New Event broadcast');
+      logger.log(_newEventsExcept);
       _socket.broadcast(
-        _createResponse('newEvent', {event: event}), 
+        _createResponse('newEvent', {event: eventInfo}), 
         _newEventsExcept
       );
     }
