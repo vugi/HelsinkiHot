@@ -53,7 +53,6 @@ var initializeFoursquarePoller = function(){
     }
   }).start();
 }
->>>>>>> b724076d8ceefa091872081c2d88993885f238cd
 
 // Middleware configurations
 app.configure('development', function(){
