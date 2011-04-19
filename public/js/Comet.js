@@ -2,7 +2,7 @@ var comet = {
   //var socket;
   initializeSocket: function() {
     // Socket.io test
-    comet.socket = new io.Socket("localhost"); 
+    comet.socket = new io.Socket(document.domain); 
     comet.socket.on('connect', function(){
       console.log("Socket connected!");
       //showPollingArea();
