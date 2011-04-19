@@ -62,7 +62,7 @@ var comet = {
   },
   
   endPollingArea: function() {
-    comet.socket.send('{"request": "endPollingAreas"}');
+    comet.socket.send('{"request": "stopPollingAreas"}');
   },
 
   // Initialize controls

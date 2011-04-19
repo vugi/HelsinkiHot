@@ -83,7 +83,6 @@ function getVenueData(days){
     url: "api/venues/since/"+time.getTime(),
     success: function(jsonData){
       showPolledForsquareData(jsonData.venues);
-      // showForsquareData(jsonData);
       showLoader(false);
     }
   });
@@ -132,36 +131,6 @@ function showPolledForsquareData(venues){
   });
   
   heatmap.draw(); 
-}
-
-function showForsquareData(jsonData){
-	$(jsonData).each(function(i,item){				
-		var latlng = new google.maps.LatLng(item.location.lat,item.location.lng);
-		heatmap.addHotspot(latlng,item.hereNow.count);
-		
-		var circle = new google.maps.Circle({
-		  center: latlng, 
-		  map: map, 
-		  radius: 300,
-		  fillOpacity: 0,
-			strokeWeight: 0
-		});
-  
-		google.maps.event.addListener(circle, 'mousemove', function() {
-		  $hoverBox
-		    .html(item.name + " <span class='count'>" + item.hereNow.count + "</span>")
-		    .fadeIn('fast')
-		    .css({
-		      left: event.clientX+10,
-		      top: event.clientY
-	      });
-		});
-		google.maps.event.addListener(circle, 'mouseout', function() {
-		  $hoverBox.fadeOut();
-		});
-	});
-	
-	heatmap.draw();	
 }
 
 function initializeMap() {
