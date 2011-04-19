@@ -73,8 +73,14 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     var minLat = 999999;
     var minLng = 999999;
     
+    result = {
+      response: {},
+      meta: {
+        errorType: 'rate_limit_exceeded'
+      }
+    }
+    
     var response = result.response;
-    var meta = result.meta;
     var items;
     
     if(response.groups) {
@@ -84,14 +90,15 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       });
       items = nearby.items;
     } 
+    
     // Log errors
     else if (result.meta) {
-      var meta = response.meta;
+      var meta = result.meta;
       var errorType = meta.errorType;
       if(errorType){
         if(errorType === 'rate_limit_exceeded') {
           logger.error('Rate limit exceeded');
-          pause(3);
+          _pause(3);
         } else {
           logger.error('Got error type: ' + errorType);
         }
@@ -207,44 +214,47 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     });
   }
   
+  /**
+   * Stop poller
+   */
+  function _stop() {
+    if (_interval) {
+      clearInterval(_interval);
+      _interval = null;
+        
+      logger.log("Stopped poller");
+    }
+  }
+    
+  /**
+   * Start poller
+   */
+  function _start() {
+    // Clean up first
+    _stop();
+    _interval = setInterval(_sendRequest, _pollingInterval);
+      
+    logger.log("Started poller, interval: " + _pollingInterval);
+  }
+  
+  /**
+   * Pause polling for given duration
+   * 
+   * @param {Number} duration Pause duration in minutes
+   */
+  function _pause(duration) {
+    _stop();
+    setInterval(_start, (duration * 60 * 1000));
+      
+    logger.log("Paused poller for " + duration + " minutes");
+  }
+  
   /* ...................... PUBLIC METHODS ....................... */
   
   return {
-    
-    /**
-     * Stop poller
-     */
-    stop: function() {
-      if (_interval) {
-        clearInterval(_interval);
-        _interval = null;
-        
-        logger.log("Stopped poller");
-      }
-    },
-    
-    /**
-     * Start poller
-     */
-    start: function() {
-      // Clean up first
-      this.stop();
-      _interval = setInterval(_sendRequest, _pollingInterval);
-      
-      logger.log("Started poller, interval: " + _pollingInterval);
-    },
-    
-    /**
-     * Pause polling for given duration
-     * 
-     * @param {Number} duration Pause duration in minutes
-     */
-    pause: function(duration) {
-      this.stop();
-      setInterval(start, (duration * 60 * 1000));
-      
-      logger.log("Paused poller for " + duration + " minutes");
-    }
+    start: _start,
+    stop: _stop,
+    pause: _pause
   }
 }
 
