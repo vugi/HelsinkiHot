@@ -29,7 +29,6 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   // Polling strategy
   var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
   var _nextLatLng = pollingStrategy.nextPollingPoint();
-  logger.log(_nextLatLng);
   var _lastLatLng;
   
   var _reqFailedCount = 0;
