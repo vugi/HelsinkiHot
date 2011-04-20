@@ -3,6 +3,7 @@ var _ = require('../lib/underscore');
 var loggerModule = require('../utils/logger');
 var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
+var bounds = require('./Bounds');
 
 /**
  * Returns new Foursquare poller. This method is kind of a "factory" method
@@ -13,18 +14,22 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
   var _logPolling = false;
   
+  // Center
   var _pollingCenterLat = 60.166280;
   var _pollingCenterLng = 24.936905;
+  var _pollingCenter = {lat: _pollingCenterLat, lng: _pollingCenterLng};
  
+ // Limits
   var _lngMaxLimit = 25.089684;
   var _lngMinLimit = 24.729538;
   var _latMaxLimit = 60.255486;
   var _latMinLimit = 60.129880;
+  var _limitBounds = bounds(_latMinLimit, _lngMinLimit, _latMaxLimit, _lngMaxLimit);
   
-  var _currentAngle = 0; // rad
-  var _angleChange = 13 * Math.PI / 180; // rad
-  
-  var _nextLatLng = {lat: _pollingCenterLat, lng: _pollingCenterLng};
+  // Polling strategy
+  var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
+  var _nextLatLng = pollingStrategy.nextPollingPoint();
+  logger.log(_nextLatLng);
   var _lastLatLng;
   
   var _reqFailedCount = 0;
@@ -126,31 +131,13 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       events.push(event);
     });
     
-    var dxW = Math.abs(originalLng - minLng);
-    var dxE = Math.abs(originalLng - maxLng);
-    var dyN = Math.abs(originalLat - maxLat);
-    var dyS = Math.abs(originalLat - minLat);
-        
-    var sizeX = Math.abs(maxLng - minLng);
-    var sizeY = Math.abs(maxLat - minLat);
+    pollingStrategy.resultBounds(bounds(minLat, minLng, maxLat, maxLng), {lat: originalLat, lng: originalLng});
     
     // Send polling area corners to client
     socketAPI.broadcastPollingArea({lat: maxLat, lng: minLng}, {lat: minLat, lng: maxLng});
     
     // Calculate the next latitude/longitude point
-    _nextLatLng = {lat: originalLat + sizeY * Math.sin(_currentAngle), lng: originalLng + sizeX * Math.cos(_currentAngle)};
-    
-    // Check if goes beyond the limits
-    if(_nextLatLng.lat > _latMaxLimit || 
-        _nextLatLng.lat < _latMinLimit || 
-        _nextLatLng.lng > _lngMaxLimit || 
-        _nextLatLng.lng < _lngMinLimit) {
-    
-      // Limits exceeded. Increase the angle and set next polling position to the center.  
-      _currentAngle += _angleChange;
-      _nextLatLng = {lat: _pollingCenterLat, lng: _pollingCenterLng};
-    
-    }
+    _nextLatLng = pollingStrategy.nextPollingPoint();
     
     _callback(events);
   }
@@ -159,6 +146,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
    * Sends request to Foursquare
    */
   function _sendRequest() {
+    
     var lat = _nextLatLng.lat;
     var lng = _nextLatLng.lng;
     var lastLat = _lastLatLng ? _lastLatLng.lat : null; 
