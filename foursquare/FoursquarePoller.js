@@ -25,9 +25,11 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   var _latMaxLimit = 60.255486;
   var _latMinLimit = 60.129880;
   var _limitBounds = bounds(_latMinLimit, _lngMinLimit, _latMaxLimit, _lngMaxLimit);
+  // var _limitBounds = bounds({lat: 60.208951, lng: 24.815025}, {lat: 60.144410, lng: 25.010033});
   
   // Polling strategy
-  var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
+  // var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
+  var pollingStrategy = require('./GridStrategy')(_limitBounds);
   var _nextLatLng = pollingStrategy.nextPollingPoint();
   var _lastLatLng;
   
@@ -99,6 +101,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
           return;
         } else {
           logger.error('Got error type: ' + errorType);
+          logger.error(result);
         }
       }
     }

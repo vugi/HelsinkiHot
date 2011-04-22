@@ -170,8 +170,8 @@ function initializeMap() {
     var customMapType = new google.maps.StyledMapType(customMapStyles, customMapOptions);
     
     var myOptions = {
-      zoom: 13,
-      minZoom: 13,
+      zoom: 11,
+      minZoom: 11,
       maxZoom: 13,
       center: latlng,
       disableDefaultUI: true,

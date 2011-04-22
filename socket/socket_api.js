@@ -183,6 +183,13 @@ var socket_api = function(app) {
         _createResponse('newEvent', eventInfo), 
         _newEventsExcept
       );
+    },
+    broadcastPollingGrid: function(grid) {
+      var gridsToBeSent = [];
+      _.each(grid, function(bounds) {
+        gridsToBeSent.push({nwLatLng: bounds.nw, seLatLng: bounds.se});
+      });
+      _socket.broadcast(_createResponse('pollingGrid', gridsToBeSent), _pollingAreasExcept);
     }
   }
 }

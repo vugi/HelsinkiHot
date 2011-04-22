@@ -1,6 +1,7 @@
 var socket = {
   followEvents: false,
   followPolling: false,
+  grid: [],
   
   //var socket;
   initializeSocket: function() {
@@ -8,15 +9,16 @@ var socket = {
     socket.socket = new io.Socket(document.domain); 
     socket.socket.on('connect', function(){
       console.log("Socket connected!");
-      //showPollingArea();
     }); 
     socket.socket.on('message', function(data){ 
       data = $.parseJSON(data);
-      console.log("Socket message: " + data);
-      if (data.response === "pollingArea") {
+      var response = data.response;
+      if (response === "pollingArea") {
         socket.onPollingArea(data);
-      } else if (data.response === "newEvent") {
+      } else if (response === "newEvent") {
         socket.showNewEvent(data.content);
+      } else if (response === "pollingGrid") {
+        socket.onPollingGrid(data);
       }
     
     });
@@ -25,6 +27,31 @@ var socket = {
     }); 
   
     socket.socket.connect();
+  },
+  
+  onPollingGrid: function(data) {
+    var pollingGridArray = data.content;
+    
+    // Clean up
+    $.each(socket.grid, function(index, rectangle) {
+      rectangle.setMap(null);
+    })
+    
+    socket.grid = [];
+    
+    $.each(pollingGridArray, function(index2, grid) {
+        
+        socket.grid.push(new google.maps.Rectangle({
+        bounds: new google.maps.LatLngBounds(
+          new google.maps.LatLng(grid.nwLatLng.lat, grid.nwLatLng.lng),
+          new google.maps.LatLng(grid.seLatLng.lat, grid.seLatLng.lng)
+        ),
+        strokeColor: "#000000",
+        strokeOpacity: 0.5,
+        strokeWeight: 1,
+        map: map
+      }));
+    })
   },
 
   onPollingArea: function(data) {
@@ -76,6 +103,14 @@ var socket = {
     socket.socket.send('{"request": "stopPollingAreas"}');
     socket.rectangle.setMap(null);
     socket.rectangle = null;
+  },
+  
+  startPollingGrid: function() {
+    socket.socket.send('{"request": "startPollingGrid"}');
+  },
+  
+  endPollingGrid: function() {
+    socket.socket.send('{"request": "endPollingGrid"}');
   },
 
   // Initialize controls
