@@ -1,4 +1,4 @@
-var bounds = require('./bounds');
+var bounds = require('./Bounds');
 var loggerModule = require('../utils/logger');
 var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
