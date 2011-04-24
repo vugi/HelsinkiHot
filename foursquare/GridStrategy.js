@@ -2,6 +2,7 @@ var bounds = require('./Bounds');
 var loggerModule = require('../utils/logger');
 var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
+var _ = require('../lib/underscore');
 
 /**
  * 
@@ -46,6 +47,15 @@ function gridPollingStrategy(_limitBounds, _center) {
       return _pollingBounds[_pollingIndex];
     }
   }
+  
+  // Initialize socket listener
+  socketAPI.addListener('startPollingAreas', function(data, client){
+    var gridsToBeSent = [];
+    _.each(_pollingBounds, function(bounds) {
+      gridsToBeSent.push({nwLatLng: bounds.nw, seLatLng: bounds.se});
+    });
+    socketAPI.sendResponse(client, 'pollingGrid', gridsToBeSent);
+  });
   
   /* ...................... PUBLIC METHODS ....................... */
   

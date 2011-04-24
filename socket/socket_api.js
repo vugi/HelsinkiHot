@@ -43,6 +43,8 @@ var socket_api = function(app) {
   var _pollingAreasExcept = [];
   var _newEventsExcept = [];
   
+  var _listeners = {};
+  
   /**
    * Called when new connection is established
    * 
@@ -73,6 +75,15 @@ var socket_api = function(app) {
       default:
         logger.error('No handler function ' + actionName + ' found for request ' + data);
       break;
+    }
+    
+    // Notify listeners
+    var actionListeners = _listeners[actionName];
+    if(_.isArray(actionListeners)) {
+      _.each(actionListeners, function(listenerFunction) {
+        var thisArg = null; // Should this be something else than null?
+        listenerFunction.apply(thisArg, [data, client]);
+      });
     }
   };
   
@@ -168,6 +179,45 @@ var socket_api = function(app) {
   /* ...................... PUBLIC METHODS ....................... */
   
   return {
+    
+    /**
+     * Add a new message listener. The message listener is called when 
+     * ever message arrives.
+     * 
+     * @param {Object} actionName
+     * @param {function{Object, Object}} listenerFunction Listener function
+     *    First argument is the data JSON Object, second is the client 
+     */
+    addListener: function(actionName, listenerFunction) {
+      if(_.isArray(_listeners[actionName])) {
+        _listeners[actionName].push(listenerFunction);
+      } else {
+        _listeners[actionName] = [listenerFunction];
+      }
+    },
+    
+    /**
+     * Removes message listener
+     * 
+     * @param {Object} actionName
+     * @param {Object} listenerFunction
+     */
+    removeListener: function(actionName, listenerFunction) {
+      if(_.isArray(_listeners[actionName])) {
+        _listeners[actionName] = _.without(_listeners[actionName], listenerFunction);
+      }
+    },
+    
+    /**
+     * Sends response to a single client
+     * 
+     * @param {Object} client
+     * @param {string} responseName
+     * @param {Object} content
+     */
+    sendResponse: function(client, responseName, content) {
+      client.send(_createResponse(responseName, content));
+    },
     
     /**
      * Broadcast polling area
