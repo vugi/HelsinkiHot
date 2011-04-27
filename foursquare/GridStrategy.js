@@ -28,9 +28,9 @@ function gridPollingStrategy(_limitBounds, _center) {
     if(_pollingRound % 10 != 0 || _lastResultBounds.diameter() > lastPollingBounds.diameter() * 5 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || lastPollingBounds.diameter() < 0.1 || _lastResultBounds.isBoundsInside(lastPollingBounds)){
       _pollingIndex++;
       if(_pollingIndex < _pollingBounds.length) {
-        logger.log('Area not divided. All venues from given area fetched');
+        logger.debug('Area not divided. All venues from given area fetched');
       } else {
-        logger.log('Whole area fetched');
+        logger.log('GridStrategy: Whole area fetched');
         _pollingIndex = 0;
         _pollingRound++;
       }
@@ -71,8 +71,6 @@ function gridPollingStrategy(_limitBounds, _center) {
     nextPollingPoint: function() {
       if(_lastResultBounds) {
         var next = _calculateNextPollingPoint();
-        // logger.debug('Next polling point:');
-        // logger.debug(next)
         return next.center();
       } else {
         logger.debug('Next polling point is the center');
