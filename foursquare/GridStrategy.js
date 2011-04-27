@@ -1,6 +1,6 @@
 var bounds = require('./Bounds');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.DEBUG);
+var logger = loggerModule(loggerModule.level.LOG);
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
 

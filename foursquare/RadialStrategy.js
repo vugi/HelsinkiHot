@@ -1,6 +1,6 @@
 var bounds = require('./bounds');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.DEBUG);
+var logger = loggerModule(loggerModule.level.LOG);
 
 /**
  * Implements radial polling strategy
