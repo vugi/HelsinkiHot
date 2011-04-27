@@ -1,4 +1,4 @@
-var port = 3000;
+var port = 80;
 var express = require('express');
 var app = express.createServer();
 var fs = require('fs');
@@ -54,12 +54,17 @@ var initializeFoursquarePoller = function(){
   }).start();
 }
 
+function configured(config) {
+  app.listen(config.port);
+}
+
 // Middleware configurations
 app.configure('development', function(){
   app.use(express.static(__dirname + '/public'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
   readConfigFile('./user_config.json', './user_config_default.json', function(config) {
     initializeFoursquarePoller(config.foursquare_client_id, config.foursquare_client_secret);
+    configured(config);
   });
 });
 
@@ -69,6 +74,7 @@ app.configure('production', function(){
   app.use(express.errorHandler());
   readConfigFile('./production_config.json', null, function(config) {
     initializeFoursquarePoller(config.foursquare_client_id, config.foursquare_client_secret);
+    configured(config);
   });
   
 });
@@ -224,7 +230,5 @@ app.get('/api/venues/:name', function(req, res) {
     res.send(venues);
   });
 });
-
-app.listen(port);
 
 logger.log('Server running at port ' + port);
