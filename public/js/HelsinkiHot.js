@@ -47,20 +47,6 @@ $(document).ready(function(){
       heatmap.draw();
   }});
   
-  $("#hotspotMultiplySlider").slider({
-    min: 0.1, 
-    max: 5,
-    step: 0.1,
-    value: Heatmap.DEFAULT_HOTSPOT_MULTIPLIER,
-    range: "min", 
-    slide: function( event, ui ) {
-      
-      multiply = ui.value;
-      heatmap.setHotspotMultiplier(ui.value);
-      log(multiply);
-      heatmap.draw();
-  }});
-  
   $hoverBox = $("<div class='hoverBox'>")
 	  .appendTo("#map_container")
 	  .hide()
