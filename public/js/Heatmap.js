@@ -11,7 +11,6 @@ var Heatmap = function(map){
     // Set Heatmap drawing defaults
     this.setRadius(Heatmap.DEFAULT_RADIUS);
     this.setHeatMultiplier(Heatmap.DEFAULT_ALPHA_MULTIPLIER);
-    this.setHotspotMultiplier(Heatmap.DEFAULT_HOTSPOT_MULTIPLIER);
     
     // Initialize hotspost array
     this._hotspots = [];
@@ -80,8 +79,7 @@ Heatmap.prototype.draw = function(){
     for (var i = 0; i < hotspotLength; i++) {
         var hotspot = hotspots[i];
         var point = MapHelper.fromLatLngToPixel(hotspot.latlng, this._map);
-        var hotspotMultiplier = this._hotspotMultiplier || 1;
-        var amount = hotspot.count * hotspotMultiplier;
+        var amount = hotspot.count;
 
         for (var j = 0; j < amount; j++) {
           this.addHeat(point.x, point.y);
@@ -196,12 +194,6 @@ Heatmap.DEFAULT_RADIUS = 40;
 Heatmap.DEFAULT_ALPHA_MULTIPLIER = 1;
 
 /**
- * @const
- * @type {number}
- */
-Heatmap.DEFAULT_HOTSPOT_MULTIPLIER = 1;
-
-/**
  * Change the hotspot radius
  * 
  * @param {number} r new radius
@@ -213,8 +205,4 @@ Heatmap.prototype.setRadius = function(r) {
 
 Heatmap.prototype.setHeatMultiplier = function(multiplier) {
   this._heatMultiplier = multiplier;
-};
-
-Heatmap.prototype.setHotspotMultiplier = function(multiplier) {
-  this._hotspotMultiplier = multiplier;
 };
