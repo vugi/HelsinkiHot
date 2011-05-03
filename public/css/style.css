@@ -103,6 +103,8 @@ header .sliderContainer p{
   -moz-opacity:0.5;
   opacity: 0.5;
   
+  /* Console is hidden by default */
+  display: none;
 }
 
 #sidebar {
@@ -110,6 +112,9 @@ header .sliderContainer p{
   color: #FFFFFF;
   margin: 10px;
   font-size: 0.8em;
+  
+  /* Console is hidden by default */
+  display: none;
 }
 
 #sidebar h1 {
