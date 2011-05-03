@@ -167,8 +167,9 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       } else {
         // If polling has failed five times in a row, reset the polling position and try again
         logger.warn("Polling failed 10 times in a row... Trying again");
-        lat = _pollingCenterLat;
-        lng = _pollingCenterLng;
+        logger.warn("Resetting polling point...");
+        _lastLatLng = null;
+        _nextLatLng = pollingStrategy.nextPollingPoint();
       }
     }
     
