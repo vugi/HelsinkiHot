@@ -11,6 +11,7 @@ var https = require('https');
 var host = "api.foursquare.com";
 var mongoose = require('mongoose');
 // var Query = require('mongoose/query')
+var Query = mongoose.Query;
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 var loggerModule = require('./utils/logger');
@@ -177,7 +178,7 @@ app.get('/api/venues/add', function(req, res) {
   });
 });
 
-/* NEW VERSION, NOT YET WORKING ON JOYENT
+// NEW VERSION, NOT YET WORKING ON JOYENT
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var timestamp, since, query, startTime, endTime;
   startTime = (new Date().getTime());
@@ -209,8 +210,8 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     logger.debug('Finding venues with Query object took ' + (endTime - startTime) + ' ms');
   });
 });
-*/
 
+/*
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var startTime, endTime;
   startTime = (new Date().getTime());
@@ -240,6 +241,7 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     }
   });
 });
+*/
 
 app.get('/api/venues/del/:id', function(req, res) {
   
