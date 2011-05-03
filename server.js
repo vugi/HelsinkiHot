@@ -178,8 +178,6 @@ app.get('/api/venues/add', function(req, res) {
   });
 });
 
-// NEW VERSION, NOT YET WORKING ON JOYENT
-/*
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var timestamp, since, query, startTime, endTime;
   startTime = (new Date().getTime());
@@ -209,37 +207,6 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     endTime = (new Date().getTime());
     logger.debug('Query found ' + venuedata.length + ' events');
     logger.debug('Finding venues with Query object took ' + (endTime - startTime) + ' ms');
-  });
-});
-*/
-
-app.get('/api/venues/since/:timestamp', function(req, res) {
-  var startTime, endTime;
-  startTime = (new Date().getTime());
-  
-  datamodel.getVenues({}, function(venuedata) {
-    var since;
-    
-    var timestamp = parseInt(req.params.timestamp);
-    
-    if (timestamp == 0 || timestamp) {
-      if (timestamp >= 0) { 
-        since = new Date(timestamp);
-      } else { // negative means relative from now
-        since = new Date(new Date().getTime()+timestamp)
-      }
-      logger.debug('Query found ' + venuedata.length + ' events');
-      var venues = output.format(venuedata, since);
-      res.send({venues: venues, timestamp: new Date().getTime()});
-      
-      endTime = (new Date().getTime());
-      logger.debug('Normal find found ' + venuedata.length + ' events');
-      logger.debug('Finding venues with Normal find object took ' + (endTime - startTime) + ' ms');
-    } else {
-      logger.warn('tried to get venues since invalid timestamp (' + 
-        timestamp + ')');
-      res.send({status: 400, error: 'invalid timestamp'});
-    }
   });
 });
 
