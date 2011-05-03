@@ -177,6 +177,7 @@ app.get('/api/venues/add', function(req, res) {
   });
 });
 
+/* NEW VERSION, NOT YET WORKING ON JOYENT
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var timestamp, since, query, startTime, endTime;
   startTime = (new Date().getTime());
@@ -208,8 +209,8 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     logger.debug('Finding venues with Query object took ' + (endTime - startTime) + ' ms');
   });
 });
+*/
 
-/* OLD VERSION
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var startTime, endTime;
   startTime = (new Date().getTime());
@@ -239,7 +240,6 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     }
   });
 });
-*/
 
 app.get('/api/venues/del/:id', function(req, res) {
   
