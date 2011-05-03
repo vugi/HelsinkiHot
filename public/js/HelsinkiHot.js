@@ -9,6 +9,7 @@ var heatmap;
 $(document).ready(function(){
   initializeMap();
   initializeHeatmap();
+  initializeConsole();
   
   getVenueData(1);
   
@@ -188,6 +189,27 @@ function initializeMap() {
   
 function initializeHeatmap() {
 	heatmap = new Heatmap(map);
+}
+
+function parseAnchorFromUrl(){
+    // Anchor with hash
+  var anchor = window.location.hash;
+  
+  if(anchor.length === 0) {
+    return;
+  }
+  
+  // Anchor without hash
+  return anchor.substr(1);
+}
+
+function initializeConsole() {
+  var anchor = parseAnchorFromUrl();
+  
+  if(anchor === "console") {
+    $('#sidebar').show();
+    $('#sidebar-bg').show();
+  }
 }
 
 function showLoader(boolean){
