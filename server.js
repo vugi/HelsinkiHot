@@ -10,6 +10,8 @@ var socketAPI = require('./socket/socket_api')(app);
 var https = require('https');
 var host = "api.foursquare.com";
 var mongoose = require('mongoose');
+// var Query = require('mongoose/query')
+var Query = mongoose.Query;
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 var loggerModule = require('./utils/logger');
@@ -177,24 +179,34 @@ app.get('/api/venues/add', function(req, res) {
 });
 
 app.get('/api/venues/since/:timestamp', function(req, res) {
-  datamodel.getVenues({}, function(venuedata) {
-    var since;
-    
-    var timestamp = parseInt(req.params.timestamp);
-    
-    if (timestamp == 0 || timestamp) {
-      if (timestamp >= 0) { 
-        since = new Date(timestamp);
-      } else { // negative means relative from now
-        since = new Date(new Date().getTime()+timestamp)
-      }
-      var venues = output.format(venuedata, since);
-      res.send({venues: venues, timestamp: new Date().getTime()});
+  var timestamp, since, query, startTime, endTime;
+  startTime = (new Date().getTime());
+  
+  // Parse timestamp
+  timestamp = parseInt(req.params.timestamp);
+  if(_.isNumber(timestamp)) {
+    if(timestamp >= 0) {
+      since = new Date(timestamp);
     } else {
-      logger.warn('tried to get venues since invalid timestamp (' + 
-        timestamp + ')');
-      res.send({status: 400, error: 'invalid timestamp'});
+      since = new Date(new Date().getTime() + timestamp);
     }
+  } else {
+    logger.warn('tried to get venues since invalid timestamp (' + 
+      timestamp + ')');
+    res.send({status: 400, error: 'invalid timestamp'});
+    return;  
+  }
+  
+  query = new Query();
+  query.where('events.time').gte(since);
+  
+  datamodel.getVenues(query, function(venuedata) {
+    var venues = output.format(venuedata, since);
+    res.send({venues: venues, timestamp: new Date().getTime()});
+    
+    endTime = (new Date().getTime());
+    logger.debug('Query found ' + venuedata.length + ' events');
+    logger.debug('Finding venues with Query object took ' + (endTime - startTime) + ' ms');
   });
 });
 
