@@ -39,7 +39,7 @@ Heatmap.prototype.onAdd = function() {
   this._canvas.height = document.getElementById('map_container').offsetHeight;
   this._width = this._canvas.width;
   this._height = this._canvas.height;
-  console.log("Canvas size:" + this._width + " x " + this._height);
+  log("Canvas size:" + this._width + " x " + this._height);
   
   // Set position
   this._canvas.style.position = "absolute";
@@ -57,7 +57,7 @@ Heatmap.prototype.onAdd = function() {
  * comes to the frontend server
  */
 Heatmap.prototype.draw = function(){
-  console.log("Heatmap.draw");
+  log("Heatmap.draw");
   
   // Move the canvas to topleft corner of the map
   var overlayProjection = this.getProjection();
@@ -66,7 +66,7 @@ Heatmap.prototype.draw = function(){
   var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());
   this._canvas.style.left = sw.x + 'px';
   this._canvas.style.top = ne.y + 'px';
-  console.log("left:" + sw.x + " top:" + ne.y);
+  log("left:" + sw.x + " top:" + ne.y);
   
     // Clear canvas
     var width = this._width;

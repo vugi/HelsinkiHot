@@ -43,7 +43,7 @@ $(document).ready(function(){
       
       multiply = ui.value;
       heatmap.setHeatMultiplier(ui.value);
-      console.log(multiply);
+      log(multiply);
       heatmap.draw();
   }});
   
@@ -57,7 +57,7 @@ $(document).ready(function(){
       
       multiply = ui.value;
       heatmap.setHotspotMultiplier(ui.value);
-      console.log(multiply);
+      log(multiply);
       heatmap.draw();
   }});
   
@@ -108,7 +108,7 @@ function addVenue(item,pan){
   heatmap.addHotspot(latlng, latestEvent.points);
   
   if(pan){
-    console.log("Panning");
+    log("Panning");
     map.panTo(latlng);
     heatmap.draw();
     
@@ -214,13 +214,19 @@ function initializeConsole() {
 
 function showLoader(boolean){
   if(boolean){
-    console.log("Show loader");
+    log("Show loader");
     $("<div id='loader'>Loading venues</div>").hide().appendTo("body").fadeIn('slow');
   } else {
-    console.log("Hide loader");
+    log("Hide loader");
     $("#loader").fadeOut('slow',function(){
       $(this).remove();
     });
   }
   
+}
+
+function log(msg) {
+  if (window.console && console.log) {
+    console.log(msg);
+  }
 }

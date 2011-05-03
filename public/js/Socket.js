@@ -8,7 +8,7 @@ var socket = {
     // Socket.io test
     socket.socket = new io.Socket(document.domain); 
     socket.socket.on('connect', function(){
-      console.log("Socket connected!");
+      log("Socket connected!");
     }); 
     socket.socket.on('message', function(data){ 
       data = $.parseJSON(data);
@@ -23,7 +23,7 @@ var socket = {
     
     });
     socket.socket.on('disconnect', function(){
-      console.log("Socket disconnected");
+      log("Socket disconnected");
     }); 
   
     socket.socket.connect();
@@ -88,7 +88,7 @@ var socket = {
   },
   
   showNewEvent: function(ev) {
-    console.log(ev);
+    log(ev);
     $('#fs-event-log ul').append("<li>" + 
       ev.venue.events[0].points + " @ " + ev.venue.name + 
       "</li>");
