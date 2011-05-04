@@ -1,6 +1,6 @@
 var bounds = require('./Bounds');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
 var GeometryUtils = require('./GeometryUtils');
@@ -13,6 +13,7 @@ var GeometryUtils = require('./GeometryUtils');
 function gridPollingStrategy(_limitBounds, _center) {
   var _lastResultBounds;
   var _lastRequestCenter;
+  var _lastResultEvents;
   var _pollingBounds = [];
   
   var _updateGrid = true;
@@ -26,7 +27,21 @@ function gridPollingStrategy(_limitBounds, _center) {
     
     logger.debug('Grid size: ' + _pollingBounds.length);
     
-    if(_pollingRound % 10 != 0 || _lastResultBounds.diameter() > lastPollingBounds.diameter() * 5 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || lastPollingBounds.diameter() < 0.1 || _lastResultBounds.isBoundsInside(lastPollingBounds)){
+    function eventsInsideBounds (events, boundsObject) {
+      var count = 0;
+      _.each(events, function(event) {
+        if(boundsObject.isPointInside({lat: event.latitude, lng: event.longitude})) {
+          count++;
+        }
+      });
+      return count;
+    }
+    
+    var eventCountInsideBounds = eventsInsideBounds(_lastResultEvents, lastPollingBounds);
+    logger.debug('Events inside bounds: ' + eventCountInsideBounds);
+    
+    // if(_pollingRound % 10 != 0 || _lastResultBounds.diameter() > lastPollingBounds.diameter() * 5 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || lastPollingBounds.diameter() < 0.1 || _lastResultBounds.isBoundsInside(lastPollingBounds)){
+    if(_pollingRound % 10 != 0 || eventCountInsideBounds < 35 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || _lastResultBounds.isBoundsInside(lastPollingBounds)){
       _pollingIndex++;
       if(_pollingIndex < _pollingBounds.length) {
         logger.debug('Area not divided. All venues from given area fetched');
@@ -93,6 +108,10 @@ function gridPollingStrategy(_limitBounds, _center) {
         logger.debug('Next polling point is the center');
         return _limitBounds.center();
       }
+    },
+    
+    resultEvents: function(events) {
+      _lastResultEvents = events;
     },
     
     /**

@@ -134,6 +134,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       events.push(event);
     });
     
+    pollingStrategy.resultEvents(events);
     pollingStrategy.resultBounds(bounds(minLat, minLng, maxLat, maxLng), {lat: originalLat, lng: originalLng});
     
     // Send polling area corners to client
