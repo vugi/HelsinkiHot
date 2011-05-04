@@ -41,7 +41,7 @@ function gridPollingStrategy(_limitBounds, _center) {
     logger.debug('Events inside bounds: ' + eventCountInsideBounds);
     
     // if(_pollingRound % 10 != 0 || _lastResultBounds.diameter() > lastPollingBounds.diameter() * 5 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || lastPollingBounds.diameter() < 0.1 || _lastResultBounds.isBoundsInside(lastPollingBounds)){
-    if(_pollingRound % 10 != 0 || eventCountInsideBounds < 35 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || _lastResultBounds.isBoundsInside(lastPollingBounds)){
+    if(_pollingRound % 10 != 0 || eventCountInsideBounds < 20 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || _lastResultBounds.isBoundsInside(lastPollingBounds)){
       _pollingIndex++;
       if(_pollingIndex < _pollingBounds.length) {
         logger.debug('Area not divided. All venues from given area fetched');
