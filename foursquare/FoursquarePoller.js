@@ -20,14 +20,12 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   var _pollingCenter = {lat: _pollingCenterLat, lng: _pollingCenterLng};
  
   // Limits
-  /*
   var _lngMaxLimit = 25.089684;
   var _lngMinLimit = 24.729538;
   var _latMaxLimit = 60.255486;
   var _latMinLimit = 60.129880;
   var _limitBounds = bounds(_latMinLimit, _lngMinLimit, _latMaxLimit, _lngMaxLimit);
-  */
-  var _limitBounds = bounds({lat: 60.183697, lng: 24.896736}, {lat: 60.153638, lng: 24.975357});
+  // var _limitBounds = bounds({lat: 60.183697, lng: 24.896736}, {lat: 60.153638, lng: 24.975357});
   
   // Polling strategy
   // var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
