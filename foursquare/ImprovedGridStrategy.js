@@ -1,4 +1,5 @@
 var bounds = require('./Bounds');
+var GeometryUtils = require('./GeometryUtils');
 var loggerModule = require('../utils/logger');
 var logger = loggerModule(loggerModule.level.LOG);
 var socketAPI = require('../socket/socket_api')();
@@ -33,7 +34,7 @@ function gridPollingStrategy(_limitBounds, _center) {
       // Do not split if it's not time to update
       splitGrid = false;
     }
-    else if(_lastResultBounds.diameter() > lastPollingBounds.diameter() * 5) {
+    else if(GeometryUtils.diameter(_lastResultBounds) > GeometryUtils.diameter(lastPollingBounds) * 5) {
       // Result area is 5 times bigger than the area that was polled
       // This usually means that there aren't much venues inside the area that was polled (sea areas for example).
       splitGrid = false;
@@ -43,7 +44,7 @@ function gridPollingStrategy(_limitBounds, _center) {
       // This usually means that there aren't much venues inside the area that was polled (sea areas for example).
       splitGrid = false;
     }
-    else if(lastPollingBounds.diameter() < 0.1) {
+    else if(GeometryUtils.diameter(lastPollingBounds) < 0.1) {
       // Polling area diameter was smaller that 100m. We're not going into more detailed polling than this.
       splitGrid = false;
     }
