@@ -1,7 +1,7 @@
 var bounds = require('./Bounds');
 var GeometryUtils = require('./GeometryUtils');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
 
@@ -24,13 +24,16 @@ function gridPollingStrategy(_limitBounds, _center) {
   var _pollingIndex = 0;
   var _pollingRound = 0;
   
+  var _resultRatios = [];
+  
   function _calculateNextPollingPoint() {
+    
     var lastPollingBounds = _pollingBounds[_pollingIndex];
     
     logger.debug('Grid size: ' + _pollingBounds.length);
     
     var splitGrid;
-    if(_pollingRound % _updateEvery !== 0) {
+    if(_pollingRound % _updateEvery !== 0 && (_pollingRound - 1) % _updateEvery !== 0) {
       // Do not split if it's not time to update
       splitGrid = false;
     }
@@ -53,16 +56,44 @@ function gridPollingStrategy(_limitBounds, _center) {
       splitGrid = false;
     } else {
       // Otherwise, split grid
+      splitGrid = true;
+    }
+    
+    function arrayAverage (arr) {
+        var length = arr.length;
+        var sum = _.reduce(arr, function(memo, num){ return memo + num; }, 0);
+        var ratio = sum / length;
+        return ratio;
+      }
+    
+    if(_pollingRound % _updateEvery === 0){
+        var resultRatio = Math.abs(_lastResultBounds.latMax - _lastResultBounds.latMin) / Math.abs(_lastResultBounds.lngMax - _lastResultBounds.lngMin);
+        _resultRatios.push(resultRatio);
+        
+        logger.debug('Current ratio: ' + arrayAverage(_resultRatios));
+        
     }
     
     if(splitGrid) {
-      var newPollingBounds = lastPollingBounds.divide();
+      
+      var newPollingBounds;
+      
+      newPollingBounds = GeometryUtils.divideToFour(lastPollingBounds);
       
       // Remove old bounds
       _pollingBounds.splice(_pollingIndex, 1);
       
+      function insertItemsToArray(array, index, items) {
+        var itemsLength = items.length;
+        for(var i = 0; i < itemsLength; i++, index++) {
+          array.splice(index, 0, items[i]);
+        }
+      }
+      
+      insertItemsToArray(_pollingBounds, _pollingIndex, newPollingBounds);
+      
       // Add the four new bounds
-      _pollingBounds.splice(_pollingIndex, 0, newPollingBounds[0], newPollingBounds[1], newPollingBounds[2], newPollingBounds[3]);
+      // _pollingBounds.splice(_pollingIndex, 0, newPollingBounds[0], newPollingBounds[1], newPollingBounds[2], newPollingBounds[3]);
       
       logger.debug('Area divided into 4 new areas');
       logger.debug('New area diameter: ' + newPollingBounds[0].diameter() + ' km');
@@ -77,6 +108,19 @@ function gridPollingStrategy(_limitBounds, _center) {
         logger.debug('Area not divided. All venues from given area fetched');
       } else {
         logger.log('GridStrategy: Whole area fetched');
+        
+        if (_pollingRound % _updateEvery === 0) {
+          // Count the ratio
+          var ratio = arrayAverage(_resultRatios);
+        
+          // Clean _resultRatios;
+          _resultRatios = [];
+        
+          _pollingBounds = GeometryUtils.divideToRatio(_limitBounds, ratio);
+          
+          socketAPI.broadcastPollingGrid(_pollingBounds);
+        }
+        
         _pollingIndex = 0;
         _pollingRound++;
       }

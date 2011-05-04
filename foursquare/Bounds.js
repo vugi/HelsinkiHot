@@ -79,6 +79,10 @@ function bounds() {
     
     center: _center,
     
+    latLngRatio: function() {
+      return Math.abs(_latMax - _latMin) / Math.abs(_lngMax - _lngMin);
+    },
+    
     isBoundsInside: function(bounds) {
       if(_isPointInside(bounds.se) && _isPointInside(bounds.sw) && _isPointInside(bounds.ne) && _isPointInside(bounds.nw)) {
         return true;
@@ -106,6 +110,9 @@ function bounds() {
       }
     },
     
+    /**
+     * @deprecated Use GeometryUtils.diameter instead
+     */
     diameter: function() {
       var lat1 = _nw.lat;
       var lat2 = _se.lat;
@@ -122,7 +129,10 @@ function bounds() {
       var d = R * c;
       return Math.round(d*100)/100;
     },
-    
+
+    /**
+     * @deprecated Use GeometryUtils.divide instead
+     */    
     divide: function(){
       return [
         bounds(_nw, _center()),

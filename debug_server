@@ -1,2 +1,2 @@
 #!/bin/sh
-node --debug $1
+node --debug-brk $1

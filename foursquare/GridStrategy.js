@@ -3,6 +3,7 @@ var loggerModule = require('../utils/logger');
 var logger = loggerModule(loggerModule.level.LOG);
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
+var GeometryUtils = require('./GeometryUtils');
 
 /**
  * 
@@ -36,9 +37,25 @@ function gridPollingStrategy(_limitBounds, _center) {
       }
       return _pollingBounds[_pollingIndex]
     } else {
-      var newPollingBounds = lastPollingBounds.divide();
+      var newPollingBounds;
+      if(_pollingIndex === 0) {
+        newPollingBounds = GeometryUtils.divideToRatio(lastPollingBounds, 1);
+      } else {
+        newPollingBounds = lastPollingBounds.divide();
+      }
+      
       _pollingBounds.splice(_pollingIndex, 1);
-      _pollingBounds.splice(_pollingIndex, 0, newPollingBounds[0], newPollingBounds[1], newPollingBounds[2], newPollingBounds[3]);
+      
+      function insertItemsToArray(array, index, items) {
+        var itemsLength = items.length;
+        for(var i = 0; i < itemsLength; i++, index++) {
+          array.splice(index, 0, items[i]);
+        }
+      }
+      
+      insertItemsToArray(_pollingBounds, _pollingIndex, newPollingBounds);
+      // _pollingBounds.splice(_pollingIndex, 0, newPollingBounds[0], newPollingBounds[1], newPollingBounds[2], newPollingBounds[3]);
+      
       logger.debug('Area divided into 4 new areas');
       logger.debug('New area diameter: ' + newPollingBounds[0].diameter() + ' km');
       
