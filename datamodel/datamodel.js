@@ -1,7 +1,8 @@
 var mongoose = require('mongoose');
+var Query = mongoose.Query;
 var loggerModule = require('../utils/logger');
 var _ = require('../lib/underscore');
-var logger = loggerModule(loggerModule.level.LOG);
+var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
 
 var datamodel = {
@@ -150,7 +151,7 @@ var datamodel = {
     datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {
       var venue;
       if (venues.length == 1) {
-        logger.debug("Venue " + venues[0].name + " found, checkins: " + venues[0].checkinsCount);
+        // logger.debug("Venue " + venues[0].name + " found, checkins: " + venues[0].checkinsCount);
         venue = venues[0];
       } else if (venues.length > 1) {
         // logger.warn("Found multiple venues with service: " + data.service + ", id: " 
@@ -236,6 +237,38 @@ var datamodel = {
   getVenues: function(data, callback) {
     datamodel.models.Venue.find(data, function(err, venuedata) {
       callback(venuedata);
+    });
+  },
+  removeEventsOlderThan: function(time) {
+    logger.debug('Removing events older than ' + time.toString());
+    
+    var query = new Query();
+    query.where('events.time').lte(time);
+    
+    datamodel.models.Venue.find(query, function(error, venues) {
+      var venuesCount = venues.length;
+      var venuesCleared = 0;
+      var eventsRemoved = 0;
+      _.each(venues, function(venue) {
+        var recentEvents = _.select(venue.events, function(event) {
+          return event.time.getTime() > time.getTime();
+        });
+        
+        venue.events = recentEvents;
+        
+        venue.save(function(error) {
+          if(error) {
+            logger.error(error);
+          }
+          
+          venuesCleared++;
+          
+          if(venuesCleared >= venuesCount) {
+            logger.log('Cleared ' + venuesCleared + ' Venues from old events');
+          }
+        })
+        
+      });
     });
   }
 }

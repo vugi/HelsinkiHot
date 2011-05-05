@@ -156,6 +156,19 @@ var datamodel = require("./datamodel/datamodel.js");
 // init the data model
 datamodel.init({addTestData: false});
 
+// Start garbage collector. Remove all events older than two
+// days. Do it every second hour and when ever the application
+// is restarted
+var ONE_MINUTE = 60 * 1000;
+var ONE_HOUR = 24 * ONE_MINUTE;
+var time = new Date(Date.now() - 48 * ONE_HOUR);
+
+var garbageCollectorId = setInterval(function() {
+  datamodel.removeEventsOlderThan(time);
+}, 2 * ONE_HOUR);
+datamodel.removeEventsOlderThan(time);
+
+
 app.get('/api', function(req, res){
 	res.send('hello world from api!');	
 });
