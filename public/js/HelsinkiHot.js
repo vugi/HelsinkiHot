@@ -56,6 +56,11 @@ $(document).ready(function(){
       top: 0,
       "z-index": 1000
     });
+    
+    // hash change can be because of user wanting to show the console
+    $(window).bind('hashchange', function() {
+      initializeConsole();
+    });
   
 });
 
