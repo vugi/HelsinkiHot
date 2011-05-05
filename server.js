@@ -15,7 +15,7 @@ var Query = mongoose.Query;
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 var loggerModule = require('./utils/logger');
-var logger = loggerModule(loggerModule.level.DEBUG);
+var logger = loggerModule(loggerModule.level.LOG);
 var foursquarePoller = require("./foursquare/FoursquarePoller.js");
 
 var config;
@@ -46,6 +46,7 @@ var initializeFoursquarePoller = function(){
       config.foursquare_client_secret, 
       function(events){
     if (events.length > 0) {
+      // logger.log(' * * * Adding ' + events.length + ' new checkins * * * ');
       datamodel.addEvents(events, function(success){
         // Nothing here... logging maybe
       });
