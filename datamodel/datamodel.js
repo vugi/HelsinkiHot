@@ -157,8 +157,7 @@ var datamodel = {
         // + data.serviceId + ", choosing the first one.");
         venue = venues[0];
       } else {
-        // logger.log("Creating a new venue with data " + utils.inspect(data));
-        logger.log("Creating a new venue " + data.name + ", checkins: " + data.checkinsCount);
+        logger.debug("Creating a new venue " + data.name + ", checkins: " + data.checkinsCount);
         venue = new datamodel.models.Venue();
         venue.service = data.service;
         venue.serviceId = data.serviceId;
@@ -180,7 +179,7 @@ var datamodel = {
       var newCheckinsCount = parseInt(data.checkinsCount);
       
       if (oldCheckinsCount != newCheckinsCount) {
-        logger.log(venue.name + ' - old: ' + oldCheckinsCount + ' new: ' + newCheckinsCount);
+        logger.debug(venue.name + ' - old: ' + oldCheckinsCount + ' new: ' + newCheckinsCount);
       }
       
       if (oldCheckinsCount == 0) {
@@ -199,7 +198,7 @@ var datamodel = {
         };
         
         
-        logger.log('* * * * * * Found new checkin to ' + venue.name + ' worth ' + checkinDifference + ' points * * * * * * * *');
+        logger.debug('* * * * * * Found new checkin to ' + venue.name + ' worth ' + checkinDifference + ' points * * * * * * * *');
         
         venue.events.push(newEvent);
         
@@ -224,7 +223,7 @@ var datamodel = {
         // Update total checkin count
         venue.checkinsCount = newCheckinsCount;
         
-        logger.log("Updating checkin count from " + oldCheckinsCount + " to " + newCheckinsCount);
+        logger.debug("Updating checkin count from " + oldCheckinsCount + " to " + newCheckinsCount);
       }
       
       venue.save(function(err) {

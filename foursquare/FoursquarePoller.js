@@ -19,17 +19,21 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   var _pollingCenterLng = 24.936905;
   var _pollingCenter = {lat: _pollingCenterLat, lng: _pollingCenterLng};
  
- // Limits
+  // Limits
   var _lngMaxLimit = 25.089684;
   var _lngMinLimit = 24.729538;
   var _latMaxLimit = 60.255486;
   var _latMinLimit = 60.129880;
   var _limitBounds = bounds(_latMinLimit, _lngMinLimit, _latMaxLimit, _lngMaxLimit);
-  // var _limitBounds = bounds({lat: 60.208951, lng: 24.815025}, {lat: 60.144410, lng: 25.010033});
+  // Smaller area for testing 
+  // var _limitBounds = bounds({lat: 60.183697, lng: 24.896736}, {lat: 60.153638, lng: 24.975357});
+  // Very small area for testing
+  // var _limitBounds = bounds({lat: 60.206222, lng: 24.934158}, {lat: 60.195132, lng: 24.959736});
   
   // Polling strategy
   // var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
   var pollingStrategy = require('./GridStrategy')(_limitBounds);
+  // var pollingStrategy = require('./ImprovedGridStrategy')(_limitBounds);
   var _nextLatLng = pollingStrategy.nextPollingPoint();
   var _lastLatLng;
   
@@ -133,7 +137,11 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       events.push(event);
     });
     
-    pollingStrategy.resultBounds(bounds(minLat, minLng, maxLat, maxLng), {lat: originalLat, lng: originalLng});
+    var requestBounds = bounds(minLat, minLng, maxLat, maxLng);
+    var requestCenter = {lat: originalLat, lng: originalLng};
+    
+    pollingStrategy.lastResult(events, requestBounds, requestCenter);
+    // pollingStrategy.resultBounds(bounds(minLat, minLng, maxLat, maxLng), {lat: originalLat, lng: originalLng});
     
     // Send polling area corners to client
     socketAPI.broadcastPollingArea({lat: maxLat, lng: minLng}, {lat: minLat, lng: maxLng});

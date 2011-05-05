@@ -47,8 +47,9 @@ var socket = {
           new google.maps.LatLng(grid.seLatLng.lat, grid.seLatLng.lng)
         ),
         strokeColor: "#000000",
-        strokeOpacity: 0.5,
+        strokeOpacity: 1,
         strokeWeight: 1,
+        fillOpacity: 0,
         map: map
       }));
     })

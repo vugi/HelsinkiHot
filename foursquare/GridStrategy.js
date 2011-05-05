@@ -1,8 +1,9 @@
 var bounds = require('./Bounds');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
+var GeometryUtils = require('./GeometryUtils');
 
 /**
  * 
@@ -10,43 +11,267 @@ var _ = require('../lib/underscore');
  * @param {Object} _center Lat/lng object. Center of polling, optional.
  */
 function gridPollingStrategy(_limitBounds, _center) {
-  var _lastResultBounds;
-  var _lastRequestCenter;
+
+  var _resultEvents;
+  var _resultEventCount;
+  var _resultBounds;
+  var _requestCenter;
+  var _requestBounds;
+  
   var _pollingBounds = [];
-  
-  var _updateGrid = true;
-  
   var _pollingBounds = [_limitBounds];
   var _pollingIndex = 0;
   var _pollingRound = 0;
   
+  var _isRoundsFirst = true;
+  
+  var RANDOMIZE_POLLING = true;
+  
+  var MIN_EVENT_COUNT = 20;
+  var MIN_DIAMETER = 0.1;
+  var UPDATE_EVERY = 10;
+  
+  var _pollingIndexes = [false];
+  
+  function _shouldDivide() {
+    // Dividing parameter
+    if (_pollingRound % UPDATE_EVERY != 0) {
+      logger.debug('Not dividing area: Updating grid every ' + UPDATE_EVERY + ' round. Current round: ' + _pollingRound);
+      return false;
+    }
+    else if (_resultEventCount < MIN_EVENT_COUNT) {
+      logger.debug('Not dividing area: Too less events inside area: '+ _resultEventCount);
+      return false;
+    }
+    else if (_requestBounds.diameter() < MIN_DIAMETER) {
+      logger.debug('Not dividing area: Too little diameter');
+      return false;
+    }
+    else if (_requestBounds.isBoundsCompletelyOutside(_resultBounds)) {
+      logger.debug('Not dividing area: Result bounds is completely outside');
+      return false;
+    }
+    else if (_resultBounds.isBoundsInside(_requestBounds)) {
+      logger.debug('Not dividing area: Result area covers completely request area');
+      return false;
+    } else {
+      logger.debug('Dividing area')
+      return true;
+    }
+  }
+  
+  function _resetIndexes(){
+    if (RANDOMIZE_POLLING) {
+      for (var i = 0; i < _pollingIndexes.length; i++) {
+        _pollingIndexes[i] = false;
+      }
+    } else {
+      _pollingIndex = 0;
+    }
+  };
+  
+  function _getAvailableIndexes() {
+    if(RANDOMIZE_POLLING) { 
+      var availableIndexes = [];
+      _.each(_pollingIndexes, function(value, key) {
+        if(value !== true) {
+          availableIndexes.push(key);
+        }
+      });
+      return availableIndexes;
+    } else {
+      return _pollingBounds.length - _pollingIndex;
+    }
+     
+  };
+  
+  function _updateIndex() {
+    if (RANDOMIZE_POLLING) {
+      var availableIndexes = _getAvailableIndexes();
+      
+      var randomIndex = Math.floor(Math.random() * availableIndexes.length);
+      _pollingIndex = availableIndexes[randomIndex];
+    } else {
+      if(_isRoundsFirst) {
+        _pollingIndex = 0;
+      }
+      if (!_areaDivided) {
+        _pollingIndex++;
+      }
+    }
+  };
+  
+  function _updateResultEventCount() {
+    // Count how many events was inside the polled area
+    _resultEventCount = 0;
+    _.each(_resultEvents, function(event) {
+      if(_requestBounds.isPointInside({lat: event.latitude, lng: event.longitude})) {
+        _resultEventCount++;
+      }
+    });
+  };
+  
+  function addAll(array, index, values, count) {
+    var isArray = _.isArray(values);
+    var length = isArray ? values.length : count;
+    
+    for (var i = 0; i < length; i++) {
+      if(isArray) {
+        array.splice(index + i, 0, values[i]);
+      } else {
+        array.splice(index + i, 0, values);
+      }
+    }
+  };
+  
+  function _roundEnded() {
+    _pollingRound++;
+    
+    // Clean pollingBounds
+    if (_pollingRound % UPDATE_EVERY === 0) {
+      // Reset polling index
+      _pollingIndexes = [false];
+      
+      _pollingBounds = [_limitBounds];
+    } else {
+      _resetIndexes();
+    }
+    
+    _isRoundsFirst = true;
+  }
+  
+  function _processResult() {
+    _updateResultEventCount();
+    
+    if(_shouldDivide()) {
+      _areaDivided = true;
+      
+      var dividedBounds;
+      if(_isRoundsFirst) {
+        dividedBounds = GeometryUtils.divideToRatio(_requestBounds, 1);
+      } else {
+        dividedBounds = _requestBounds.divide();
+      }
+      
+      _pollingBounds.splice(_pollingIndex, 1);
+      addAll(_pollingBounds, _pollingIndex, dividedBounds);
+      
+      _pollingIndexes.splice(_pollingIndex, 1);
+      addAll(_pollingIndexes, _pollingIndex, false, dividedBounds.length);
+      
+      logger.debug('New grid count: ' + _pollingBounds.length);
+      
+      socketAPI.broadcastPollingGrid(_pollingBounds);
+      
+    } else {
+      _areaDivided = false;
+      
+      // Mark index as polled
+      _pollingIndexes[_pollingIndex] = true;
+      
+      if(_getAvailableIndexes().length === 0) {
+        // Whole area fetched!
+        logger.log('- - - Whole area fetched - - -');
+       
+        _roundEnded();
+        return;
+      }
+    }
+    
+    _isRoundsFirst = false;
+  };
+  
+  function _calculateNextPollingPoint() {
+    _updateIndex();
+    var nextBounds = _pollingBounds[_pollingIndex];
+    
+    // logger.debug('Got next polling point. Total bounds: ' + _pollingBounds.length + '. Indexes left: ' + _getAvailableIndexes().length);
+    
+    // Update requestBounds
+    _requestBounds = nextBounds;
+    return nextBounds.center();
+  }
+  
+  /* 
   function _calculateNextPollingPoint() {
     var lastPollingBounds = _pollingBounds[_pollingIndex];
     
-    logger.debug('Grid size: ' + _pollingBounds.length);
+    if(lastPollingBounds == null) {
+      logger.log('LastPollingBounds null');
+    }
     
-    if(_pollingRound % 10 != 0 || _lastResultBounds.diameter() > lastPollingBounds.diameter() * 5 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || lastPollingBounds.diameter() < 0.1 || _lastResultBounds.isBoundsInside(lastPollingBounds)){
-      _pollingIndex++;
-      if(_pollingIndex < _pollingBounds.length) {
+    // Update polling index
+    var availableIndexes = [];
+    _.each(_pollingIndexes, function(value, key) {
+      if(value !== true) {
+        availableIndexes.push(key);
+      }
+    });
+    
+    var randomIndex = Math.floor(Math.random() * availableIndexes.length);
+    _pollingIndex = availableIndexes[randomIndex];
+    
+    logger.debug('-- Current index: ' + _pollingIndex + ', indexes available: ' + availableIndexes.length + ', indexes in total ' + _pollingIndexes.length + ', grid: ' + _pollingBounds.length);
+    
+    function eventsInsideBounds (events, boundsObject) {
+      var count = 0;
+      _.each(events, function(event) {
+        if(boundsObject.isPointInside({lat: event.latitude, lng: event.longitude})) {
+          count++;
+        }
+      });
+      return count;
+    }
+    
+    var eventCountInsideBounds = eventsInsideBounds(_lastResultEvents, lastPollingBounds);
+    
+    // if(_pollingRound % 10 != 0 || _lastResultBounds.diameter() > lastPollingBounds.diameter() * 5 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) ||  || _lastResultBounds.isBoundsInside(lastPollingBounds)){
+    if(_pollingRound % 10 != 0 || eventCountInsideBounds < 20 || lastPollingBounds.diameter() < 0.1 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || _lastResultBounds.isBoundsInside(lastPollingBounds)){
+      _pollingIndexes[_pollingIndex] = true;
+      if(availableIndexes.length > 1) {
         logger.debug('Area not divided. All venues from given area fetched');
       } else {
         logger.log('GridStrategy: Whole area fetched');
-        _pollingIndex = 0;
+        // _pollingIndex = 0;
         _pollingRound++;
+        
+        for(var i = 0; i < _pollingIndexes.length; i++) {
+          _pollingIndexes[i] = false;
+        }
+        
       }
+      
+      if(_pollingBounds[_pollingIndex] == null || _pollingBounds[_pollingIndex] == null) {
+        logger.log('RETURNING NULL!!!');
+      }
+      
       return _pollingBounds[_pollingIndex]
     } else {
-      var newPollingBounds = lastPollingBounds.divide();
+      var newPollingBounds;
+      if(_pollingIndex === 0) {
+        newPollingBounds = GeometryUtils.divideToRatio(lastPollingBounds, 1);
+      } else {
+        newPollingBounds = lastPollingBounds.divide();
+      }
+      
       _pollingBounds.splice(_pollingIndex, 1);
-      _pollingBounds.splice(_pollingIndex, 0, newPollingBounds[0], newPollingBounds[1], newPollingBounds[2], newPollingBounds[3]);
-      logger.debug('Area divided into 4 new areas');
-      logger.debug('New area diameter: ' + newPollingBounds[0].diameter() + ' km');
+      _pollingIndexes.splice(_pollingIndex, 1);
+      
+      for(var i = 0; i < newPollingBounds.length; i++) {
+        _pollingBounds.splice(_pollingIndex + i, 0, newPollingBounds[i]);
+        _pollingIndexes.splice(_pollingIndex + i, 0, false);
+      }
       
       socketAPI.broadcastPollingGrid(_pollingBounds);
+      
+      if(_pollingBounds[_pollingIndex] == null) {
+        logger.log('RETURNING NULL!!!');
+      }
       
       return _pollingBounds[_pollingIndex];
     }
   }
+  */
   
   // Initialize socket listener
   socketAPI.addListener('startPollingAreas', function(data, client){
@@ -69,6 +294,7 @@ function gridPollingStrategy(_limitBounds, _center) {
      * 
      */
     nextPollingPoint: function() {
+      /*
       if(_lastResultBounds) {
         var next = _calculateNextPollingPoint();
         return next.center();
@@ -76,6 +302,16 @@ function gridPollingStrategy(_limitBounds, _center) {
         logger.debug('Next polling point is the center');
         return _limitBounds.center();
       }
+      */
+     return _calculateNextPollingPoint();
+    },
+    
+    lastResult: function(resultEvents, resultBounds, requestCenter) {
+      _resultEvents = resultEvents;
+      _resultBounds = resultBounds;
+      _requestCenter = requestCenter;
+      
+      _processResult();
     },
     
     /**
@@ -89,8 +325,8 @@ function gridPollingStrategy(_limitBounds, _center) {
      * @param {Object} requestCenter lat/lng object
      */
     resultBounds: function(resultBounds, requestCenter) {
-      _lastResultBounds = resultBounds;
-      _lastRequestCenter = requestCenter;
+      // _lastResultBounds = resultBounds;
+      // _lastRequestCenter = requestCenter;
     }
   }
 }
