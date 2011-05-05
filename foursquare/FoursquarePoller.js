@@ -24,11 +24,11 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   var _lngMinLimit = 24.729538;
   var _latMaxLimit = 60.255486;
   var _latMinLimit = 60.129880;
-  // var _limitBounds = bounds(_latMinLimit, _lngMinLimit, _latMaxLimit, _lngMaxLimit);
+  var _limitBounds = bounds(_latMinLimit, _lngMinLimit, _latMaxLimit, _lngMaxLimit);
   // Smaller area for testing 
   // var _limitBounds = bounds({lat: 60.183697, lng: 24.896736}, {lat: 60.153638, lng: 24.975357});
   // Very small area for testing
-  var _limitBounds = bounds({lat: 60.206222, lng: 24.934158}, {lat: 60.195132, lng: 24.959736});
+  // var _limitBounds = bounds({lat: 60.206222, lng: 24.934158}, {lat: 60.195132, lng: 24.959736});
   
   // Polling strategy
   // var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
