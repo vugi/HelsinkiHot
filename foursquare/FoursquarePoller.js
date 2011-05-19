@@ -65,6 +65,9 @@ function _parseResult(result, originalLat, originalLng){
   var response = result.response;
   var items;
   
+  // Parsed events
+  var events = [];
+  
   if (response.groups) {
     var groups = response.groups;
     var nearby = _.detect(groups, function(group){
@@ -81,22 +84,19 @@ function _parseResult(result, originalLat, originalLng){
       if (errorType) {
         if (errorType === 'rate_limit_exceeded') {
           logger.error('Rate limit exceeded');
-          return;
         }
         else {
           logger.error('Got error type: ' + errorType);
           logger.error(result);
         }
+        return events;
       }
     }
   
   if (items == null) {
     logger.warn("No 'nearby' group found from the response");
-    return;
+    return events;
   }
-  
-  // Parsed events
-  var events = [];
   
   _.each(items, function(item){
     var location = item.location;
