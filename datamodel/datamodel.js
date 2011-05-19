@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
 var Query = mongoose.Query;
-var loggerModule = require('../utils/logger');
 var _ = require('../lib/underscore');
-var logger = loggerModule(loggerModule.level.DEBUG);
 var socketAPI = require('../socket/socket_api')();
+
+var log4js = require('log4js')();
+var logger = log4js.getLogger();
 
 var datamodel = {
   eventListeners: [],
@@ -112,7 +113,7 @@ var datamodel = {
       if (success) {
         console.log('Added sample data: OK');
       } else {
-        logger.log('Added sample data: FAIL');
+        logger.info('Added sample data: FAIL');
       }
     });
   },
@@ -264,7 +265,7 @@ var datamodel = {
           venuesCleared++;
           
           if(venuesCleared >= venuesCount) {
-            logger.log('Cleared ' + venuesCleared + ' Venues from old events');
+            logger.info('Cleared ' + venuesCleared + ' Venues from old events');
           }
         })
         

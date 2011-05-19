@@ -1,7 +1,7 @@
 var https = require('https');
 var _ = require('../lib/underscore');
-var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var log4js = require('log4js')();
+var logger = log4js.getLogger();
 var socketAPI = require('../socket/socket_api')();
 var bounds = require('./Bounds');
 
@@ -45,7 +45,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   
   var _interval;
   
-  logger.log("FoursquarePoller initialized");
+  logger.info("FoursquarePoller initialized");
   
   /* ...................... PRIVATE METHODS ....................... */
   
@@ -54,7 +54,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     
     switch(remaining) {
       case '900', '800', '700', '600', '500', '400', '300', '200':
-        logger.log(remaining + ' requests remaining');
+        logger.info(remaining + ' requests remaining');
       break;
       case '100', '90', '80', '70', '60', '50', '40', '30', '20', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0':
         logger.warn('ONLY ' + remaining + ' request remaining');
@@ -220,7 +220,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       clearInterval(_interval);
       _interval = null;
         
-      logger.log("Stopped poller");
+      logger.info("Stopped poller");
     }
   }
     
@@ -232,7 +232,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     _stop();
     _interval = setInterval(_sendRequest, _pollingInterval);
       
-    logger.log("Started poller, interval: " + _pollingInterval);
+    logger.info("Started poller, interval: " + _pollingInterval);
   }
   
   /**
@@ -244,7 +244,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     _stop();
     setInterval(_start, (duration * 60 * 1000));
       
-    logger.log("Paused poller for " + duration + " minutes");
+    logger.info("Paused poller for " + duration + " minutes");
   }
   
   /* ...................... PUBLIC METHODS ....................... */

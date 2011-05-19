@@ -1,6 +1,6 @@
 var bounds = require('./Bounds');
-var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var log4js = require('log4js')();
+var logger = log4js.getLogger();
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
 var GeometryUtils = require('./GeometryUtils');
@@ -171,7 +171,7 @@ function gridPollingStrategy(_limitBounds, _center) {
       
       if(_getAvailableIndexes().length === 0) {
         // Whole area fetched!
-        logger.log('- - - Whole area fetched - - -');
+        logger.info('- - - Whole area fetched - - -');
        
         _roundEnded();
         return;

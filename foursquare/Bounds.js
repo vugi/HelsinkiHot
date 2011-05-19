@@ -1,5 +1,5 @@
-var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+var log4js = require('log4js')();
+var logger = log4js.getLogger();
 
 /*
  * nw: {lat: maxLat, lng: minLng}

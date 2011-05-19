@@ -14,8 +14,10 @@ var mongoose = require('mongoose');
 var Query = mongoose.Query;
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
-var loggerModule = require('./utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+
+var log4js = require('log4js')();
+var logger = log4js.getLogger();
+
 var foursquarePoller = require("./foursquare/FoursquarePoller.js");
 
 var config;
@@ -46,13 +48,13 @@ var initializeFoursquarePoller = function(){
   // Callback
   function(events, callback){
     if (events.length > 0) {
-      // logger.log(' * * * Adding ' + events.length + ' new checkins * * * ');
+      // logger.info(' * * * Adding ' + events.length + ' new checkins * * * ');
       datamodel.addEvents(events, function(success){
         // Nothing here... logging maybe
       });
     }
     else {
-      logger.log("No events added");
+      logger.info("No events added");
     }
     
     callback();
@@ -234,9 +236,9 @@ app.get('/api/db_test', function(req, res){
   var instance = datamodel.testDB()
   
   instance.save(function() {
-    logger.log("\nSave successful\n");
-    logger.log("Instance details:");
-    logger.log(instance);
+    logger.info("\nSave successful\n");
+    logger.info("Instance details:");
+    logger.info(instance);
 
     res.send(instance);
   });
@@ -259,4 +261,4 @@ app.get('/api/venues/:name', function(req, res) {
   });
 });
 
-logger.log('Server running at port ' + port);
+logger.info('Server running at port ' + port);
