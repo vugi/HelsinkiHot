@@ -1,6 +1,6 @@
 var bounds = require('./bounds');
 var log4js = require('log4js')();
-var logger = log4js.getLogger();
+var logger = log4js.getLogger('strategy');
 
 /**
  * Implements radial polling strategy

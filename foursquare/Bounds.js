@@ -1,5 +1,3 @@
-var log4js = require('log4js')();
-var logger = log4js.getLogger();
 
 /*
  * nw: {lat: maxLat, lng: minLng}
@@ -46,12 +44,6 @@ function bounds() {
   function _isPointInside(point) {
     var lat = point.lat;
     var lng = point.lng;
-    
-    // logger.debug('_isInsidePoint: ' + _latMin + ', ' + _latMax + ', ' + _lngMin + ', ' + _lngMax + ', ' + lat + ', ' + lng);
-    // logger.debug(_latMin <= lat);
-    // logger.debug(_latMax >= lat);
-    // logger.debug(_lngMin <= lng);
-    // logger.debug(_lngMax >= lng);
     
     if(_latMin <= lat && _latMax >= lat && _lngMin <= lng && _lngMax >= lng) {
       return true;

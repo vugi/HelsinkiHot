@@ -1,6 +1,6 @@
 var bounds = require('./Bounds');
 var log4js = require('log4js')();
-var logger = log4js.getLogger();
+var logger = log4js.getLogger('strategy');
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
 var GeometryUtils = require('./GeometryUtils');

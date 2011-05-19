@@ -1,7 +1,7 @@
 var https = require('https');
 var _ = require('../lib/underscore');
 var log4js = require('log4js')();
-var logger = log4js.getLogger();
+var logger = log4js.getLogger('poller');
 var socketAPI = require('../socket/socket_api')();
 var bounds = require('./Bounds');
 
