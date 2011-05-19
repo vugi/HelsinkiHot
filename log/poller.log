@@ -1,10 +1,2 @@
-FoursquarePoller initialized
-Started poller, interval: 720
-[2011-05-19 12:48:24.462] [INFO] poller - FoursquarePoller initialized
-[2011-05-19 12:48:24.462] [INFO] poller - Started poller, interval: 720
-[2011-05-19 12:49:06.222] [WARN] poller - Polling failed 10 times in a row... Trying again
-[2011-05-19 12:49:06.223] [WARN] poller - Resetting polling point...
-[2011-05-19 12:49:14.863] [WARN] poller - Polling failed 10 times in a row... Trying again
-[2011-05-19 12:49:14.863] [WARN] poller - Resetting polling point...
-[2011-05-19 12:50:05.357] [INFO] poller - FoursquarePoller initialized
-[2011-05-19 12:50:05.357] [INFO] poller - Started poller, interval: 720
+[2011-05-19 13:05:18.455] [INFO] poller - FoursquarePoller initialized
+[2011-05-19 13:05:18.455] [INFO] poller - Started poller, interval: 720

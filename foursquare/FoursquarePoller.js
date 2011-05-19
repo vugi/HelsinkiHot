@@ -2,6 +2,7 @@ var https = require('https');
 var _ = require('../lib/underscore');
 var log4js = require('log4js')();
 var logger = log4js.getLogger('poller');
+var performanceLogger = log4js.getLogger('performance');
 var socketAPI = require('../socket/socket_api')();
 var bounds = require('./Bounds');
 
@@ -192,8 +193,11 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
           socketAPI.broadcastPollingArea(parsedResult.bounds.nw, parsedResult.bounds.se);
           
           // Save results to database
+          var start = (new Date()).getTime();
+          
           _callback(parsedResult.events, function() {
-            
+            performanceLogger.debug("Saving events to database took " + ((new Date()).getTime() - start) + " ms");
+              
             // Next polling point
             pollingStrategy.lastResult(parsedResult.events, parsedResult.bounds, parsedResult.requestCenter);
             _nextLatLng = pollingStrategy.nextPollingPoint();

@@ -17,6 +17,7 @@ var _ = require('./lib/underscore');
 
 var log4js = require('log4js')();
 var logger = log4js.getLogger();
+var performanceLogger = log4js.getLogger('performance');
 
 var foursquarePoller = require("./foursquare/FoursquarePoller.js");
 
@@ -198,7 +199,7 @@ app.get('/api/venues/add', function(req, res) {
 
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var timestamp, since, query, startTime, endTime;
-  startTime = (new Date().getTime());
+  var start = (new Date().getTime());
   
   // Parse timestamp
   timestamp = parseInt(req.params.timestamp);
@@ -222,9 +223,7 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     var venues = output.format(venuedata, since);
     res.send({venues: venues, timestamp: new Date().getTime()});
     
-    endTime = (new Date().getTime());
-    logger.debug('Query found ' + venuedata.length + ' events');
-    logger.debug('Finding venues with Query object took ' + (endTime - startTime) + ' ms');
+    performanceLogger.debug("Loading events from database took " + ((new Date()).getTime() - start) + " ms");
   });
 });
 

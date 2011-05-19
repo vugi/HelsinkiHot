@@ -6,7 +6,7 @@
       "level": "INFO", 
       "appender": { 
         "type": "file",
-        "maxLogSize": 1024,
+        "maxLogSize": 1048000,
         "filename": "log/poller.log"
       }
     },
@@ -17,21 +17,34 @@
       "level": "INFO", 
       "appender": { 
         "type": "file",
-        "maxLogSize": 1024,
+        "maxLogSize": 1048000,
         "filename": "log/poller.log"
+      }
+    },
+    
+    { 
+      "category": "performance", 
+      "type": "logLevelFilter", 
+      "level": "DEBUG", 
+      "appender": { 
+        "type": "file",
+        "maxLogSize": 1048000,
+        "filename": "log/performance.log"
       }
     },
     
     { "category": "poller", "type": "console" }, 
     { "category": "strategy", "type": "console" }, 
     { "category": "socket", "type": "console" }, 
-    { "category": "datamodel", "type": "console" }
+    { "category": "datamodel", "type": "console" },
+    { "category": "performance", "type": "console" }
   ],
   
   "levels": {
     "poller": "INFO",
     "strategy": "INFO",
     "socket": "INFO",
-    "datamodel": "INFO"
+    "datamodel": "INFO",
+    "performance": "INFO"
   }
 }
