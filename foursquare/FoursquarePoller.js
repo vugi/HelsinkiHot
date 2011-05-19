@@ -89,13 +89,13 @@ function _parseResult(result, originalLat, originalLng){
           logger.error('Got error type: ' + errorType);
           logger.error(result);
         }
-        return events;
+        return;
       }
     }
   
   if (items == null) {
     logger.warn("No 'nearby' group found from the response");
-    return events;
+    return;
   }
   
   _.each(items, function(item){
@@ -157,21 +157,26 @@ function send(){
         // Parse result
         var parsedResult = _parseResult(JSON.parse(res.body), requestLatLng.lat, requestLatLng.lng);
         
-        poller.emit('eventsParsed', parsedResult);
-        
-        // Next polling point
-        pollingStrategy.lastResult(parsedResult.events, parsedResult.bounds, parsedResult.requestCenter);
-        
+        if (parsedResult) {
+          poller.emit('eventsParsed', parsedResult);
+          
+          // Next polling point
+          pollingStrategy.lastResult(parsedResult.events, parsedResult.bounds, parsedResult.requestCenter);
+        } else {
+          isReady = true;
+        }
       } 
       catch (err) {
         logger.error("Error in parsing venues");
         logger.debug("headers: ", res.headers);
         logger.error(err);
+        isReady = true;
       }
     });
   }).on('error', function(e){
     logger.error("Error in loading venues");
     logger.error(e);
+    isReady = true;
   });
 }
 
