@@ -200,6 +200,16 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
   query = new Query();
   query.where('events.time').gte(since);
   
+  datamodel.models.Venue.find(query, function(err, venuedata) {
+    var formatStart = (new Date().getTime());
+    var venues = output.format(venuedata, since);
+    performanceLogger.debug("Formating events to JSON took " + ((new Date()).getTime() - formatStart) + " ms");
+    
+    res.send({venues: venues, timestamp: new Date().getTime()});
+    
+    performanceLogger.debug("Loading events from database took " + ((new Date()).getTime() - start) + " ms");
+  });
+  /*
   datamodel.getVenues(query, function(venuedata) {
     var formatStart = (new Date().getTime());
     var venues = output.format(venuedata, since);
@@ -209,6 +219,7 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     
     performanceLogger.debug("Loading events from database took " + ((new Date()).getTime() - start) + " ms");
   });
+  */
 });
 
 logger.info('Server running at port ' + port);
