@@ -1,0 +1,37 @@
+{
+  "appenders": [
+    { 
+      "category": "poller", 
+      "type": "logLevelFilter", 
+      "level": "INFO", 
+      "appender": { 
+        "type": "file",
+        "maxLogSize": 1024,
+        "filename": "log/poller.log"
+      }
+    },
+    
+    { 
+      "category": "strategy", 
+      "type": "logLevelFilter", 
+      "level": "INFO", 
+      "appender": { 
+        "type": "file",
+        "maxLogSize": 1024,
+        "filename": "log/poller.log"
+      }
+    },
+    
+    { "category": "poller", "type": "console" }, 
+    { "category": "strategy", "type": "console" }, 
+    { "category": "socket", "type": "console" }, 
+    { "category": "datamodel", "type": "console" }
+  ],
+  
+  "levels": {
+    "poller": "INFO",
+    "strategy": "INFO",
+    "socket": "INFO",
+    "datamodel": "INFO"
+  }
+}

@@ -194,7 +194,6 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
           // Save results to database
           _callback(parsedResult.events, function() {
             
-            
             // Next polling point
             pollingStrategy.lastResult(parsedResult.events, parsedResult.bounds, parsedResult.requestCenter);
             _nextLatLng = pollingStrategy.nextPollingPoint();
