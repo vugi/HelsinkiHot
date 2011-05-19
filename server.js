@@ -178,25 +178,6 @@ app.get('/api', function(req, res){
 	res.send('hello world from api!');	
 });
 
-app.get('/api/venues/add', function(req, res) {
-  var eventData = [{name:"TUAS", address: "Otaniementie 17", 
-    latitude: 60.186841, longitude: 24.818006,
-    service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
-    events: [
-      {time: new Date(), type: 'checkin', points:10},
-      {time: new Date(60*60*24*365*40*1000), type: 'checkin', points:30},
-      {time: new Date("2011-01-05 14:45"), type: 'checkin', points:10},
-    ]
-  }];
-  datamodel.addEvents(eventData, function(success) {
-    if (success) {
-      res.send('OK');
-    } else {
-      res.send('FAIL');
-    }
-  });
-});
-
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var timestamp, since, query, startTime, endTime;
   var start = (new Date().getTime());
@@ -220,43 +201,13 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
   query.where('events.time').gte(since);
   
   datamodel.getVenues(query, function(venuedata) {
+    var formatStart = (new Date().getTime());
     var venues = output.format(venuedata, since);
+    performanceLogger.debug("Formating events to JSON took " + ((new Date()).getTime() - formatStart) + " ms");
+    
     res.send({venues: venues, timestamp: new Date().getTime()});
     
     performanceLogger.debug("Loading events from database took " + ((new Date()).getTime() - start) + " ms");
-  });
-});
-
-app.get('/api/venues/del/:id', function(req, res) {
-  
-});
-
-app.get('/api/db_test', function(req, res){
-  var instance = datamodel.testDB()
-  
-  instance.save(function() {
-    logger.info("\nSave successful\n");
-    logger.info("Instance details:");
-    logger.info(instance);
-
-    res.send(instance);
-  });
-});
-
-app.get('/api/venues', function(req,res) {
-  datamodel.getVenues({}, function(venuedata) {
-    var venues = output.format(venuedata);
-    res.send(venues);
-  });
-});
-
-app.get('/api/venues/:name', function(req, res) {
-  var venues = [];
-  datamodel.getVenues({name: req.params.name}, function(venuedata) {
-    for (var i in venuedata) {
-      venues.push(venuedata[i]);
-    }
-    res.send(venues);
   });
 });
 
