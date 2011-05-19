@@ -7,6 +7,7 @@ var bounds = require('./Bounds');
 
 var _pollingLimitPerHour = 5000;
 var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
+
 var isReady = false;
 
 // Center
@@ -80,7 +81,6 @@ function _parseResult(result, originalLat, originalLng){
       if (errorType) {
         if (errorType === 'rate_limit_exceeded') {
           logger.error('Rate limit exceeded');
-          _pause(3);
           return;
         }
         else {
@@ -133,12 +133,18 @@ var poller = new EventEmitter();
 /**
  * Sends request to Foursquare
  */
-poller.send = function(){
+function send(){
+  if (!isReady) {
+    logger.debug('Not yet ready for next request');
+    return;
+  }
+  else {
+    isReady = false;
+  }
   
   var requestLatLng = pollingStrategy.nextPollingPoint();
   var path = _path.replace("#{lat}", requestLatLng.lat).replace("#{lng}", requestLatLng.lng);
   
-  isReady = false;
   https.get( { host: _host, path: path }, function( res ) {
     res.body = '';
     res.on('data', function(chunk){
@@ -173,5 +179,13 @@ poller.initialize = function(_clientId, _clientSecret){
   _path = "/v2/venues/search?ll=#{lat},#{lng}&limit=50&client_id=" + _clientId + "&client_secret=" + _clientSecret;
   isReady = true;
 };
+
+poller.isReady = function() {
+  isReady = true;
+}
+
+poller.start = function() {
+  setInterval(send, _pollingInterval);
+}
 
 module.exports = poller;

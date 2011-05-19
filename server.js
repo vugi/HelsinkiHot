@@ -50,12 +50,12 @@ var initializeFoursquarePoller = function(){
     var events = parsedResult.events;
     if (events.length > 0) {
       datamodel.addEvents(events, function(success){
-        foursquarePoller.send();
+        foursquarePoller.isReady();
       });
     }
     else {
       logger.info("No events added");
-      foursquarePoller.send();
+      foursquarePoller.isReady();
     }
   });
   
@@ -63,7 +63,7 @@ var initializeFoursquarePoller = function(){
     socketAPI.broadcastPollingArea(parsedResult.bounds.nw, parsedResult.bounds.se);
   });
   
-  foursquarePoller.send();
+  foursquarePoller.start();
 }
 
 function configured(config) {
