@@ -33,18 +33,25 @@
       }
     },
     
+    { 
+      "category": "performance", 
+      "type": "logLevelFilter", 
+      "level": "INFO", 
+      "appender": { 
+        "type": "console"
+      }
+    },
+    
     { "category": "poller", "type": "console" }, 
     { "category": "strategy", "type": "console" }, 
     { "category": "socket", "type": "console" }, 
-    { "category": "datamodel", "type": "console" },
-    { "category": "performance", "type": "console" }
+    { "category": "datamodel", "type": "console" }
   ],
   
   "levels": {
     "poller": "INFO",
     "strategy": "INFO",
     "socket": "INFO",
-    "datamodel": "INFO",
-    "performance": "INFO"
+    "datamodel": "INFO"
   }
 }
