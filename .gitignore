@@ -2,4 +2,4 @@
 .project
 *~
 user_config.json
-log/*
+log/*.log
