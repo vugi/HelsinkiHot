@@ -192,12 +192,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
           // Send polling area corners to client
           socketAPI.broadcastPollingArea(parsedResult.bounds.nw, parsedResult.bounds.se);
           
-          // Save results to database
-          var start = (new Date()).getTime();
-          
           _callback(parsedResult.events, function() {
-            performanceLogger.debug("Saving events to database took " + ((new Date()).getTime() - start) + " ms");
-              
             // Next polling point
             pollingStrategy.lastResult(parsedResult.events, parsedResult.bounds, parsedResult.requestCenter);
             _nextLatLng = pollingStrategy.nextPollingPoint();
