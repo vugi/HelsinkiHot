@@ -59,7 +59,7 @@ var initializeFoursquarePoller = function(){
     }
     
     callback();
-  }).start();
+  }); //.start();
 }
 
 function configured(config) {

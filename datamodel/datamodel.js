@@ -18,32 +18,6 @@ var datamodel = {
       datamodel.eventListeners.push(callback);
     }
   },
-  testDB: function(req,res) {
-
-    Schema = mongoose.Schema;
-    ObjectId = Schema.ObjectId;
-
-    // define a model (schema)
-    var Document = new Schema({
-      title     : String,
-      body      : String,
-      date      : Date
-    });
-    // register the model
-    mongoose.model('Document', Document);
-    
-    // create a new "type" from model
-    var Doc = mongoose.model('Document');
-    
-    // instantiate the type (/model)
-    var instance = new Doc();
-    
-    instance.title = "Test title";
-    instance.body = "Test body";
-    instance.date = new Date();
-
-    return instance;
-  },
   init: function(opts) {
     
     datamodel.connect();
@@ -82,10 +56,6 @@ var datamodel = {
     datamodel.models.Venue = mongoose.model('Venue');
     
     datamodel.addEventListener(socketAPI.broadcastNewEvent);
-    
-    if (opts && opts.addTestData) {
-      datamodel.insertSampleData();
-    }
     
   },
   
