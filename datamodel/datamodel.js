@@ -37,8 +37,8 @@ var datamodel = {
       address     : String,
       latitude    : Number,
       longitude   : Number,
-      service     : String,
-      serviceId   : String,
+      service     : {type: String, index: true},
+      serviceId   : {type: String, index: true},
       checkinsCount : Number,
       events      : [Event]
     });
