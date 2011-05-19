@@ -80,14 +80,19 @@ var datamodel = {
   addEvents: function(data, callback) {
     if (data.length) { // array
       for (var i in data) {
-        datamodel.addEvent(data[i]);
+        var eventsAdded = 0;
+        datamodel.addEvent(data[i], function() {
+          eventsAdded++;
+          if(eventsAdded >= data.length) {
+            callback(true);
+          }
+        });
       }
     } else { // hash/object
-      datamodel.addEvent(data);
+      datamodel.addEvent(data, function() {
+          callback(true);
+      });
     }
-    
-    if (typeof callback === "function")
-    callback(true);
   },
   addEvent: function(data, callback) {
     datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {

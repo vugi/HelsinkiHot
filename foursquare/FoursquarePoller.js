@@ -159,13 +159,13 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
     // Reason for not updating the position is usually that the poller 
     // was not able to calculate the new position because the response failed
     if(lastLat === lat && lastLng === lng) {
-      if (_reqFailedCount < 10) {
+      if (_reqFailedCount < 100) {
         _reqFailedCount++;
         return;
         
       } else {
         // If polling has failed five times in a row, reset the polling position and try again
-        logger.warn("Polling failed 10 times in a row... Trying again");
+        logger.warn("Polling failed 100 times in a row... Trying again");
         logger.warn("Resetting polling point...");
         _lastLatLng = null;
         _nextLatLng = pollingStrategy.nextPollingPoint();
@@ -192,7 +192,9 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
           // Send polling area corners to client
           socketAPI.broadcastPollingArea(parsedResult.bounds.nw, parsedResult.bounds.se);
           
+          var start = (new Date()).getTime();
           _callback(parsedResult.events, function() {
+            performanceLogger.debug("Saving events to database took " + ((new Date()).getTime() - start) + " ms");
             // Next polling point
             pollingStrategy.lastResult(parsedResult.events, parsedResult.bounds, parsedResult.requestCenter);
             _nextLatLng = pollingStrategy.nextPollingPoint();

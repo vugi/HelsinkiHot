@@ -52,14 +52,14 @@ var initializeFoursquarePoller = function(){
       // logger.info(' * * * Adding ' + events.length + ' new checkins * * * ');
       datamodel.addEvents(events, function(success){
         // Nothing here... logging maybe
+        callback();
       });
     }
     else {
       logger.info("No events added");
+      callback();
     }
-    
-    callback();
-  }); //.start();
+  }).start();
 }
 
 function configured(config) {
@@ -209,17 +209,6 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
     
     performanceLogger.debug("Loading events from database took " + ((new Date()).getTime() - start) + " ms");
   });
-  /*
-  datamodel.getVenues(query, function(venuedata) {
-    var formatStart = (new Date().getTime());
-    var venues = output.format(venuedata, since);
-    performanceLogger.debug("Formating events to JSON took " + ((new Date()).getTime() - formatStart) + " ms");
-    
-    res.send({venues: venues, timestamp: new Date().getTime()});
-    
-    performanceLogger.debug("Loading events from database took " + ((new Date()).getTime() - start) + " ms");
-  });
-  */
 });
 
 logger.info('Server running at port ' + port);
