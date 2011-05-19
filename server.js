@@ -44,22 +44,26 @@ function readConfigFile(file, fallbackFile, callback) {
 
 // Foursquare poller
 var initializeFoursquarePoller = function(){
-  var poller = foursquarePoller(config.foursquare_client_id, config.foursquare_client_secret, 
+  foursquarePoller.initialize(config.foursquare_client_id, config.foursquare_client_secret);
   
-  // Callback
-  function(events, callback){
+  foursquarePoller.on('eventsParsed', function(parsedResult) {
+    var events = parsedResult.events;
     if (events.length > 0) {
-      // logger.info(' * * * Adding ' + events.length + ' new checkins * * * ');
       datamodel.addEvents(events, function(success){
-        // Nothing here... logging maybe
-        callback();
+        foursquarePoller.send();
       });
     }
     else {
       logger.info("No events added");
-      callback();
+      foursquarePoller.send();
     }
-  }).start();
+  });
+  
+  foursquarePoller.on('eventsParsed', function(parsedResult) {
+    socketAPI.broadcastPollingArea(parsedResult.bounds.nw, parsedResult.bounds.se);
+  });
+  
+  foursquarePoller.send();
 }
 
 function configured(config) {

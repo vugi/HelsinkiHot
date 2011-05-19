@@ -49,9 +49,9 @@
   ],
   
   "levels": {
-    "poller": "INFO",
-    "strategy": "INFO",
+    "poller": "DEBUG",
+    "strategy": "DEBUG",
     "socket": "INFO",
-    "datamodel": "INFO"
+    "datamodel": "DEBUG"
   }
 }
