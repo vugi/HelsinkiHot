@@ -41,10 +41,10 @@ function readConfigFile(file, fallbackFile, callback) {
 
 // Foursquare poller
 var initializeFoursquarePoller = function(){
-  var poller = foursquarePoller(
-      config.foursquare_client_id, 
-      config.foursquare_client_secret, 
-      function(events){
+  var poller = foursquarePoller(config.foursquare_client_id, config.foursquare_client_secret, 
+  
+  // Callback
+  function(events, callback){
     if (events.length > 0) {
       // logger.log(' * * * Adding ' + events.length + ' new checkins * * * ');
       datamodel.addEvents(events, function(success){
@@ -54,6 +54,8 @@ var initializeFoursquarePoller = function(){
     else {
       logger.log("No events added");
     }
+    
+    callback();
   }).start();
 }
 

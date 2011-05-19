@@ -31,9 +31,7 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
   // var _limitBounds = bounds({lat: 60.206222, lng: 24.934158}, {lat: 60.195132, lng: 24.959736});
   
   // Polling strategy
-  // var pollingStrategy = require('./RadialStrategy')(_limitBounds, _pollingCenter);
   var pollingStrategy = require('./GridStrategy')(_limitBounds);
-  // var pollingStrategy = require('./ImprovedGridStrategy')(_limitBounds);
   var _nextLatLng = pollingStrategy.nextPollingPoint();
   var _lastLatLng;
   
@@ -137,19 +135,11 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       events.push(event);
     });
     
-    var requestBounds = bounds(minLat, minLng, maxLat, maxLng);
-    var requestCenter = {lat: originalLat, lng: originalLng};
-    
-    pollingStrategy.lastResult(events, requestBounds, requestCenter);
-    // pollingStrategy.resultBounds(bounds(minLat, minLng, maxLat, maxLng), {lat: originalLat, lng: originalLng});
-    
-    // Send polling area corners to client
-    socketAPI.broadcastPollingArea({lat: maxLat, lng: minLng}, {lat: minLat, lng: maxLng});
-    
-    // Calculate the next latitude/longitude point
-    _nextLatLng = pollingStrategy.nextPollingPoint();
-    
-    _callback(events);
+    return {
+      events: events,
+      bounds: bounds(minLat, minLng, maxLat, maxLng),
+      requestCenter: {lat: originalLat, lng: originalLng}
+    }
   }
   
   /**
@@ -194,7 +184,22 @@ function foursquarePoller(_client_id, _client_secret, _callback) {
       res.on('end', function(){
         try {
           _logRatelimitRemainig(res.headers);
-          _parseResult(JSON.parse(res.body), lat, lng);
+          
+          // Parse result
+          var parsedResult = _parseResult(JSON.parse(res.body), lat, lng);
+          
+          // Send polling area corners to client
+          socketAPI.broadcastPollingArea(parsedResult.bounds.nw, parsedResult.bounds.se);
+          
+          // Save results to database
+          _callback(parsedResult.events, function() {
+            
+            
+            // Next polling point
+            pollingStrategy.lastResult(parsedResult.events, parsedResult.bounds, parsedResult.requestCenter);
+            _nextLatLng = pollingStrategy.nextPollingPoint();
+          });
+                  
         } catch (err) {
           logger.error("Error in parsing venues");
           logger.debug("headers: ", res.headers);

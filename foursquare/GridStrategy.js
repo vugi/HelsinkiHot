@@ -1,6 +1,6 @@
 var bounds = require('./Bounds');
 var loggerModule = require('../utils/logger');
-var logger = loggerModule(loggerModule.level.DEBUG);
+var logger = loggerModule(loggerModule.level.LOG);
 var socketAPI = require('../socket/socket_api')();
 var _ = require('../lib/underscore');
 var GeometryUtils = require('./GeometryUtils');
@@ -192,87 +192,6 @@ function gridPollingStrategy(_limitBounds, _center) {
     return nextBounds.center();
   }
   
-  /* 
-  function _calculateNextPollingPoint() {
-    var lastPollingBounds = _pollingBounds[_pollingIndex];
-    
-    if(lastPollingBounds == null) {
-      logger.log('LastPollingBounds null');
-    }
-    
-    // Update polling index
-    var availableIndexes = [];
-    _.each(_pollingIndexes, function(value, key) {
-      if(value !== true) {
-        availableIndexes.push(key);
-      }
-    });
-    
-    var randomIndex = Math.floor(Math.random() * availableIndexes.length);
-    _pollingIndex = availableIndexes[randomIndex];
-    
-    logger.debug('-- Current index: ' + _pollingIndex + ', indexes available: ' + availableIndexes.length + ', indexes in total ' + _pollingIndexes.length + ', grid: ' + _pollingBounds.length);
-    
-    function eventsInsideBounds (events, boundsObject) {
-      var count = 0;
-      _.each(events, function(event) {
-        if(boundsObject.isPointInside({lat: event.latitude, lng: event.longitude})) {
-          count++;
-        }
-      });
-      return count;
-    }
-    
-    var eventCountInsideBounds = eventsInsideBounds(_lastResultEvents, lastPollingBounds);
-    
-    // if(_pollingRound % 10 != 0 || _lastResultBounds.diameter() > lastPollingBounds.diameter() * 5 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) ||  || _lastResultBounds.isBoundsInside(lastPollingBounds)){
-    if(_pollingRound % 10 != 0 || eventCountInsideBounds < 20 || lastPollingBounds.diameter() < 0.1 || lastPollingBounds.isBoundsCompletelyOutside(_lastResultBounds) || _lastResultBounds.isBoundsInside(lastPollingBounds)){
-      _pollingIndexes[_pollingIndex] = true;
-      if(availableIndexes.length > 1) {
-        logger.debug('Area not divided. All venues from given area fetched');
-      } else {
-        logger.log('GridStrategy: Whole area fetched');
-        // _pollingIndex = 0;
-        _pollingRound++;
-        
-        for(var i = 0; i < _pollingIndexes.length; i++) {
-          _pollingIndexes[i] = false;
-        }
-        
-      }
-      
-      if(_pollingBounds[_pollingIndex] == null || _pollingBounds[_pollingIndex] == null) {
-        logger.log('RETURNING NULL!!!');
-      }
-      
-      return _pollingBounds[_pollingIndex]
-    } else {
-      var newPollingBounds;
-      if(_pollingIndex === 0) {
-        newPollingBounds = GeometryUtils.divideToRatio(lastPollingBounds, 1);
-      } else {
-        newPollingBounds = lastPollingBounds.divide();
-      }
-      
-      _pollingBounds.splice(_pollingIndex, 1);
-      _pollingIndexes.splice(_pollingIndex, 1);
-      
-      for(var i = 0; i < newPollingBounds.length; i++) {
-        _pollingBounds.splice(_pollingIndex + i, 0, newPollingBounds[i]);
-        _pollingIndexes.splice(_pollingIndex + i, 0, false);
-      }
-      
-      socketAPI.broadcastPollingGrid(_pollingBounds);
-      
-      if(_pollingBounds[_pollingIndex] == null) {
-        logger.log('RETURNING NULL!!!');
-      }
-      
-      return _pollingBounds[_pollingIndex];
-    }
-  }
-  */
-  
   // Initialize socket listener
   socketAPI.addListener('startPollingAreas', function(data, client){
     var gridsToBeSent = [];
@@ -294,15 +213,6 @@ function gridPollingStrategy(_limitBounds, _center) {
      * 
      */
     nextPollingPoint: function() {
-      /*
-      if(_lastResultBounds) {
-        var next = _calculateNextPollingPoint();
-        return next.center();
-      } else {
-        logger.debug('Next polling point is the center');
-        return _limitBounds.center();
-      }
-      */
      return _calculateNextPollingPoint();
     },
     
