@@ -1,8 +1,10 @@
 var mongoose = require('mongoose');
-var loggerModule = require('../utils/logger');
+var Query = mongoose.Query;
 var _ = require('../lib/underscore');
-var logger = loggerModule(loggerModule.level.LOG);
 var socketAPI = require('../socket/socket_api')();
+
+var log4js = require('log4js')();
+var logger = log4js.getLogger('datamodel');
 
 var datamodel = {
   eventListeners: [],
@@ -16,32 +18,6 @@ var datamodel = {
       datamodel.eventListeners.push(callback);
     }
   },
-  testDB: function(req,res) {
-
-    Schema = mongoose.Schema;
-    ObjectId = Schema.ObjectId;
-
-    // define a model (schema)
-    var Document = new Schema({
-      title     : String,
-      body      : String,
-      date      : Date
-    });
-    // register the model
-    mongoose.model('Document', Document);
-    
-    // create a new "type" from model
-    var Doc = mongoose.model('Document');
-    
-    // instantiate the type (/model)
-    var instance = new Doc();
-    
-    instance.title = "Test title";
-    instance.body = "Test body";
-    instance.date = new Date();
-
-    return instance;
-  },
   init: function(opts) {
     
     datamodel.connect();
@@ -50,7 +26,7 @@ var datamodel = {
     ObjectId = Schema.ObjectId;
     
     var Event = new Schema({
-      time    : Date,
+      time    : {type: Date, index: true},
       type    : String,
       points  : Number
     });
@@ -61,8 +37,8 @@ var datamodel = {
       address     : String,
       latitude    : Number,
       longitude   : Number,
-      service     : String,
-      serviceId   : String,
+      service     : {type: String, index: true},
+      serviceId   : {type: String, index: true},
       checkinsCount : Number,
       events      : [Event]
     });
@@ -81,39 +57,6 @@ var datamodel = {
     
     datamodel.addEventListener(socketAPI.broadcastNewEvent);
     
-    if (opts && opts.addTestData) {
-      datamodel.insertSampleData();
-    }
-    
-  },
-  insertSampleData: function() {
-        
-    var eventData = [{name:"TUAS", address: "Otaniementie 17", 
-      latitude: 60.186841, longitude: 24.818006,
-      service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
-      events: [
-        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:10},
-        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:30},
-        {time: new Date("2011-01-05 14:45"), type: 'picture', points:20},
-      ]
-    },
-    {name:"T-talo", address: "Konemiehentie 2", 
-      latitude: 60.186841, longitude: 24.818006, // not real
-      service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62f", // not real
-      events: [
-        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:10},
-        {time: new Date("2011-05-10 12:30"), type: 'checkin', points:30},
-        {time: new Date("2011-01-05 14:45"), type: 'picture', points:20},
-      ]
-    }
-    ];
-    datamodel.addEvents(eventData, function(success) {
-      if (success) {
-        console.log('Added sample data: OK');
-      } else {
-        logger.log('Added sample data: FAIL');
-      }
-    });
   },
   
   /**
@@ -137,20 +80,25 @@ var datamodel = {
   addEvents: function(data, callback) {
     if (data.length) { // array
       for (var i in data) {
-        datamodel.addEvent(data[i]);
+        var eventsAdded = 0;
+        datamodel.addEvent(data[i], function() {
+          eventsAdded++;
+          if(eventsAdded >= data.length) {
+            callback(true);
+          }
+        });
       }
     } else { // hash/object
-      datamodel.addEvent(data);
+      datamodel.addEvent(data, function() {
+          callback(true);
+      });
     }
-    
-    if (typeof callback === "function")
-    callback(true);
   },
   addEvent: function(data, callback) {
     datamodel.getVenues({service: data.service, serviceId: data.serviceId}, function(venues) {
       var venue;
       if (venues.length == 1) {
-        logger.debug("Venue " + venues[0].name + " found, checkins: " + venues[0].checkinsCount);
+        // logger.debug("Venue " + venues[0].name + " found, checkins: " + venues[0].checkinsCount);
         venue = venues[0];
       } else if (venues.length > 1) {
         // logger.warn("Found multiple venues with service: " + data.service + ", id: " 
@@ -236,6 +184,38 @@ var datamodel = {
   getVenues: function(data, callback) {
     datamodel.models.Venue.find(data, function(err, venuedata) {
       callback(venuedata);
+    });
+  },
+  removeEventsOlderThan: function(time) {
+    logger.debug('Removing events older than ' + time.toString());
+    
+    var query = new Query();
+    query.where('events.time').lte(time);
+    
+    datamodel.models.Venue.find(query, function(error, venues) {
+      var venuesCount = venues.length;
+      var venuesCleared = 0;
+      var eventsRemoved = 0;
+      _.each(venues, function(venue) {
+        var recentEvents = _.select(venue.events, function(event) {
+          return event.time.getTime() > time.getTime();
+        });
+        
+        venue.events = recentEvents;
+        
+        venue.save(function(error) {
+          if(error) {
+            logger.error(error);
+          }
+          
+          venuesCleared++;
+          
+          if(venuesCleared >= venuesCount) {
+            logger.info('Cleared ' + venuesCleared + ' Venues from old events');
+          }
+        })
+        
+      });
     });
   }
 }

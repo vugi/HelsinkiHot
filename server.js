@@ -14,8 +14,11 @@ var mongoose = require('mongoose');
 var Query = mongoose.Query;
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
-var loggerModule = require('./utils/logger');
-var logger = loggerModule(loggerModule.level.LOG);
+
+var log4js = require('log4js')();
+var logger = log4js.getLogger();
+var performanceLogger = log4js.getLogger('performance');
+
 var foursquarePoller = require("./foursquare/FoursquarePoller.js");
 
 var config;
@@ -41,20 +44,26 @@ function readConfigFile(file, fallbackFile, callback) {
 
 // Foursquare poller
 var initializeFoursquarePoller = function(){
-  var poller = foursquarePoller(
-      config.foursquare_client_id, 
-      config.foursquare_client_secret, 
-      function(events){
+  foursquarePoller.initialize(config.foursquare_client_id, config.foursquare_client_secret);
+  
+  foursquarePoller.on('eventsParsed', function(parsedResult) {
+    var events = parsedResult.events;
     if (events.length > 0) {
-      // logger.log(' * * * Adding ' + events.length + ' new checkins * * * ');
       datamodel.addEvents(events, function(success){
-        // Nothing here... logging maybe
+        foursquarePoller.isReady();
       });
     }
     else {
-      logger.log("No events added");
+      logger.info("No events added");
+      foursquarePoller.isReady();
     }
-  }).start();
+  });
+  
+  foursquarePoller.on('eventsParsed', function(parsedResult) {
+    socketAPI.broadcastPollingArea(parsedResult.bounds.nw, parsedResult.bounds.se);
+  });
+  
+  foursquarePoller.start();
 }
 
 function configured(config) {
@@ -156,32 +165,26 @@ var datamodel = require("./datamodel/datamodel.js");
 // init the data model
 datamodel.init({addTestData: false});
 
+// Start garbage collector. Remove all events older than two
+// days. Do it every second hour and when ever the application
+// is restarted
+var ONE_MINUTE = 60 * 1000;
+var ONE_HOUR = 24 * ONE_MINUTE;
+var time = new Date(Date.now() - 48 * ONE_HOUR);
+
+var garbageCollectorId = setInterval(function() {
+  datamodel.removeEventsOlderThan(time);
+}, 2 * ONE_HOUR);
+datamodel.removeEventsOlderThan(time);
+
+
 app.get('/api', function(req, res){
 	res.send('hello world from api!');	
 });
 
-app.get('/api/venues/add', function(req, res) {
-  var eventData = [{name:"TUAS", address: "Otaniementie 17", 
-    latitude: 60.186841, longitude: 24.818006,
-    service: 'foursquare', serviceId: "4be57f67477d9c74fba9e62d",
-    events: [
-      {time: new Date(), type: 'checkin', points:10},
-      {time: new Date(60*60*24*365*40*1000), type: 'checkin', points:30},
-      {time: new Date("2011-01-05 14:45"), type: 'checkin', points:10},
-    ]
-  }];
-  datamodel.addEvents(eventData, function(success) {
-    if (success) {
-      res.send('OK');
-    } else {
-      res.send('FAIL');
-    }
-  });
-});
-
 app.get('/api/venues/since/:timestamp', function(req, res) {
   var timestamp, since, query, startTime, endTime;
-  startTime = (new Date().getTime());
+  var start = (new Date().getTime());
   
   // Parse timestamp
   timestamp = parseInt(req.params.timestamp);
@@ -201,47 +204,15 @@ app.get('/api/venues/since/:timestamp', function(req, res) {
   query = new Query();
   query.where('events.time').gte(since);
   
-  datamodel.getVenues(query, function(venuedata) {
+  datamodel.models.Venue.find(query, function(err, venuedata) {
+    var formatStart = (new Date().getTime());
     var venues = output.format(venuedata, since);
+    performanceLogger.debug("Formating events to JSON took " + ((new Date()).getTime() - formatStart) + " ms");
+    
     res.send({venues: venues, timestamp: new Date().getTime()});
     
-    endTime = (new Date().getTime());
-    logger.debug('Query found ' + venuedata.length + ' events');
-    logger.debug('Finding venues with Query object took ' + (endTime - startTime) + ' ms');
+    performanceLogger.debug("Loading events from database took " + ((new Date()).getTime() - start) + " ms");
   });
 });
 
-app.get('/api/venues/del/:id', function(req, res) {
-  
-});
-
-app.get('/api/db_test', function(req, res){
-  var instance = datamodel.testDB()
-  
-  instance.save(function() {
-    logger.log("\nSave successful\n");
-    logger.log("Instance details:");
-    logger.log(instance);
-
-    res.send(instance);
-  });
-});
-
-app.get('/api/venues', function(req,res) {
-  datamodel.getVenues({}, function(venuedata) {
-    var venues = output.format(venuedata);
-    res.send(venues);
-  });
-});
-
-app.get('/api/venues/:name', function(req, res) {
-  var venues = [];
-  datamodel.getVenues({name: req.params.name}, function(venuedata) {
-    for (var i in venuedata) {
-      venues.push(venuedata[i]);
-    }
-    res.send(venues);
-  });
-});
-
-logger.log('Server running at port ' + port);
+logger.info('Server running at port ' + port);
