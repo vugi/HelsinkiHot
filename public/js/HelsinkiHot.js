@@ -57,6 +57,8 @@ $(document).ready(function(){
       "z-index": 1000
     });
     
+    $("#authorInfo a#inline").fancybox();
+    
     // hash change can be because of user wanting to show the console
     $(window).bind('hashchange', function() {
       initializeConsole();
