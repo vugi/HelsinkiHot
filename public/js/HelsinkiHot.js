@@ -164,10 +164,11 @@ function initializeMap() {
     var myOptions = {
       zoom: 11,
       minZoom: 11,
-      maxZoom: 13,
+      maxZoom: 18,
       center: latlng,
       disableDefaultUI: true,
       mapTypeControl: true,
+      zoomControl: true,
       mapTypeControlOptions: {
         mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.SATELLITE, 'custom']
       }
