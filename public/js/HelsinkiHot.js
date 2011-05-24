@@ -230,7 +230,7 @@ function notification(msg) {
   log('Notification: '+msg)
   $('#notifications')
     .queue(function() {
-      $('#notifications').text(msg + i++);
+      $('#notifications').text(msg);
       $(this).dequeue();
     })
     
