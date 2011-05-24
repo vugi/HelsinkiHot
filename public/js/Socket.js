@@ -93,7 +93,7 @@ var socket = {
     $('#fs-event-log ul').append("<li>" + 
       ev.venue.events[0].points + " @ " + ev.venue.name + 
       "</li>");
-      addVenue(ev.venue,socket.followEvents);
+      addVenue(ev.venue,socket.followEvents, true);
   },
 
   showPollingArea: function() {

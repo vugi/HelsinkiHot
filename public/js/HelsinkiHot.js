@@ -2,13 +2,12 @@
  * Loads data from API and displays it.
  */
 
-var map;
-var heatmap;
-
+var map, heatmap, labelOverlay;
 
 $(document).ready(function(){
   initializeMap();
   initializeHeatmap();
+  initializeLabelOverlay();
   initializeConsole();
   
   getVenueData(1);
@@ -91,11 +90,15 @@ function showPolledForsquareData(venues){
   heatmap.draw(); 
 }
 
-function addVenue(item,pan){
+function addVenue(item,pan,addedBySocket){
   var latlng = new google.maps.LatLng(item.latitude, item.longitude);
   var lastIndex = item.events.length > 0 ? item.events.length - 1 : 0;
   var latestEvent = item.events[lastIndex];    
-
+  
+  if(addedBySocket) {
+    labelOverlay.addLabel(item);
+  }
+  
   heatmap.addHotspot(latlng, latestEvent.points);
   
   if(pan){
@@ -181,6 +184,10 @@ function initializeMap() {
   
 function initializeHeatmap() {
 	heatmap = new Heatmap(map);
+}
+
+function initializeLabelOverlay() {
+  labelOverlay = new LabelOverlay(map);
 }
 
 function parseAnchorFromUrl(){

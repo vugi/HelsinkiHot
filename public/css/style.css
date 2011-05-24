@@ -147,3 +147,20 @@ header .sliderContainer p{
   width: 95%;
   position: absolute;
 }
+
+.label-overlay {
+  color: white;
+  padding: 10px 5px 10px 10px;
+  font-size: 0.9em;
+  background-color: rgba(0,0,0,0.5);
+  
+  -moz-border-radius-topleft:     0px 0px;
+  -moz-border-radius-topright:    20px 20px;
+  -moz-border-radius-bottomright: 20px 20px;
+  -moz-border-radius-bottomleft:  20px 20px;
+  border-top-left-radius:         0px 0px;
+  border-top-right-radius:        20px 20px;
+  border-bottom-right-radius:     20px 20px;
+  border-bottom-left-radius:      20px 20px;
+
+}
