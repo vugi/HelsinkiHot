@@ -225,15 +225,22 @@ function log(msg) {
   }
 }
 
-var i = 0;
+/**
+* Displays a growl-like notification in the upper right corner of the screen. 
+* If a new notification is tried to display when another one is being displayed,
+* the system will wait until the old one has been disappeared.
+*
+*/
 function notification(msg) {
   log('Notification: '+msg)
-  $('#notifications')
+  var el = $('#notifications');
+  el
+    // queue text change the same way as effects to prevent text updating
+    // before previous msg's effects have taken place
     .queue(function() {
-      $('#notifications').text(msg);
+      el.text(msg);
       $(this).dequeue();
     })
-    
     .fadeIn(500)
     .delay(5000)
     .fadeOut(500);
