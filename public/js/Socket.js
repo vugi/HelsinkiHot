@@ -6,6 +6,7 @@ var socket = {
   //var socket;
   initializeSocket: function() {
     // Socket.io test
+    log("Initializing socket");
     socket.socket = new io.Socket(document.domain); 
     socket.socket.on('connect', function(){
       log("Socket connected!");
@@ -90,10 +91,15 @@ var socket = {
   
   showNewEvent: function(ev) {
     log(ev);
+    var points = ev.venue.events[0].points;
     $('#fs-event-log ul').append("<li>" + 
-      ev.venue.events[0].points + " @ " + ev.venue.name + 
+      points + " @ " + ev.venue.name + 
       "</li>");
       addVenue(ev.venue,socket.followEvents, true);
+      
+      // display notification
+      notification(points + " checkin" + (points == 1 ? "" : "s") + 
+        " @ " + ev.venue.name);
   },
 
   showPollingArea: function() {

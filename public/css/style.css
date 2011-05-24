@@ -2,6 +2,12 @@ body {
   font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+a, a:link, a:active, a:visited {
+  color: #527fd2;
+  text-decoration: none;
+  border-bottom: 1px dotted #527fd2;
+}
+
 header{
   z-index: 100;
   overflow: hidden;
@@ -128,6 +134,7 @@ header .sliderContainer p{
   top: 50%;
   left: 50%;
   z-index: 100;
+  background: url("../images/ajax-loader.gif") no-repeat 0 10px #666;
   background: url("../images/ajax-loader.gif") no-repeat 0 10px rgba(17,17,17,0.7);
   width: 220px;
   height: 19px;
@@ -163,4 +170,33 @@ header .sliderContainer p{
   border-bottom-right-radius:     20px 20px;
   border-bottom-left-radius:      20px 20px;
 
+}
+
+#authorInfoBox {
+  max-width: 500px;
+  color: #777;
+}
+
+.canvas #unsupported_warning {
+  display: none;
+}
+
+.no-canvas #unsupported_warning {
+  display: block;
+}
+
+#notifications {
+  display: none;
+  vertical-align: middle;
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  width: 250px;
+  padding: 20px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 10px;
+  z-index: 1100;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #ddd;
 }

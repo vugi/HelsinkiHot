@@ -56,6 +56,8 @@ $(document).ready(function(){
       "z-index": 1000
     });
     
+    $("#authorInfo a#inline").fancybox();
+    
     // hash change can be because of user wanting to show the console
     $(window).bind('hashchange', function() {
       initializeConsole();
@@ -228,4 +230,19 @@ function log(msg) {
   if (window.console && console.log) {
     console.log(msg);
   }
+}
+
+var i = 0;
+function notification(msg) {
+  log('Notification: '+msg)
+  $('#notifications')
+    .queue(function() {
+      $('#notifications').text(msg);
+      $(this).dequeue();
+    })
+    
+    .fadeIn(500)
+    .delay(5000)
+    .fadeOut(500);
+  
 }
