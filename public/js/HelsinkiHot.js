@@ -224,3 +224,18 @@ function log(msg) {
     console.log(msg);
   }
 }
+
+var i = 0;
+function notification(msg) {
+  log('Notification: '+msg)
+  $('#notifications')
+    .queue(function() {
+      $('#notifications').text(msg + i++);
+      $(this).dequeue();
+    })
+    
+    .fadeIn(500)
+    .delay(5000)
+    .fadeOut(500);
+  
+}
