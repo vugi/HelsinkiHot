@@ -13,6 +13,7 @@
 		<script type="text/javascript" src="js/Heatmap.js"></script>
 		<script type="text/javascript" src="js/MapHelper.js"></script>
   	<script type="text/javascript" src="js/Socket.js"></script>
+  	<script type="text/javascript" src="js/modernizr-1.7.min.js"></script>
   	<script type="text/javascript">
       (function() {
         var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
@@ -37,8 +38,26 @@
 	            <p>Hotness</p>
 	            <div id="alphaMultiplySlider"></div>
 	        </div>
+	        <div class="sliderContainer">
+	            <p>Authors</p>
+	            <div id="authorInfo">Pyry</div>
+	        </div>
 	    </header>
 		<div id="map_container">
+		    <div id="unsupported_warning">
+		      <p>HelsinkiHot uses some bleeding-edge web technologies and thus it 
+		      is not accessible for ancient browsers.</p>
+		      <p>Supported browsers include</p>
+		      <ul>
+		        <li>Chrome 9+</li>
+		        <li>Safari 3.2+</li>
+		        <li>Firefox 3.5+</li>
+		        <li>Internet Explorer 9</li>
+		        <li>Mobile Safari 3.2+</li>
+		        <li>Opera 10.6+</li>
+		      </ul>
+		      <p>Note that Internet Explorer versions prior to 9 are not supported.</p>
+		    </div>
 		    <div id="map_canvas"></div>
 		</div>
 		<div id="sidebar-bg">

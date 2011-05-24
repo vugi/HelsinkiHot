@@ -148,3 +148,11 @@ header .sliderContainer p{
   width: 95%;
   position: absolute;
 }
+
+.canvas #unsupported_warning {
+  display: none;
+}
+
+.no-canvas #unsupported_warning {
+  display: block;
+}
