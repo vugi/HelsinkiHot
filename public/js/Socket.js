@@ -95,7 +95,7 @@ var socket = {
     $('#fs-event-log ul').append("<li>" + 
       points + " @ " + ev.venue.name + 
       "</li>");
-      addVenue(ev.venue,socket.followEvents);
+      addVenue(ev.venue,socket.followEvents, true);
       
       // display notification
       notification(points + " checkin" + (points == 1 ? "" : "s") + 
