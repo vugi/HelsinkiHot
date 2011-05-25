@@ -96,6 +96,7 @@ var socket = {
       points + " @ " + ev.venue.name + 
       "</li>");
       addVenue(ev.venue,socket.followEvents, true);
+      heatmap.draw(); 
       
       // display notification
       notification(points + " checkin" + (points == 1 ? "" : "s") + 
