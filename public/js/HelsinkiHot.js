@@ -239,7 +239,7 @@ function log(msg) {
 *
 */
 function notification(msg) {
-  log('Notification: '+msg)
+  //log('Notification: '+msg)
   var el = $('#notifications');
   el
     // queue text change the same way as effects to prevent text updating
