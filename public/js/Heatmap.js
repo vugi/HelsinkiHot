@@ -65,12 +65,8 @@ Heatmap.prototype.draw = function(){
   console.log(this._map);
   console.log(this._map.getBounds());
   var start = new Date().getTime();
-  while (!this._map.getBounds()) {
-    if (new Date().getTime() - start > 500) {
-      start = new Date().getTime();
-      console.log('still waiting...');
-    }
-  }
+
+  
   var mapBounds = this._map.getBounds();
   var sw = overlayProjection.fromLatLngToDivPixel(mapBounds.getSouthWest());
   var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());
