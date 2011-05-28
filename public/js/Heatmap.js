@@ -62,11 +62,8 @@ Heatmap.prototype.draw = function(){
   
   // Move the canvas to topleft corner of the map
   var overlayProjection = this.getProjection();
-  console.log(this._map);
-  console.log(this._map.getBounds());
   var start = new Date().getTime();
 
-  
   var mapBounds = this._map.getBounds();
   var sw = overlayProjection.fromLatLngToDivPixel(mapBounds.getSouthWest());
   var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());

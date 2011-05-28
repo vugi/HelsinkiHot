@@ -5,10 +5,13 @@
 var map, heatmap, labelOverlay;
 
 $(document).ready(function(){
+  
   initializeMap();
-  initializeHeatmap();
-  initializeLabelOverlay();
-  initializeConsole();
+  google.maps.event.addListenerOnce(map, 'idle', function() {
+    initializeHeatmap();
+    initializeLabelOverlay();
+    initializeConsole();
+  });
   
   getVenueData(1);
   
@@ -188,7 +191,7 @@ function initializeMap() {
   }
   
 function initializeHeatmap() {
-	heatmap = new Heatmap(map);
+  heatmap = new Heatmap(map);
 }
 
 function initializeLabelOverlay() {
@@ -231,7 +234,7 @@ function showLoader(boolean){
 
 function log(msg) {
   if (window.console && console.log) {
-    //console.log(msg);
+    console.log(msg);
   }
 }
 
