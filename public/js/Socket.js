@@ -96,7 +96,6 @@ var socket = {
       points + " @ " + ev.venue.name + 
       "</li>");
       addVenue(ev.venue,socket.followEvents, true);
-      // FIXME re-enable
       heatmap.draw(); 
       
       // display notification
