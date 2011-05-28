@@ -15,6 +15,7 @@ var Heatmap = function(map){
     
     // Initialize hotspost array
     this._hotspots = [];
+    console.log('heatmap ready');
 };
 
 /**
@@ -61,8 +62,8 @@ Heatmap.prototype.draw = function(){
   
   // Move the canvas to topleft corner of the map
   var overlayProjection = this.getProjection();
-  //log(this._map);
-  //log(this._map.getBounds())
+  console.log(this._map);
+  console.log(this._map.getBounds());
   var mapBounds = this._map.getBounds();
   var sw = overlayProjection.fromLatLngToDivPixel(mapBounds.getSouthWest());
   var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());

@@ -87,7 +87,10 @@ function showPolledForsquareData(venues){
     alert("No events found! Try increasing time span.")
   }
   $(venues).each(function(i,item){
-    addVenue(item);
+    // FIXME remove the limit
+    if (i < 200) {
+      addVenue(item);
+    }
   });
   heatmap.draw(); 
 }
@@ -228,7 +231,7 @@ function showLoader(boolean){
 
 function log(msg) {
   if (window.console && console.log) {
-    console.log(msg);
+    //console.log(msg);
   }
 }
 

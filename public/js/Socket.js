@@ -92,11 +92,12 @@ var socket = {
   showNewEvent: function(ev) {
     log(ev);
     var points = ev.venue.events[0].points;
-    $('#fs-event-log ul').append("<li>" + 
+    /*$('#fs-event-log ul').append("<li>" + 
       points + " @ " + ev.venue.name + 
       "</li>");
-      addVenue(ev.venue,socket.followEvents, true);
-      heatmap.draw(); 
+      addVenue(ev.venue,socket.followEvents, true);*/
+      // FIXME re-enable
+      //heatmap.draw(); 
       
       // display notification
       notification(points + " checkin" + (points == 1 ? "" : "s") + 
