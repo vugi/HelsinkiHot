@@ -65,7 +65,7 @@ Heatmap.prototype.draw = function(){
   console.log(this._map);
   console.log(this._map.getBounds());
   var start = new Date().getTime();
-  while (this._map.getBounds()) {
+  while (!this._map.getBounds()) {
     if (new Date().getTime() - start > 500) {
       start = new Date().getTime();
       console.log('still waiting...');
