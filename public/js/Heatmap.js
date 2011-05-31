@@ -81,7 +81,7 @@ Heatmap.prototype.draw = function(){
     var hotspotLength = hotspots.length;
     
     // Draw hotspots to map
-    for (var i = 0; i < Math.min(hotspotLength,10); i++) {
+    for (var i = 0; i < hotspotLength; i++) {
         var hotspot = hotspots[i];
         var point = MapHelper.fromLatLngToPixel(hotspot.latlng, this._map);
         var amount = hotspot.count;
@@ -93,6 +93,8 @@ Heatmap.prototype.draw = function(){
     
     // Colorize
     this.colorize();
+  } else {
+    console.warn('mapBounds are not ready')
   }
 };
 
