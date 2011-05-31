@@ -9,8 +9,8 @@ a, a:link, a:active, a:visited {
 }
 
 header{
-  z-index: 100;
-  overflow: hidden;
+  z-index: 50000;
+  /*overflow: hidden;*/
   position: absolute; 
   top: 0px; 
   left: 0px; 
@@ -213,4 +213,15 @@ header .sliderContainer p{
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   color: #ddd;
+}
+
+#likes {
+  position: absolute; 
+  left: 0; 
+  top: 50px; 
+  width: 240px; 
+  display: none; 
+  z-index: 50000;
+  background: rgba(240,240,240,0.95);
+  border: 1px solid rgba(50,50,50,0.3);
 }
