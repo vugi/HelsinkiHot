@@ -8,11 +8,11 @@ $(document).ready(function(){
   
   initializeMap();
   // http://stackoverflow.com/questions/2832636/google-maps-api-v3-getbounds-is-undefined
-  google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+  //google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
     initializeHeatmap();
     initializeLabelOverlay();
     initializeConsole();
-  });
+  //});
   
   getVenueData(1);
   
