@@ -90,7 +90,6 @@ var socket = {
   },
   
   showNewEvent: function(ev) {
-    log(ev);
     var points = ev.venue.events[0].points;
     $('#fs-event-log ul').append("<li>" + 
       points + " @ " + ev.venue.name + 

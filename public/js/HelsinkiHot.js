@@ -46,7 +46,6 @@ $(document).ready(function(){
       
       multiply = ui.value;
       heatmap.setHeatMultiplier(ui.value);
-      log(multiply);
       heatmap.draw();
   }});
   
