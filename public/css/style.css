@@ -203,7 +203,7 @@ header .sliderContainer p{
   display: none;
   vertical-align: middle;
   position: absolute;
-  top: 25px;
+  bottom: 25px;
   right: 25px;
   width: 250px;
   padding: 20px;

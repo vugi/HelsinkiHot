@@ -46,7 +46,6 @@ $(document).ready(function(){
       
       multiply = ui.value;
       heatmap.setHeatMultiplier(ui.value);
-      log(multiply);
       heatmap.draw();
   }});
   
@@ -240,7 +239,7 @@ function log(msg) {
 }
 
 /**
-* Displays a growl-like notification in the upper right corner of the screen. 
+* Displays a growl-like notification in the lower right corner of the screen. 
 * If a new notification is tried to display when another one is being displayed,
 * the system will wait until the old one has been disappeared.
 *
@@ -256,7 +255,7 @@ function notification(msg) {
       $(this).dequeue();
     })
     .fadeIn(500)
-    .delay(5000)
+    .delay(3500)
     .fadeOut(500);
   
 }
