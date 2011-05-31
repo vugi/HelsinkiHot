@@ -90,10 +90,7 @@ function showPolledForsquareData(venues){
     alert("No events found! Try increasing time span.")
   }
   $(venues).each(function(i,item){
-    // FIXME remove the limit
-    if (i < 200) {
-      addVenue(item);
-    }
+    addVenue(item);
   });
   heatmap.draw(); 
 }
@@ -168,7 +165,7 @@ function initializeMap() {
       }
     ];
     var customMapOptions = {
-         name: "HelsinkiHot custom"
+         name: "HelsinkiHot"
       }
     var customMapType = new google.maps.StyledMapType(customMapStyles, customMapOptions);
     
