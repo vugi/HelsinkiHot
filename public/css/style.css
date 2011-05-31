@@ -174,7 +174,21 @@ header .sliderContainer p{
 
 #authorInfoBox {
   max-width: 500px;
-  color: #777;
+  color: #666;
+  font-size: 80%;
+  padding: 20px;
+}
+
+#authorInfoBox h2 {
+  margin-bottom: 0px;
+}
+
+#authorInfoBox p {
+  margin-top: 5px;
+}
+
+#authorInfoBox h1 {
+  border-bottom: 1px solid #777;
 }
 
 .canvas #unsupported_warning {
