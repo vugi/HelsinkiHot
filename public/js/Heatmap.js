@@ -65,6 +65,7 @@ Heatmap.prototype.draw = function(){
   var start = new Date().getTime();
 
   var mapBounds = this._map.getBounds();
+  if (mapBounds) {
   var sw = overlayProjection.fromLatLngToDivPixel(mapBounds.getSouthWest());
   var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());
   this._canvas.style.left = sw.x + 'px';
@@ -80,7 +81,7 @@ Heatmap.prototype.draw = function(){
     var hotspotLength = hotspots.length;
     
     // Draw hotspots to map
-    for (var i = 0; i < hotspotLength; i++) {
+    for (var i = 0; i < Math.min(hotspotLength,10); i++) {
         var hotspot = hotspots[i];
         var point = MapHelper.fromLatLngToPixel(hotspot.latlng, this._map);
         var amount = hotspot.count;
@@ -92,6 +93,7 @@ Heatmap.prototype.draw = function(){
     
     // Colorize
     this.colorize();
+  }
 };
 
 Heatmap.prototype.addHotspot = function(latlng,count){
