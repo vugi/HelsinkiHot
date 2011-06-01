@@ -97,7 +97,7 @@ Heatmap.prototype.draw = function(){
     // Colorize
     this.colorize();
   } else {
-    console.warn('mapBounds are not ready');
+    console.warn('map or canvas is not ready');
   }
 };
 
