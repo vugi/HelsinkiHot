@@ -237,3 +237,8 @@ header .sliderContainer p{
 .like:first-child {
   border-top: none;
 }
+
+.like.twitter {
+  padding-left: 15px;
+  padding-bottom: 10px;
+}
