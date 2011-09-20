@@ -5,48 +5,13 @@
 		<title>HelsinkiHot</title>
 		<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8">
 		<!--[if lte IE8]><script type="text/javascript" src="js/excanvas.js"></script><![endif]-->
-		<!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>-->
-		<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
-      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <!-- For development -->
-    <script type="text/javascript" src="js/src/LabelOverlay.js"></script>
-    <script type="text/javascript" src="js/src/HelsinkiHot.js"></script>
-    <script type="text/javascript" src="js/src/Heatmap.js"></script>
-    <script type="text/javascript" src="js/src/MapHelper.js"></script>
-  	<script type="text/javascript" src="js/src/Socket.js"></script>
-
-    <!-- For production
-    <script type="text/javascript" src="js/dist/helsinkihot.js"></script>
-    -->
-  	<script type="text/javascript" src="js/lib/modernizr-1.7.min.js"></script>
-  	<script type="text/javascript" src="js/lib/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-  	<script type="text/javascript">
-
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-23693552-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-
-    </script>
-  	<script type="text/javascript">
-      (function() {
-        var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
-        uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/aHJOqt4fMo1eqxDfZRQxyg.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(uv, s);
-      })();
-    </script>
   	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/base/jquery-ui.css" type="text/css" media="all" /> 
   	<link rel="stylesheet" href="js/lib/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
 	</head>
 	<body>
-	    <header>
+
+<div id="helsinkihot_app">
+    <header>
 	        <h1>HelsinkiHot</h1>
 	        <div class="sliderContainer">
 	            <p>Hours</p>
@@ -117,7 +82,7 @@
               </div>
             </div>
           </div>
-	    </header>
+        </header>
 		<div id="map_container">
 		    <div id="unsupported_warning">
 		      <p>HelsinkiHot uses some bleeding-edge web technologies (mainly 
@@ -145,9 +110,6 @@
       <input type="checkbox" id="follow-polling-area" style="margin-left: 2em" disabled /> Follow polling area<br/>
       <input type="checkbox" id="follow-new-events" /> Follow new events (add marker, pan to)
       <a id="testNotifications" href="#">Test notifications</a>
-      <script type="text/javascript" charset="utf-8">
-        $(function() {$('#testNotifications').click(function() {notification("The notification system is working."); return false;})});
-      </script>
       <div id="fs-event-log">
         New events:
         <ul>
@@ -158,5 +120,54 @@
     <div id="notifications">
       
     </div>
+</div>
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="js/lib/underscore.js"></script>
+    <script type="text/javascript" src="js/lib/spine.js"></script>
+    <!-- For development -->
+
+
+    <script type="text/javascript" src="js/src/LabelOverlay.js"></script>
+<!--
+    <script type="text/javascript" src="js/src/HelsinkiHot.js"></script>
+-->
+    <script type="text/javascript" src="js/src/Heatmap.js"></script>
+
+    <script type="text/javascript" src="js/src/MapHelper.js"></script>
+<!--
+  	<script type="text/javascript" src="js/src/Socket.js"></script>
+-->
+
+    <!-- For production
+    <script type="text/javascript" src="js/dist/helsinkihot.js"></script>
+    -->
+  	<script type="text/javascript" src="js/lib/modernizr-1.7.min.js"></script>
+  	<script type="text/javascript" src="js/lib/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+  	<script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-23693552-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  	<script type="text/javascript">
+      (function() {
+        var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
+        uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/aHJOqt4fMo1eqxDfZRQxyg.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(uv, s);
+      })();
+    </script>
+    <script type="text/javascript" src="js/src/helsinkihot_spine.js"></script>
+
 	</body>
 </html>

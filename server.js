@@ -49,7 +49,6 @@ var initializeFoursquarePoller = function(){
   foursquarePoller.on('eventsParsed', function(parsedResult) {
     var events = parsedResult.events;
     if (events.length > 0) {
-      debugger;
       datamodel.addEvents(events, function(success){
         foursquarePoller.isReady();
       });

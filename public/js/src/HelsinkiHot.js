@@ -3,105 +3,6 @@
  */
 
 var map, heatmap, labelOverlay;
-
-function log(msg) {
-  if (window.console && console.log) {
-    console.log(msg);
-  }
-}
-
-function parseAnchorFromUrl(){
-    // Anchor with hash
-  var anchor = window.location.hash;
-  
-  if(anchor.length === 0) {
-    return;
-  }
-  
-  // Anchor without hash
-  return anchor.substr(1);
-}
-
-function initializeConsole() {
-  var anchor = parseAnchorFromUrl();
-  
-  if(anchor === "console") {
-    $('#sidebar').show();
-    $('#sidebar-bg').show();
-  }
-}
-
-function showLoader(show){
-  if(show){
-    log("Show loader");
-    $("<div id='loader'>Loading venues</div>").hide().appendTo("body").fadeIn('slow');
-  } else {
-    log("Hide loader");
-    $("#loader").fadeOut('slow',function(){
-      $(this).remove();
-    });
-  } 
-}
-
-function initializeHeatmap() {
-  heatmap = new Heatmap(map);
-}
-
-function initializeLabelOverlay() {
-  labelOverlay = new LabelOverlay(map);
-}
-
-function initializeMap() {
-    var latlng = new google.maps.LatLng(60.170833,24.9375);
-    
-    /* Custom map type
-    See: http://code.google.com/apis/maps/documentation/javascript/maptypes.html#StyledMaps
-    Style made with: http://gmaps-samples-v3.googlecode.com/svn/trunk/styledmaps/wizard/index.html
-    */
-
-    var customMapStyles =[
-      {
-        featureType: "all",
-        elementType: "labels",
-        stylers: [
-          { visibility: "off" }
-        ]
-      },{
-        featureType: "all",
-        elementType: "all",
-        stylers: [
-          { lightness: 10 }
-        ]
-      },{
-        featureType: "administrative.locality",
-        elementType: "labels",
-        stylers: [
-          { visibility: "on" }
-        ]
-      }
-    ];
-    var customMapOptions = {
-         name: "HelsinkiHot custom"
-    };
-    var customMapType = new google.maps.StyledMapType(customMapStyles, customMapOptions);
-    
-    var myOptions = {
-      zoom: 11,
-      minZoom: 11,
-      maxZoom: 18,
-      center: latlng,
-      disableDefaultUI: true,
-      mapTypeControl: true,
-      zoomControl: true,
-      mapTypeControlOptions: {
-        mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.SATELLITE, 'custom']
-      }
-    };
-    map = new google.maps.Map(document.getElementById("map_canvas"),
-        myOptions);
-    map.mapTypes.set('custom', customMapType);
-    map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
-  }
   
 function addVenue(item, pan, addedBySocket){
   var latlng = new google.maps.LatLng(item.latitude, item.longitude);
@@ -172,14 +73,6 @@ function getVenueData(hours){
 }
 
 $(document).ready(function(){
-  
-  initializeMap();
-  // http://stackoverflow.com/questions/2832636/google-maps-api-v3-getbounds-is-undefined
-  //google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
-    initializeHeatmap();
-    initializeLabelOverlay();
-    initializeConsole();
-  //});
   
   getVenueData(1);
   
