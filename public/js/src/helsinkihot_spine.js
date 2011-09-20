@@ -5,9 +5,43 @@ function log(msg) {
     }
 }
 
+var Notification = Spine.Controller.create({
+    proxied: ['notifyNewVenue'],
+
+    init: function() {
+        this.enabled = false;
+        Venue.bind("create", this.notifyNewVenue);
+    },
+
+    notify: function(msg) {
+        // queue text change the same way as effects to prevent text updating
+        // before previous msg's effects have taken place
+        if (this.enabled) {
+            var el = this.el;
+            el.queue(function() {
+                el.text(msg);
+                $(this).dequeue();
+            })
+                .fadeIn(500)
+                .delay(3500)
+                .fadeOut(500);
+        }
+    },
+
+    notifyNewVenue: function(venue) {
+        var events = venue.events;
+        var points = _.reduce(events, function(memo, event) {
+            return memo + event.points;
+        }, 0);
+        var msg = points + " checkin" + (points == 1 ? "" : "s") +
+            " @ " + venue.name;
+        this.notify(msg);
+    }
+});
+
 var Venue = Spine.Model.setup('Venue', ['name', 'latitude', 'longitude', 'service', 'events']);
 
-Venue.loadSince = function(hours) {
+Venue.loadSince = function(hours, callback) {
     // TODO Should probably use Spine.Ajax instead
     // showLoader(true);
     if (!hours) {
@@ -18,12 +52,14 @@ Venue.loadSince = function(hours) {
     $.ajax({
         type: "GET",
         url: "api/venues/since/" + time.getTime(),
-        success: Venue.dataLoaded
+        success: function(data) {
+            Venue.dataLoaded(data, callback);
+        }
     });
 };
 
 // FIXME Should use Spine.Ajax!
-Venue.dataLoaded = function(jsonData) {
+Venue.dataLoaded = function(jsonData, callback) {
     console.log(jsonData.venues);
     Venue.refresh(jsonData.venues);
 
@@ -32,9 +68,8 @@ Venue.dataLoaded = function(jsonData) {
         Venue.init(venueData).save();
     });
 
-    // showPolledForsquareData(jsonData.venues);
-    // showLoader(false);
-}
+    callback();
+};
 
 var Console = Spine.Controller.create({
     init: function() {
@@ -156,7 +191,7 @@ var Map = Spine.Controller.create({
     checkMapReady: function() {
         var wasMapReady = this.mapReady;
         this.mapReady = this.heatmapReady && this.labelOverlayReady;
-        if(!wasMapReady && this.mapReady) {
+        if (!wasMapReady && this.mapReady) {
             this.trigger('mapready');
         }
     },
@@ -193,17 +228,24 @@ var HelsinkiHot = Spine.Controller.create({
     init: function() {
         this.initializeMap();
         this.initializeConsole();
+        this.initializeNotifications();
     },
 
     initializeMap: function() {
-        var map = Map.init();
-        map.bind('mapready', function() {
-            Venue.loadSince();
+        this.map = Map.init();
+        this.map.bind('mapready', function() {
+            Venue.loadSince(1, function() {
+                this.notifications.enabled = true;
+            });
         });
     },
 
     initializeConsole: function() {
-        var console = Console.init();
+        this.console = Console.init();
+    },
+
+    initializeNotifications: function() {
+        this.notifications = Notification.init({el: $('#notifications')});
     },
 
     render: function() {
@@ -213,23 +255,9 @@ var HelsinkiHot = Spine.Controller.create({
     template: function() {
 
     }
-
-    // FIXME
-    /*
-     showLoader: function(show) {
-     if (show) {
-     log("Show loader");
-     $("<div id='loader'>Loading venues</div>").hide().appendTo("body").fadeIn('slow');
-     } else {
-     log("Hide loader");
-     $("#loader").fadeOut('slow', function() {
-     $(this).remove();
-     });
-     }
-     }
-     */
 });
 
 $(function() {
     var app = HelsinkiHot.init({el: $("#helsinkihot_app")});
+    socket.init();
 });

@@ -42,39 +42,7 @@ function addVenue(item, pan, addedBySocket){
   }
 }
 
-function showPolledForsquareData(venues){
-  if (venues.length === 0){
-    alert("No events found! Try increasing time span.");
-  }
-  $(venues).each(function(i,item){
-    // FIXME remove the limit
-    if (i < 200) {
-      addVenue(item);
-    }
-  });
-  heatmap.draw(); 
-}
-
-function getVenueData(hours){
-  showLoader(true);
-  if (!hours){
-    hours = 1;
-  }
-  var time = new Date();
-  time.setHours(time.getHours()-hours);
-  $.ajax({
-    type: "GET",
-    url: "api/venues/since/"+time.getTime(),
-    success: function(jsonData){
-      showPolledForsquareData(jsonData.venues);
-      showLoader(false);
-    }
-  });
-}
-
 $(document).ready(function(){
-  
-  getVenueData(1);
   
   $("#hoursSlider").slider({
     min: 1, 
@@ -154,5 +122,4 @@ function notification(msg) {
     .fadeIn(500)
     .delay(3500)
     .fadeOut(500);
-  
 }
