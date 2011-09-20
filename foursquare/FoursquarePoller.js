@@ -181,8 +181,10 @@ function send(){
 }
 
 poller.initialize = function(_clientId, _clientSecret){
+  logger.debug('Initializing Foursquare poller [clientId: ' + _clientId + ', clientSecret: ' + _clientSecret);
   _path = "/v2/venues/search?ll=#{lat},#{lng}&limit=50&client_id=" + _clientId + "&client_secret=" + _clientSecret;
   isReady = true;
+  logger.debug('Foursquare poller ready');
 };
 
 poller.isReady = function() {
