@@ -65,13 +65,16 @@ Heatmap.prototype.draw = function(){
   var start = new Date().getTime();
 
   var mapBounds = this._map.getBounds();
-  if (mapBounds) {
-  var sw = overlayProjection.fromLatLngToDivPixel(mapBounds.getSouthWest());
-  var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());
-  this._canvas.style.left = sw.x + 'px';
-  this._canvas.style.top = ne.y + 'px';
-  log("left:" + sw.x + " top:" + ne.y);
-  
+  // mapBounds can be undefined if map is not fully loaded.
+  // if that's the case, we wait for next Heatmap.draw() call
+  // canvas can also be undefined in some cases
+  if (this._canvas && this._ctx && mapBounds) {
+    var sw = overlayProjection.fromLatLngToDivPixel(mapBounds.getSouthWest());
+    var ne = overlayProjection.fromLatLngToDivPixel(mapBounds.getNorthEast());
+    this._canvas.style.left = sw.x + 'px';
+    this._canvas.style.top = ne.y + 'px';
+    log("left:" + sw.x + " top:" + ne.y);
+    
     // Clear canvas
     var width = this._width;
     var height = this._height;
@@ -94,7 +97,7 @@ Heatmap.prototype.draw = function(){
     // Colorize
     this.colorize();
   } else {
-    console.warn('mapBounds are not ready');
+    console.warn('map or canvas is not ready');
   }
 };
 

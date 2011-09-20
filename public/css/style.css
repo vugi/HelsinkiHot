@@ -225,3 +225,20 @@ header .sliderContainer p{
   background: rgba(240,240,240,0.95);
   border: 1px solid rgba(50,50,50,0.3);
 }
+
+.like {
+  border-top: 1px solid rgba(50,50,50,0.3);
+  height 65px;
+  display: table-cell;
+  vertical-align: middle;
+  padding: 5px;
+}
+
+.like:first-child {
+  border-top: none;
+}
+
+.like.twitter {
+  padding-left: 15px;
+  padding-bottom: 10px;
+}

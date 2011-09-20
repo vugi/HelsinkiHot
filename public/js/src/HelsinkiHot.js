@@ -228,6 +228,12 @@ $(document).ready(function(){
     
     $("#authorInfo a#inline").fancybox();
     
+    $('#likeLink').hover(function() {
+      $('#likes').slideDown();
+    }, function() {
+      $('#likes').slideUp();
+    });
+    
     // hash change can be because of user wanting to show the console
     $(window).bind('hashchange', function() {
       initializeConsole();

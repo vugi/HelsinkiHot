@@ -170,9 +170,9 @@ datamodel.init({addTestData: false});
 // is restarted
 var ONE_MINUTE = 60 * 1000;
 var ONE_HOUR = 24 * ONE_MINUTE;
-var time = new Date(Date.now() - 48 * ONE_HOUR);
 
 var garbageCollectorId = setInterval(function() {
+  var time = new Date(Date.now() - 48 * ONE_HOUR);
   datamodel.removeEventsOlderThan(time);
 }, 2 * ONE_HOUR);
 datamodel.removeEventsOlderThan(time);
