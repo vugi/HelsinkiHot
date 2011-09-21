@@ -48,6 +48,7 @@ Heatmap.prototype.onAdd = function() {
   this._canvas.style.top = 0;
   
   // Set listener to redraw canvas every time user ends dragging of map
+  var heatmap = this;
   google.maps.event.addListener(this._map, 'dragend', function(event) {
     heatmap.draw();
   });

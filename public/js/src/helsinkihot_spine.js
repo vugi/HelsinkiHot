@@ -16,6 +16,8 @@ var Notification = Spine.Controller.create({
     notify: function(msg) {
         // queue text change the same way as effects to prevent text updating
         // before previous msg's effects have taken place
+        console.log('Notify: ' + msg);
+
         if (this.enabled) {
             var el = this.el;
             el.queue(function() {
@@ -115,6 +117,8 @@ var Map = Spine.Controller.create({
         var points = _.last(newVenue.events).points;
 
         this.heatmap.addHotspot(latlng, points);
+        this.labelOverlay.addLabel(newVenue);
+
         this.invalidate();
     },
 
@@ -170,12 +174,14 @@ var Map = Spine.Controller.create({
             myOptions);
         this.map.mapTypes.set('custom', customMapType);
         this.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+        console.log('Map initialized');
     },
 
     initHeatmap: function() {
         google.maps.event.addListenerOnce(this.map, 'idle', this.proxy(function() {
             this.heatmap = new Heatmap(this.map);
             this.heatmapReady = true;
+            console.log('Heatmap initialized');
             this.checkMapReady();
         }));
     },
@@ -184,6 +190,7 @@ var Map = Spine.Controller.create({
         google.maps.event.addListenerOnce(this.map, 'idle', this.proxy(function() {
             this.labelOverlay = new LabelOverlay(this.map);
             this.labelOverlayReady = true;
+            console.log('Label overlay initialized');
             this.checkMapReady();
         }));
     },
@@ -192,6 +199,7 @@ var Map = Spine.Controller.create({
         var wasMapReady = this.mapReady;
         this.mapReady = this.heatmapReady && this.labelOverlayReady;
         if (!wasMapReady && this.mapReady) {
+            console.log('All map components initialized');
             this.trigger('mapready');
         }
     },
@@ -233,11 +241,20 @@ var HelsinkiHot = Spine.Controller.create({
 
     initializeMap: function() {
         this.map = Map.init();
-        this.map.bind('mapready', function() {
-            Venue.loadSince(1, function() {
-                this.notifications.enabled = true;
-            });
-        });
+        this.map.bind('mapready', this.proxy(function() {
+            console.log('Loading venue data');
+            Venue.loadSince(1, this.proxy(function() {
+                // After the initial data is loaded, enable notifications
+
+                // TODO Bad smell here! Refactor!
+                this.enableNotifications();
+                this.map.labelOverlay.enabled = true;
+            }));
+        }));
+    },
+
+    enableNotifications: function() {
+        this.notifications.enabled = true;
     },
 
     initializeConsole: function() {

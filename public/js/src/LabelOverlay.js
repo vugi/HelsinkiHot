@@ -1,16 +1,20 @@
 
-
+// FIXME REFACTOR THIS TO SPINE!!!
 var LabelOverlay = function(map) {
     // Google Maps properties
     this._map = map;
     this.setMap(map);
+    this.enabled = false;
 };
 
 LabelOverlay.prototype = new google.maps.OverlayView();
 
 LabelOverlay.prototype.addLabel = function(venue) {
+  if(!this.enabled) {
+      return;
+  }
+
   var name = venue.name;
-  var events = venue.events; // array of objects {points, time, type}
   var latitude = venue.latitude;
   var longitude = venue.longitude;
   
