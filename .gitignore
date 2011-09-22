@@ -3,3 +3,5 @@
 *~
 user_config.json
 log/*.log
+node_modules
+.idea
