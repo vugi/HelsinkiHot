@@ -17,7 +17,8 @@ var socket = {
       if (response === "pollingArea") {
         socket.onPollingArea(data);
       } else if (response === "newEvent") {
-        socket.showNewEvent(data.content);
+        // socket.showNewEvent(data.content);
+        socket.addNewVenue(data.content);
       } else if (response === "pollingGrid") {
         socket.onPollingGrid(data);
       }
@@ -28,6 +29,10 @@ var socket = {
     }); 
   
     socket.socket.connect();
+  },
+
+  addNewVenue: function(data) {
+     Venue.init(data.venue).save();
   },
   
   onPollingGrid: function(data) {
@@ -88,7 +93,8 @@ var socket = {
       ));
     }
   },
-  
+
+  /*
   showNewEvent: function(ev) {
     var points = ev.venue.events[0].points;
     $('#fs-event-log ul').append("<li>" + 
@@ -101,6 +107,7 @@ var socket = {
       notification(points + " checkin" + (points == 1 ? "" : "s") + 
         " @ " + ev.venue.name);
   },
+  */
 
   showPollingArea: function() {
     socket.socket.send('{"request": "startPollingAreas"}');
@@ -172,6 +179,3 @@ var socket = {
     socket.initializeSocket();
   }
 };
-$(document).ready(function() {
-  socket.init();
-});

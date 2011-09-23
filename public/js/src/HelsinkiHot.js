@@ -3,105 +3,6 @@
  */
 
 var map, heatmap, labelOverlay;
-
-function log(msg) {
-  if (window.console && console.log) {
-    console.log(msg);
-  }
-}
-
-function parseAnchorFromUrl(){
-    // Anchor with hash
-  var anchor = window.location.hash;
-  
-  if(anchor.length === 0) {
-    return;
-  }
-  
-  // Anchor without hash
-  return anchor.substr(1);
-}
-
-function initializeConsole() {
-  var anchor = parseAnchorFromUrl();
-  
-  if(anchor === "console") {
-    $('#sidebar').show();
-    $('#sidebar-bg').show();
-  }
-}
-
-function showLoader(show){
-  if(show){
-    log("Show loader");
-    $("<div id='loader'>Loading venues</div>").hide().appendTo("body").fadeIn('slow');
-  } else {
-    log("Hide loader");
-    $("#loader").fadeOut('slow',function(){
-      $(this).remove();
-    });
-  } 
-}
-
-function initializeHeatmap() {
-  heatmap = new Heatmap(map);
-}
-
-function initializeLabelOverlay() {
-  labelOverlay = new LabelOverlay(map);
-}
-
-function initializeMap() {
-    var latlng = new google.maps.LatLng(60.170833,24.9375);
-    
-    /* Custom map type
-    See: http://code.google.com/apis/maps/documentation/javascript/maptypes.html#StyledMaps
-    Style made with: http://gmaps-samples-v3.googlecode.com/svn/trunk/styledmaps/wizard/index.html
-    */
-
-    var customMapStyles =[
-      {
-        featureType: "all",
-        elementType: "labels",
-        stylers: [
-          { visibility: "off" }
-        ]
-      },{
-        featureType: "all",
-        elementType: "all",
-        stylers: [
-          { lightness: 10 }
-        ]
-      },{
-        featureType: "administrative.locality",
-        elementType: "labels",
-        stylers: [
-          { visibility: "on" }
-        ]
-      }
-    ];
-    var customMapOptions = {
-         name: "HelsinkiHot custom"
-    };
-    var customMapType = new google.maps.StyledMapType(customMapStyles, customMapOptions);
-    
-    var myOptions = {
-      zoom: 11,
-      minZoom: 11,
-      maxZoom: 18,
-      center: latlng,
-      disableDefaultUI: true,
-      mapTypeControl: true,
-      zoomControl: true,
-      mapTypeControlOptions: {
-        mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.SATELLITE, 'custom']
-      }
-    };
-    map = new google.maps.Map(document.getElementById("map_canvas"),
-        myOptions);
-    map.mapTypes.set('custom', customMapType);
-    map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
-  }
   
 function addVenue(item, pan, addedBySocket){
   var latlng = new google.maps.LatLng(item.latitude, item.longitude);
@@ -141,47 +42,7 @@ function addVenue(item, pan, addedBySocket){
   }
 }
 
-function showPolledForsquareData(venues){
-  if (venues.length === 0){
-    alert("No events found! Try increasing time span.");
-  }
-  $(venues).each(function(i,item){
-    // FIXME remove the limit
-    if (i < 200) {
-      addVenue(item);
-    }
-  });
-  heatmap.draw(); 
-}
-
-function getVenueData(hours){
-  showLoader(true);
-  if (!hours){
-    hours = 1;
-  }
-  var time = new Date();
-  time.setHours(time.getHours()-hours);
-  $.ajax({
-    type: "GET",
-    url: "api/venues/since/"+time.getTime(),
-    success: function(jsonData){
-      showPolledForsquareData(jsonData.venues);
-      showLoader(false);
-    }
-  });
-}
-
 $(document).ready(function(){
-  
-  initializeMap();
-  // http://stackoverflow.com/questions/2832636/google-maps-api-v3-getbounds-is-undefined
-  //google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
-    initializeHeatmap();
-    initializeLabelOverlay();
-    initializeConsole();
-  //});
-  
-  getVenueData(1);
   
   $("#hoursSlider").slider({
     min: 1, 
@@ -261,5 +122,4 @@ function notification(msg) {
     .fadeIn(500)
     .delay(3500)
     .fadeOut(500);
-  
 }
