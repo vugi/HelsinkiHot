@@ -3,37 +3,25 @@ var socket = {
   followPolling: false,
   grid: [],
   
-  //var socket;
   initializeSocket: function() {
     // Socket.io test
     log("Initializing socket");
     socket.socket = io.connect(); 
     socket.socket.on('connect', function(){
       log("Socket connected!");
-    }); 
-    /*socket.socket.on('message', function(data){ 
-      data = $.parseJSON(data);
-      var response = data.response;
-      if (response === "pollingArea") {
-        socket.onPollingArea(data);
-      } else if (response === "newEvent") {
-        // socket.showNewEvent(data.content);
-        socket.addNewVenue(data.content);
-      } else if (response === "pollingGrid") {
-        socket.onPollingGrid(data);
-      }
-    });*/
+    });
     socket.socket.on('newEvent', function(data){ 
       data = $.parseJSON(data);
-      socket.showNewEvent(data.content);
+      debugger;
+      socket.addNewVenue(data.content);
     });
     socket.socket.on('pollingArea', function(data){ 
-      data = $.parseJSON(data);
-      socket.onPollingArea(data);
+      // data = $.parseJSON(data);
+      // socket.onPollingArea(data);
     });
     socket.socket.on('pollingGrid', function(data){ 
-      data = $.parseJSON(data);
-      socket.onPollingGrid(data);
+      // data = $.parseJSON(data);
+      // socket.onPollingGrid(data);
     });
     
     
@@ -106,21 +94,6 @@ var socket = {
       ));
     }
   },
-
-  /*
-  showNewEvent: function(ev) {
-    var points = ev.venue.events[0].points;
-    $('#fs-event-log ul').append("<li>" + 
-      points + " @ " + ev.venue.name + 
-      "</li>");
-      addVenue(ev.venue,socket.followEvents, true);
-      heatmap.draw(); 
-      
-      // display notification
-      notification(points + " checkin" + (points == 1 ? "" : "s") + 
-        " @ " + ev.venue.name);
-  },
-  */
 
   showPollingArea: function() {
     socket.socket.send('{"request": "startPollingAreas"}');
