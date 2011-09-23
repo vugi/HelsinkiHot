@@ -54,6 +54,7 @@ var socket_api = function(app) {
   function _onConnect(client) {
     // By default clients do not receive polling areas
     _requestStopPollingAreas(null, client);
+    console.log('CLIENT CONNECTED');
   };
   
   /**
@@ -224,13 +225,13 @@ var socket_api = function(app) {
      * Broadcast polling area
      */
     broadcastPollingArea: function(nwLatLng, seLatLng) {
-      _socket.sockets.emit(
+      _socket.sockets.emit('pollingArea',
         _createResponse('pollingArea', {nwLatLng: nwLatLng, seLatLng: seLatLng}), 
         _pollingAreasExcept
       );
     },
     broadcastNewEvent: function(eventInfo) {
-      _socket.sockets.emit(
+      _socket.sockets.emit('newEvent',
         _createResponse('newEvent', eventInfo), 
         _newEventsExcept
       );
@@ -240,7 +241,7 @@ var socket_api = function(app) {
       _.each(grid, function(bounds) {
         gridsToBeSent.push({nwLatLng: bounds.nw, seLatLng: bounds.se});
       });
-      _socket.sockets.emit(_createResponse('pollingGrid', gridsToBeSent), _pollingAreasExcept);
+      _socket.sockets.emit('pollingGrid',_createResponse('pollingGrid', gridsToBeSent), _pollingAreasExcept);
     }
   }
 }

@@ -7,11 +7,11 @@ var socket = {
   initializeSocket: function() {
     // Socket.io test
     log("Initializing socket");
-    socket.socket = new io.Socket(document.domain); 
+    socket.socket = io.connect(); 
     socket.socket.on('connect', function(){
       log("Socket connected!");
     }); 
-    socket.socket.on('message', function(data){ 
+    /*socket.socket.on('message', function(data){ 
       data = $.parseJSON(data);
       var response = data.response;
       if (response === "pollingArea") {
@@ -22,13 +22,26 @@ var socket = {
       } else if (response === "pollingGrid") {
         socket.onPollingGrid(data);
       }
-    
+    });*/
+    socket.socket.on('newEvent', function(data){ 
+      data = $.parseJSON(data);
+      socket.showNewEvent(data.content);
     });
+    socket.socket.on('pollingArea', function(data){ 
+      data = $.parseJSON(data);
+      socket.onPollingArea(data);
+    });
+    socket.socket.on('pollingGrid', function(data){ 
+      data = $.parseJSON(data);
+      socket.onPollingGrid(data);
+    });
+    
+    
     socket.socket.on('disconnect', function(){
       log("Socket disconnected");
     }); 
   
-    socket.socket.connect();
+    //socket.socket.connect();
   },
 
   addNewVenue: function(data) {
