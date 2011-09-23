@@ -2,7 +2,7 @@
 var io = require('socket.io');
 var _ = require('../lib/underscore');
 
-var log4js = require('log4js')();
+var log4js = require('log4js');
 var logger = log4js.getLogger('socket');
 
 var instance = null;
@@ -128,7 +128,7 @@ var socket_api = function(app) {
    * 
    * @param {Object} client
    */
-  _socket.on('connection', function(client){ 
+  _socket.sockets.on('connection', function(client){ 
     _onConnect(client);
     
     client.on('message', function(data) {
@@ -224,13 +224,13 @@ var socket_api = function(app) {
      * Broadcast polling area
      */
     broadcastPollingArea: function(nwLatLng, seLatLng) {
-      _socket.broadcast(
+      _socket.sockets.emit(
         _createResponse('pollingArea', {nwLatLng: nwLatLng, seLatLng: seLatLng}), 
         _pollingAreasExcept
       );
     },
     broadcastNewEvent: function(eventInfo) {
-      _socket.broadcast(
+      _socket.sockets.emit(
         _createResponse('newEvent', eventInfo), 
         _newEventsExcept
       );
@@ -240,7 +240,7 @@ var socket_api = function(app) {
       _.each(grid, function(bounds) {
         gridsToBeSent.push({nwLatLng: bounds.nw, seLatLng: bounds.se});
       });
-      _socket.broadcast(_createResponse('pollingGrid', gridsToBeSent), _pollingAreasExcept);
+      _socket.sockets.emit(_createResponse('pollingGrid', gridsToBeSent), _pollingAreasExcept);
     }
   }
 }

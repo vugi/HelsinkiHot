@@ -1,5 +1,5 @@
 var bounds = require('./bounds');
-var log4js = require('log4js')();
+var log4js = require('log4js');
 var logger = log4js.getLogger('strategy');
 
 /**

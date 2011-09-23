@@ -1,6 +1,6 @@
 var https = require('https');
 var _ = require('../lib/underscore');
-var log4js = require('log4js')();
+var log4js = require('log4js');
 var logger = log4js.getLogger('poller');
 var performanceLogger = log4js.getLogger('performance');
 var bounds = require('./Bounds');

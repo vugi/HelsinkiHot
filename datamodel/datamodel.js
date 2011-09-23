@@ -3,7 +3,7 @@ var Query = mongoose.Query;
 var _ = require('../lib/underscore');
 var socketAPI = require('../socket/socket_api')();
 
-var log4js = require('log4js')();
+var log4js = require('log4js');
 var logger = log4js.getLogger('datamodel');
 
 var datamodel = {

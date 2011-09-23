@@ -15,7 +15,7 @@ var Query = mongoose.Query;
 var datamodel = require('./datamodel/datamodel');
 var _ = require('./lib/underscore');
 
-var log4js = require('log4js')();
+var log4js = require('log4js');
 var logger = log4js.getLogger();
 var performanceLogger = log4js.getLogger('performance');
 
