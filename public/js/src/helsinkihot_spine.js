@@ -74,13 +74,26 @@ Venue.dataLoaded = function(jsonData, callback) {
 };
 
 var Console = Spine.Controller.create({
+
+    listTemplate: _.template($('#consoleListTemplate').html()),
+
+    proxied: ['addVenue'],
+
+    // DOM elements
+    elements: {
+        '#event-log-list': 'list'
+    },
+
     init: function() {
         var anchor = this.parseAnchorFromUrl();
         this.toggleConsoleByAnchor(anchor);
+        Venue.bind("create", this.addVenue);
     },
 
     toggleConsoleByAnchor: function(anchor) {
         if (anchor === "console") {
+            // FIXME There shouldn't be need for sidebar and sidebar-bg! Remove sidebar-bg,
+            // move all those css styles to sidebar.
             $('#sidebar').show();
             $('#sidebar-bg').show();
         }
@@ -96,6 +109,14 @@ var Console = Spine.Controller.create({
 
         // Anchor without hash
         return anchor.substr(1);
+    },
+
+    addVenue: function(venue) {
+        if(this.enabled) {
+            var venueValues = venue.toJSON();
+            var list = $('#event-log-list');
+            list.append(this.listTemplate(venueValues));
+        }
     }
 });
 
@@ -225,10 +246,13 @@ var Map = Spine.Controller.create({
 });
 
 var HelsinkiHot = Spine.Controller.create({
+
+    // DOM events
     events: {
 
     },
 
+    // DOM elements
     elements: {
 
     },
@@ -249,6 +273,7 @@ var HelsinkiHot = Spine.Controller.create({
                 // TODO Bad smell here! Refactor!
                 this.enableNotifications();
                 this.map.labelOverlay.enabled = true;
+                this.console.enabled = true;
             }));
         }));
     },
