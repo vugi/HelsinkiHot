@@ -9,6 +9,36 @@ var LabelOverlay = function(map) {
 
 LabelOverlay.prototype = new google.maps.OverlayView();
 
+LabelOverlay.prototype.addTooltipLabel = function(venue) {
+  // FIXME COPYPASTED CODE!!!
+  if(!this.enabled) {
+      return;
+  }
+
+  var name = venue.name;
+  var latitude = venue.latitude;
+  var longitude = venue.longitude;
+
+  var overlayProjection = this.getProjection();
+  var point = overlayProjection.fromLatLngToDivPixel(new google.maps.LatLng(latitude, longitude));
+
+  var labelLeft = (point.x - this._left);
+  var labelTop = (point.y - this._top);
+
+  if(!this.$label) {
+      this.$label = $('<div class="label-overlay" style="position: absolute;">' + name + '</div>');
+      this.$div.append(this.$label);
+
+  }
+  this.$label.html(name);
+  this.$label.css({left: labelLeft, top: labelTop});
+  this.$label.show();
+};
+
+LabelOverlay.prototype.hideTooltipLabel = function() {
+  this.$label.hide();
+}
+
 LabelOverlay.prototype.addLabel = function(venue) {
   if(!this.enabled) {
       return;
@@ -20,9 +50,6 @@ LabelOverlay.prototype.addLabel = function(venue) {
   
   var overlayProjection = this.getProjection();
   var point = overlayProjection.fromLatLngToDivPixel(new google.maps.LatLng(latitude, longitude));
-  
-  console.log(name + " x: " + point.x + ", y: " + point.y);
-  console.log(point);
   
   var labelLeft = (point.x - this._left);
   var labelTop = (point.y - this._top);

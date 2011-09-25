@@ -11,7 +11,7 @@ var Slider = Spine.Controller.create({
 
     init: function() {
         // Initialize slider options
-        var options = this.options || {};
+        var options = this.options || {};
         options = _.extend(options, {
             slide: this.onSlide,
             change: this.onChange
@@ -132,6 +132,24 @@ Venue.dataLoaded = function(jsonData, callback) {
     callback();
 };
 
+Venue.findNearestByLatLng = function(lat, lng) {
+    var nearest = 99999;
+    var nearestVenue = null;
+    _.each(Venue.all(), function(venue) {
+
+
+        var latDist = Math.abs(lat - venue.latitude);
+        var lngDist = Math.abs(lng - venue.longitude);
+        var dist = Math.sqrt(latDist * latDist + lngDist * lngDist);
+
+        if(dist < nearest) {
+            nearest = dist;
+            nearestVenue = venue;
+        }
+    });
+    return nearestVenue;
+};
+
 var Console = Spine.Controller.create({
 
     listTemplate: _.template($('#consoleListTemplate').html()),
@@ -171,7 +189,7 @@ var Console = Spine.Controller.create({
     },
 
     addVenue: function(venue) {
-        if(this.enabled) {
+        if (this.enabled) {
             var venueValues = venue.toJSON();
             var list = $('#event-log-list');
             list.append(this.listTemplate(venueValues));
@@ -180,7 +198,7 @@ var Console = Spine.Controller.create({
 });
 
 var Map = Spine.Controller.create({
-    proxied: ['addVenue', 'redrawMap'],
+    proxied: ['addVenue', 'redrawMap', 'mouseMoved'],
 
     init: function() {
         this.initMap();
@@ -254,7 +272,12 @@ var Map = Spine.Controller.create({
             myOptions);
         this.map.mapTypes.set('custom', customMapType);
         this.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+
+        google.maps.event.addListener(this.map, 'mousemove', this.mouseMoved);
+
         console.log('Map initialized');
+
+
     },
 
     initHeatmap: function() {
@@ -311,6 +334,21 @@ var Map = Spine.Controller.create({
     setHeatmapHotness: function(value) {
         this.heatmap.setHeatMultiplier(value);
         this.invalidate();
+    },
+
+    mouseMoved: function(event) {
+        var threshold = 0.001;
+        debugger;
+
+        var lat = event.latLng.lat();
+        var lng = event.latLng.lng();
+
+        var nearestVenue = Venue.findNearestByLatLng(lat, lng, threshold);
+        if (Math.abs(nearestVenue.latitude - lat) < threshold && Math.abs(nearestVenue.longitude - lng) < threshold) {
+            this.labelOverlay.addTooltipLabel(nearestVenue);
+        } else {
+            this.labelOverlay.hideTooltipLabel();
+        }
     }
 });
 
@@ -377,7 +415,7 @@ var HelsinkiHot = Spine.Controller.create({
             this.map.invalidate();
         };
 
-        if(this.map.mapReady) {
+        if (this.map.mapReady) {
             this.proxy(setInitialSliderValuesToHeatmap());
         } else {
             this.map.bind('mapready', this.proxy(setInitialSliderValuesToHeatmap));
