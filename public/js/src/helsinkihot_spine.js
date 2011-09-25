@@ -5,6 +5,65 @@ function log(msg) {
     }
 }
 
+var Slider = Spine.Controller.create({
+
+    proxied: ['onChange', 'onSlide'],
+
+    init: function() {
+        // Initialize slider options
+        var options = this.options || {};
+        options = _.extend(options, {
+            slide: this.onSlide,
+            change: this.onChange
+        });
+        this.options = options;
+        this.min = options.min || 0; // jQuery UI defaults
+        this.max = options.max || 100; // jQuery UI defaults
+
+        this.render();
+    },
+
+    render: function() {
+        // Render slider
+        $(this.el).slider(this.options);
+    },
+
+    onChange: function() {
+        console.log('Slider changed');
+    },
+
+    onSlide: function(event, ui) {
+        var value = ui.value;
+        this.radius = this.calculateRadius(value);
+        this.hotness = this.calculateHotness(value);
+
+        this.trigger('slide', {radius: this.radius, hotness: this.hotness});
+    },
+
+    /**
+     *
+     * @param value 1-100
+     */
+    calculateRadius: function(value) {
+        var minRadius = 10, maxRadius = 50;
+        var valuePercentage = (value - this.min) / (this.max - this.min);
+        var delta = maxRadius - minRadius;
+        return minRadius + (delta * valuePercentage);
+    },
+
+    /**
+     *
+     * @param value 1-100
+     */
+    calculateHotness: function(value) {
+        var minHotness = 1, maxHotness = 2;
+        var valuePercentage = (value - this.min) / (this.max - this.min);
+        var delta = minHotness - maxHotness;
+        return maxHotness + (delta * valuePercentage);
+    }
+
+});
+
 var Notification = Spine.Controller.create({
     proxied: ['notifyNewVenue'],
 
@@ -242,10 +301,22 @@ var Map = Spine.Controller.create({
      */
     invalidate: function() {
         this.invalidated = true;
+    },
+
+    setHeatmapRadius: function(value) {
+        this.heatmap.setRadius(value);
+        this.invalidate();
+    },
+
+    setHeatmapHotness: function(value) {
+        this.heatmap.setHeatMultiplier(value);
+        this.invalidate();
     }
 });
 
 var HelsinkiHot = Spine.Controller.create({
+
+    proxied: ['detailsSliderSlided'],
 
     // DOM events
     events: {
@@ -261,6 +332,7 @@ var HelsinkiHot = Spine.Controller.create({
         this.initializeMap();
         this.initializeConsole();
         this.initializeNotifications();
+        this.initializeDetailsSlider();
     },
 
     initializeMap: function() {
@@ -288,6 +360,36 @@ var HelsinkiHot = Spine.Controller.create({
 
     initializeNotifications: function() {
         this.notifications = Notification.init({el: $('#notifications')});
+    },
+
+    initializeDetailsSlider: function() {
+        var initialValue = 50;
+        this.detailsSlider = Slider.init({el: $('#detailsSlider'), options: {
+            min: 1,
+            max: 100,
+            range: "min",
+            value: initialValue
+        }});
+
+        var setInitialSliderValuesToHeatmap = function() {
+            this.map.setHeatmapHotness(this.detailsSlider.calculateHotness(initialValue));
+            this.map.setHeatmapRadius(this.detailsSlider.calculateRadius(initialValue));
+            this.map.invalidate();
+        };
+
+        if(this.map.mapReady) {
+            this.proxy(setInitialSliderValuesToHeatmap());
+        } else {
+            this.map.bind('mapready', this.proxy(setInitialSliderValuesToHeatmap));
+        }
+
+        this.detailsSlider.bind('slide', this.detailsSliderSlided);
+    },
+
+    detailsSliderSlided: function(values) {
+        this.map.setHeatmapRadius(values.radius);
+        this.map.setHeatmapHotness(values.hotness);
+        this.map.redrawMap();
     },
 
     render: function() {

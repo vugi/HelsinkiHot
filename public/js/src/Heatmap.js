@@ -195,18 +195,6 @@ Heatmap.prototype.colorize = function(){
 };
 
 /**
- * @const
- * @type {number}
- */
-Heatmap.DEFAULT_RADIUS = 40;
-
-/**
- * @const
- * @type {number}
- */
-Heatmap.DEFAULT_ALPHA_MULTIPLIER = 1;
-
-/**
  * Change the hotspot radius
  * 
  * @param {number} r new radius

@@ -12,7 +12,6 @@ var socket = {
     });
     socket.socket.on('newEvent', function(data){ 
       data = $.parseJSON(data);
-      debugger;
       socket.addNewVenue(data.content);
     });
     socket.socket.on('pollingArea', function(data){ 
