@@ -47,15 +47,18 @@ LabelOverlay.prototype.hideTooltipLabel = function() {
 
 LabelOverlay.prototype.addLabel = function(venue) {
   if(!this.enabled) {
-      return;
+      return undefined;
   }
 
   var name = venue.name;
   var latitude = venue.latitude;
   var longitude = venue.longitude;
+  var latlng = new google.maps.LatLng(latitude, longitude);
   
   var overlayProjection = this.getProjection();
-  var point = overlayProjection.fromLatLngToDivPixel(new google.maps.LatLng(latitude, longitude));
+  var point = overlayProjection.fromLatLngToDivPixel(latlng);
+  
+  
   
   var labelLeft = (point.x - this._left);
   var labelTop = (point.y - this._top);
@@ -77,6 +80,8 @@ LabelOverlay.prototype.addLabel = function(venue) {
       $label.remove();
     });
   }, 5000);
+  
+  return this._map.getBounds().contains(latlng);
 };
 
 LabelOverlay.prototype.onAdd = function() {
