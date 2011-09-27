@@ -510,7 +510,6 @@ var HelsinkiHot = Spine.Controller.create({
     },
 
     initializeLoading: function() {
-        debugger;
         this.loading = Loading.init({el: '#loading'});
     },
 
