@@ -21,7 +21,6 @@ LabelOverlay.prototype.addTooltipLabel = function(venue) {
   var crowdSize = _.reduce(venue.events, function(memo, event) {
         return memo + event.points;
     }, 0);
-  console.log(crowdSize);
 
   var overlayProjection = this.getProjection();
   var point = overlayProjection.fromLatLngToDivPixel(new google.maps.LatLng(latitude, longitude));
