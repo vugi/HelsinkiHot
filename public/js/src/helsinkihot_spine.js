@@ -136,7 +136,29 @@ Venue.parse = function(jsonData, callback) {
     callback();
 };
 
-Venue.findNearestByLatLng = function(lat, lng) {
+Venue.findNearestByPixel = function(projection, point, threshold) {
+    var nearest = 99999;
+    var nearestVenue = null;
+    _.each(Venue.all(), function(venue) {
+        
+        var venueLocation = new google.maps.LatLng(venue.latitude, venue.longitude);
+        // locations in pixels
+        var venuePixels = projection.fromLatLngToDivPixel(venueLocation);
+        
+        var xDist = Math.abs(point.x - venuePixels.x);
+        var yDist = Math.abs(point.y - venuePixels.y);
+        
+        var dist = Math.sqrt(xDist * xDist + yDist * yDist);
+
+        if(dist < nearest && (threshold === undefined || dist < threshold)) {
+            nearest = dist;
+            nearestVenue = venue;
+        }
+    });
+    return nearestVenue;
+};
+
+Venue.findNearestByLatLng = function(lat, lng, threshold) {
     var nearest = 99999;
     var nearestVenue = null;
     _.each(Venue.all(), function(venue) {
@@ -146,7 +168,7 @@ Venue.findNearestByLatLng = function(lat, lng) {
         var lngDist = Math.abs(lng - venue.longitude);
         var dist = Math.sqrt(latDist * latDist + lngDist * lngDist);
 
-        if(dist < nearest) {
+        if(dist < nearest && (threshold === undefined || dist < threshold)) {
             nearest = dist;
             nearestVenue = venue;
         }
@@ -364,13 +386,16 @@ var Map = Spine.Controller.create({
     },
 
     mouseMoved: function(event) {
-        var threshold = 0.002;
+        var threshold = 25;
 
-        var lat = event.latLng.lat();
-        var lng = event.latLng.lng();
+        // mouse location
+        var mouse = this.labelOverlay.getProjection().fromLatLngToDivPixel(event.latLng);
 
-        var nearestVenue = Venue.findNearestByLatLng(lat, lng, threshold);
-        if (Math.abs(nearestVenue.latitude - lat) < threshold && Math.abs(nearestVenue.longitude - lng) < threshold) {
+        // nearest venue, if there is one near enough
+        var nearestVenue = Venue.findNearestByPixel(this.labelOverlay.getProjection(), mouse, threshold);
+        
+        console.log("Mouse", mouse, "Venue", nearestVenue);
+        if (nearestVenue) {
             this.labelOverlay.addTooltipLabel(nearestVenue);
         } else {
             this.labelOverlay.hideTooltipLabel();
