@@ -45,8 +45,9 @@ var Slider = Spine.Controller.create({
      * @param value 1-100
      */
     calculateRadius: function(value) {
-        var minRadius = 50, maxRadius = 10;
-        var valuePercentage = (value - this.min) / (this.max - this.min);
+        var detailLevel = 100 - value;
+        var minRadius = 10, maxRadius = 50;
+        var valuePercentage = (detailLevel - this.min) / (this.max - this.min);
         var delta = maxRadius - minRadius;
         return minRadius + (delta * valuePercentage);
     },
@@ -56,8 +57,9 @@ var Slider = Spine.Controller.create({
      * @param value 1-100
      */
     calculateHotness: function(value) {
-        var minHotness = 2, maxHotness = 1;
-        var valuePercentage = (value - this.min) / (this.max - this.min);
+        var detailLevel = 100 - value;
+        var minHotness = 1, maxHotness = 2;
+        var valuePercentage = (detailLevel - this.min) / (this.max - this.min);
         var delta = minHotness - maxHotness;
         return maxHotness + (delta * valuePercentage);
     }
@@ -225,6 +227,7 @@ var Map = Spine.Controller.create({
         this.initMap();
         this.initHeatmap();
         this.initLabelOverlay();
+        //this.initNotifications();
 
         Venue.bind("create", this.addVenue);
 
@@ -236,7 +239,10 @@ var Map = Spine.Controller.create({
         var points = _.last(newVenue.events).points;
 
         this.heatmap.addHotspot(latlng, points);
-        this.labelOverlay.addLabel(newVenue);
+        if (!this.labelOverlay.addLabel(newVenue)) {
+            // if overlay label not shown, show growl notification
+            this.notification
+        }
 
         this.invalidate();
     },
@@ -292,7 +298,7 @@ var Map = Spine.Controller.create({
         this.map = new google.maps.Map(document.getElementById("map_canvas"),
             myOptions);
         this.map.mapTypes.set('custom', customMapType);
-        this.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+        this.map.setMapTypeId('custom');
 
         google.maps.event.addListener(this.map, 'mousemove', this.mouseMoved);
 
