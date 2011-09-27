@@ -239,9 +239,9 @@ var Map = Spine.Controller.create({
         var points = _.last(newVenue.events).points;
 
         this.heatmap.addHotspot(latlng, points);
-        if (!this.labelOverlay.addLabel(newVenue)) {
-            // if overlay label not shown, show growl notification
-            this.notification
+        if (this.labelOverlay.addLabel(newVenue) === false) {
+            // TODO if overlay label not shown, show growl notification
+            log('should show growl notification');
         }
 
         this.invalidate();
