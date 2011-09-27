@@ -87,8 +87,6 @@ $(document).ready(function(){
       "z-index": 1000
     });
     
-    $("#authorInfo a#inline").fancybox();
-    
     $('#likeLink').hover(function() {
       $('#likes').slideDown();
     }, function() {

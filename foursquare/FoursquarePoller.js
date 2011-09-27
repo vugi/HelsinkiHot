@@ -5,8 +5,9 @@ var logger = log4js.getLogger('poller');
 var performanceLogger = log4js.getLogger('performance');
 var bounds = require('./Bounds');
 
-var _pollingLimitPerHour = 5000;
-var _pollingInterval = (60 * 60 * 1000) / _pollingLimitPerHour;
+var _defaultPollingLimitPerHour = 5000;
+var _defaultPollingInterval = (60 * 60 * 1000) / _defaultPollingLimitPerHour;
+var _pollingInterval;
 
 var isReady = false;
 
@@ -180,7 +181,11 @@ function send(){
   });
 }
 
-poller.initialize = function(_clientId, _clientSecret){
+poller.initialize = function(options){
+  _clientId = options.clientId || 0;
+  _clientSecret = options.clientSecret || 0;
+  _pollingInterval = options.pollingInterval || _defaultPollingInterval;
+
   logger.debug('Initializing Foursquare poller [clientId: ' + _clientId + ', clientSecret: ' + _clientSecret);
   _path = "/v2/venues/search?ll=#{lat},#{lng}&limit=50&client_id=" + _clientId + "&client_secret=" + _clientSecret;
   isReady = true;

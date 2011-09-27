@@ -44,7 +44,11 @@ function readConfigFile(file, fallbackFile, callback) {
 
 // Foursquare poller
 var initializeFoursquarePoller = function(){
-  foursquarePoller.initialize(config.foursquare_client_id, config.foursquare_client_secret);
+  foursquarePoller.initialize({
+      clientId: config.foursquare_client_id,
+      clientSecret: config.foursquare_client_secret,
+      pollingInterval: config.polling_interval
+  });
   
   foursquarePoller.on('eventsParsed', function(parsedResult) {
     var events = parsedResult.events;
@@ -75,7 +79,7 @@ app.configure('development', function(){
   app.use(express.static(__dirname + '/public'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
   readConfigFile('./user_config.json', './user_config_default.json', function(config) {
-    initializeFoursquarePoller(config.foursquare_client_id, config.foursquare_client_secret);
+    initializeFoursquarePoller(config);
     configured(config);
   });
 });

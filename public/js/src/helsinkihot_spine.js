@@ -75,7 +75,6 @@ var Notification = Spine.Controller.create({
     notify: function(msg) {
         // queue text change the same way as effects to prevent text updating
         // before previous msg's effects have taken place
-        console.log('Notify: ' + msg);
 
         if (this.enabled) {
             var el = this.el;
@@ -338,7 +337,6 @@ var Map = Spine.Controller.create({
 
     mouseMoved: function(event) {
         var threshold = 0.001;
-        debugger;
 
         var lat = event.latLng.lat();
         var lng = event.latLng.lng();
@@ -349,6 +347,30 @@ var Map = Spine.Controller.create({
         } else {
             this.labelOverlay.hideTooltipLabel();
         }
+    }
+});
+
+var Community = Spine.Controller.create({
+    proxied: ['enter', 'leave'],
+
+    elements: {
+        "#likes": "likes"
+    },
+
+    init: function() {
+        this.render();
+    },
+
+    render: function() {
+        this.el.hover(this.enter, this.leave);
+    },
+
+    enter: function() {
+        this.likes.slideDown();
+    },
+
+    leave: function() {
+        this.likes.slideUp();
     }
 });
 
@@ -371,6 +393,8 @@ var HelsinkiHot = Spine.Controller.create({
         this.initializeConsole();
         this.initializeNotifications();
         this.initializeDetailsSlider();
+        this.initializeAboutDialog();
+        this.initializeCommunity();
     },
 
     initializeMap: function() {
@@ -422,6 +446,14 @@ var HelsinkiHot = Spine.Controller.create({
         }
 
         this.detailsSlider.bind('slide', this.detailsSliderSlided);
+    },
+
+    initializeAboutDialog: function() {
+        $("#authorInfo a#inline").fancybox();
+    },
+
+    initializeCommunity: function() {
+        this.community = Community.init({el: "#likeLink"});
     },
 
     detailsSliderSlided: function(values) {

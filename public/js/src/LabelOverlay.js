@@ -36,7 +36,9 @@ LabelOverlay.prototype.addTooltipLabel = function(venue) {
 };
 
 LabelOverlay.prototype.hideTooltipLabel = function() {
-  this.$label.hide();
+  if(this.$label) {
+      this.$label.hide();
+  }
 }
 
 LabelOverlay.prototype.addLabel = function(venue) {
