@@ -394,7 +394,6 @@ var Map = Spine.Controller.create({
         // nearest venue, if there is one near enough
         var nearestVenue = Venue.findNearestByPixel(this.labelOverlay.getProjection(), mouse, threshold);
         
-        console.log("Mouse", mouse, "Venue", nearestVenue);
         if (nearestVenue) {
             this.labelOverlay.addTooltipLabel(nearestVenue);
         } else {
