@@ -129,7 +129,7 @@ header .sliderContainer p{
   font-size: 1.2em;
 }
 
-#loader {
+#loading {
   position: absolute;
   top: 50%;
   left: 50%;

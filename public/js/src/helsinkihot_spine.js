@@ -109,17 +109,20 @@ Venue.loadSince = function(hours, callback) {
     }
     var time = new Date();
     time.setHours(time.getHours() - hours);
+    this.trigger('start');
     $.ajax({
         type: "GET",
         url: "api/venues/since/" + time.getTime(),
-        success: function(data) {
-            Venue.dataLoaded(data, callback);
-        }
+        success: this.proxy(function(data) {
+            Venue.parse(data, callback);
+            this.trigger('success');
+        }), error: this.proxy(function() {
+            this.trigger('error');
+        })
     });
 };
 
-// FIXME Should use Spine.Ajax!
-Venue.dataLoaded = function(jsonData, callback) {
+Venue.parse = function(jsonData, callback) {
     console.log(jsonData.venues);
     Venue.refresh(jsonData.venues);
 
@@ -193,6 +196,25 @@ var Console = Spine.Controller.create({
             var list = $('#event-log-list');
             list.append(this.listTemplate(venueValues));
         }
+    }
+});
+
+var Loading = Spine.Controller.create({
+
+    proxied: ['show', 'hide'],
+
+    init: function() {
+        Venue.bind('start', this.show);
+        Venue.bind('success', this.hide);
+        Venue.bind('error', this.hide);
+    },
+
+    show: function() {
+        this.el.fadeIn();
+    },
+
+    hide: function() {
+        this.el.fadeOut();
     }
 });
 
@@ -395,6 +417,7 @@ var HelsinkiHot = Spine.Controller.create({
         this.initializeDetailsSlider();
         this.initializeAboutDialog();
         this.initializeCommunity();
+        this.initializeLoading();
     },
 
     initializeMap: function() {
@@ -454,6 +477,11 @@ var HelsinkiHot = Spine.Controller.create({
 
     initializeCommunity: function() {
         this.community = Community.init({el: "#likeLink"});
+    },
+
+    initializeLoading: function() {
+        debugger;
+        this.loading = Loading.init({el: '#loading'});
     },
 
     detailsSliderSlided: function(values) {
