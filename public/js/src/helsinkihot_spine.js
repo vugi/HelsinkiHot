@@ -45,7 +45,7 @@ var Slider = Spine.Controller.create({
      * @param value 1-100
      */
     calculateRadius: function(value) {
-        var minRadius = 10, maxRadius = 50;
+        var minRadius = 50, maxRadius = 10;
         var valuePercentage = (value - this.min) / (this.max - this.min);
         var delta = maxRadius - minRadius;
         return minRadius + (delta * valuePercentage);
@@ -56,7 +56,7 @@ var Slider = Spine.Controller.create({
      * @param value 1-100
      */
     calculateHotness: function(value) {
-        var minHotness = 1, maxHotness = 2;
+        var minHotness = 2, maxHotness = 1;
         var valuePercentage = (value - this.min) / (this.max - this.min);
         var delta = minHotness - maxHotness;
         return maxHotness + (delta * valuePercentage);
@@ -336,7 +336,7 @@ var Map = Spine.Controller.create({
     },
 
     mouseMoved: function(event) {
-        var threshold = 0.001;
+        var threshold = 0.002;
 
         var lat = event.latLng.lat();
         var lng = event.latLng.lng();
@@ -425,7 +425,7 @@ var HelsinkiHot = Spine.Controller.create({
     },
 
     initializeDetailsSlider: function() {
-        var initialValue = 50;
+        var initialValue = 60;
         this.detailsSlider = Slider.init({el: $('#detailsSlider'), options: {
             min: 1,
             max: 100,

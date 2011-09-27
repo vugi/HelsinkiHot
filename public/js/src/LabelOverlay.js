@@ -18,6 +18,10 @@ LabelOverlay.prototype.addTooltipLabel = function(venue) {
   var name = venue.name;
   var latitude = venue.latitude;
   var longitude = venue.longitude;
+  var crowdSize = _.reduce(venue.events, function(memo, event) {
+        return memo + event.points;
+    }, 0);
+  console.log(crowdSize);
 
   var overlayProjection = this.getProjection();
   var point = overlayProjection.fromLatLngToDivPixel(new google.maps.LatLng(latitude, longitude));
@@ -25,12 +29,13 @@ LabelOverlay.prototype.addTooltipLabel = function(venue) {
   var labelLeft = (point.x - this._left);
   var labelTop = (point.y - this._top);
 
+  var tooltipText = crowdSize + ' @ ' + name;
   if(!this.$label) {
-      this.$label = $('<div class="label-overlay" style="position: absolute;">' + name + '</div>');
+      this.$label = $('<div class="label-overlay" style="position: absolute;">' + tooltipText + '</div>');
       this.$div.append(this.$label);
 
   }
-  this.$label.html(name);
+  this.$label.html(tooltipText);
   this.$label.css({left: labelLeft, top: labelTop});
   this.$label.show();
 };

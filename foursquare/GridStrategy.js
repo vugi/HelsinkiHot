@@ -40,7 +40,7 @@ function gridPollingStrategy(_limitBounds, _center) {
       return false;
     }
     else if (_resultEventCount < MIN_EVENT_COUNT) {
-      logger.debug('Not dividing area: Too less events inside area: '+ _resultEventCount);
+      logger.debug('Not dividing area: Too few events inside area: '+ _resultEventCount);
       return false;
     }
     else if (_requestBounds.diameter() < MIN_DIAMETER) {
