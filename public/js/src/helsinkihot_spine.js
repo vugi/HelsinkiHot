@@ -5,7 +5,27 @@ function log(msg) {
     }
 }
 
-var Slider = Spine.Controller.create({
+var ExtendedEvents = {
+    bindOnce: function(event, callback) {
+        var triggerer = this;
+        triggerer.bind(event, function() {
+            triggerer.unbind(event, callback);
+            callback();
+        })
+    }
+};
+
+/**
+ * Own Model base class
+ */
+var Model = Spine.Model.extend(ExtendedEvents);
+
+/**
+ * Own Controller base class
+ */
+var Controller = Spine.Controller.create(ExtendedEvents);
+
+var Slider = Controller.create({
 
     proxied: ['onChange', 'onSlide'],
 
@@ -64,7 +84,7 @@ var Slider = Spine.Controller.create({
 
 });
 
-var Notification = Spine.Controller.create({
+var Notification = Controller.create({
     proxied: ['notifyNewVenue'],
 
     init: function() {
@@ -99,40 +119,41 @@ var Notification = Spine.Controller.create({
     }
 });
 
-var Venue = Spine.Model.setup('Venue', ['name', 'latitude', 'longitude', 'service', 'events']);
+var Venue = Model.setup('Venue', ['name', 'latitude', 'longitude', 'service', 'events']);
 
-Venue.loadSince = function(hours, callback) {
-    // TODO Should probably use Spine.Ajax instead
-    // showLoader(true);
-    if (!hours) {
-        hours = 1;
+Venue.extend({
+    loadSince: function(hours, callback) {
+        // TODO Should probably use Spine.Ajax instead
+        // showLoader(true);
+        if (!hours) {
+            hours = 1;
+        }
+        var time = new Date();
+        time.setHours(time.getHours() - hours);
+        this.trigger('loadStart');
+        $.ajax({
+            type: "GET",
+            url: "api/venues/since/" + time.getTime(),
+            success: this.proxy(function(data) {
+                Venue.parse(data, callback);
+                this.trigger('loadSuccess');
+            }), error: this.proxy(function() {
+                this.trigger('loadError');
+            })
+        });
+    },
+    parse: function(jsonData, callback) {
+        console.log(jsonData.venues);
+        Venue.refresh(jsonData.venues);
+
+        var venuesData = jsonData.venues;
+        _.each(venuesData, function(venueData) {
+            Venue.init(venueData).save();
+        });
+
+        callback();
     }
-    var time = new Date();
-    time.setHours(time.getHours() - hours);
-    this.trigger('start');
-    $.ajax({
-        type: "GET",
-        url: "api/venues/since/" + time.getTime(),
-        success: this.proxy(function(data) {
-            Venue.parse(data, callback);
-            this.trigger('success');
-        }), error: this.proxy(function() {
-            this.trigger('error');
-        })
-    });
-};
-
-Venue.parse = function(jsonData, callback) {
-    console.log(jsonData.venues);
-    Venue.refresh(jsonData.venues);
-
-    var venuesData = jsonData.venues;
-    _.each(venuesData, function(venueData) {
-        Venue.init(venueData).save();
-    });
-
-    callback();
-};
+});
 
 Venue.findNearestByLatLng = function(lat, lng) {
     var nearest = 99999;
@@ -144,7 +165,7 @@ Venue.findNearestByLatLng = function(lat, lng) {
         var lngDist = Math.abs(lng - venue.longitude);
         var dist = Math.sqrt(latDist * latDist + lngDist * lngDist);
 
-        if(dist < nearest) {
+        if (dist < nearest) {
             nearest = dist;
             nearestVenue = venue;
         }
@@ -152,7 +173,7 @@ Venue.findNearestByLatLng = function(lat, lng) {
     return nearestVenue;
 };
 
-var Console = Spine.Controller.create({
+var Console = Controller.create({
 
     listTemplate: _.template($('#consoleListTemplate').html()),
 
@@ -199,17 +220,20 @@ var Console = Spine.Controller.create({
     }
 });
 
-var Loading = Spine.Controller.create({
+var Loading = Controller.create({
 
-    proxied: ['show', 'hide'],
+    proxied: ['show', 'hide', 'venuesLoadingStarted', 'mapDrawingStarted', 'mapDrawingEnded'],
 
-    init: function() {
-        Venue.bind('start', this.show);
-        Venue.bind('success', this.hide);
-        Venue.bind('error', this.hide);
+    elements: {
+        "#message": "message"
     },
 
-    show: function() {
+    setMessage: function(msg) {
+        this.message.html(msg);
+    },
+
+    show: function(msg) {
+        if(msg) { this.setMessage(msg) }
         this.el.fadeIn();
     },
 
@@ -218,7 +242,7 @@ var Loading = Spine.Controller.create({
     }
 });
 
-var Map = Spine.Controller.create({
+var Map = Controller.create({
     proxied: ['addVenue', 'redrawMap', 'mouseMoved'],
 
     init: function() {
@@ -334,9 +358,11 @@ var Map = Spine.Controller.create({
 
     redrawMap: function() {
         if (this.mapReady && this.invalidated) {
+            this.trigger('drawingStart');
             console.log('heatmap redrawn');
             this.heatmap.draw();
             this.invalidated = false;
+            this.trigger('drawingEnd');
         }
     },
 
@@ -372,7 +398,7 @@ var Map = Spine.Controller.create({
     }
 });
 
-var Community = Spine.Controller.create({
+var Community = Controller.create({
     proxied: ['enter', 'leave'],
 
     elements: {
@@ -396,7 +422,7 @@ var Community = Spine.Controller.create({
     }
 });
 
-var HelsinkiHot = Spine.Controller.create({
+var HelsinkiHot = Controller.create({
 
     proxied: ['detailsSliderSlided'],
 
@@ -480,8 +506,21 @@ var HelsinkiHot = Spine.Controller.create({
     },
 
     initializeLoading: function() {
-        debugger;
         this.loading = Loading.init({el: '#loading'});
+
+        debugger;
+        Venue.bindOnce('loadStart', this.proxy(function() {
+            this.loading.setMessage('Loading venues');
+            this.loading.show();
+        }));
+
+        this.map.bindOnce('drawingStart', this.proxy(function() {
+            this.loading.setMessage('Drawing map');
+        }));
+
+        this.map.bindOnce('drawingEnd', this.proxy(function() {
+            this.loading.hide();
+        }));
     },
 
     detailsSliderSlided: function(values) {
