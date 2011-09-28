@@ -10,7 +10,6 @@ a, a:link, a:active, a:visited {
 
 header{
   z-index: 50000;
-  /*overflow: hidden;*/
   position: absolute; 
   top: 0px; 
   left: 0px; 
