@@ -10,12 +10,12 @@
     "lib": "."
   },
   "engines": {
-    "node": "0.4.7"
+    "node": "0.6.5"
   },
   "dependencies": {
-    "express": "2.4.6",
-    "mongoose": "2.1.4",
-    "socket.io": "0.8.4",
-    "log4js": "0.3.9"
+    "express": "2.5.1",
+    "mongoose": "2.4.1",
+    "socket.io": "0.8.7",
+    "log4js": "0.4.1"
   }
 }
