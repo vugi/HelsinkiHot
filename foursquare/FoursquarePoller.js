@@ -10,6 +10,9 @@ var _defaultPollingInterval = (60 * 60 * 1000) / _defaultPollingLimitPerHour;
 var _pollingInterval;
 
 var isReady = false;
+var notYetReady = 0;
+var notYetReadyMax = 0;
+var notYetReadyLimit = 50;
 
 // Center
 var _pollingCenter = {
@@ -136,11 +139,20 @@ var poller = new EventEmitter();
  */
 function send(){
   if (!isReady) {
-    logger.debug('Not yet ready for next request');
+  	notYetReady++;
+    if(notYetReady > notYetReadyMax){
+    	notYetReadyMax = notYetReady;
+    }
+    logger.debug('Not yet ready for next request ' + notYetReady + " (max " + notYetReadyMax + ")");
+    
+    if(notYetReady >= notYetReadyLimit){
+    	throw new Error('Too many Not yet ready -warnings. Stopping and hoping upstart to respawn.');
+    }
     return;
   }
   else {
     isReady = false;
+    notYetReady = 0;
   }
   
   var requestLatLng = pollingStrategy.nextPollingPoint();
